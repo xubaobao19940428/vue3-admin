@@ -1,0 +1,129 @@
+syntax = "proto3";
+package inner.datacenter;
+
+import "common/errcode.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.datahouse";
+option java_outer_classname = "DataHouse";
+
+message UserProductBehaviorInfoReq {
+    common.base.Pagination page = 1; //分页
+    //product_productDetail_click  浏览商品
+    //productDetail_productAdd_add 添加购物车
+    //productDetail_productBuy_buy 下单
+    string behavior_type = 2;
+    //商品id
+    uint64 product_id = 3;
+}
+
+message UserProductBehaviorInfoResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    uint32 total = 2; //结果总数
+    repeated UserProductBehaviorInfo userProductbehaviorInfos = 3;
+}
+
+message UserProductBehaviorInfo {
+    //用户id
+    uint64 user_id = 1;
+    //商品id
+    uint64 product_id = 2;
+    //行为类型
+    string behavior_type = 3;
+    //行为发生时间
+    uint64 behavior_time = 4;
+}
+
+//返回用戶組中所有用戶Id
+message GetPushTaskUserGroupUserIdsReq{
+    string pushTaskCode = 1;    //推送任務Id
+    string userGroupId = 2;     //用戶組Id
+}
+
+message GetPushTaskUserGroupUserIdsResp{
+    common.base.ErrorMessage ret = 1; // 返回值
+}
+
+message GetBuryingPointCountReq {
+    //埋点事件key
+    string point_event_key = 1;
+    //开始日期
+    uint64 start_time = 2;
+    //结束日期
+    uint64 end_time = 3;
+}
+
+message GetBuryingPointCountResp {
+    common.base.ErrorMessage ret = 1; // 返回值
+    //数量
+    uint64 count = 2;
+}
+
+message GetUserGroupUserIdTxtUrlReq{
+    string userGroupId = 1;     //用戶組Id
+}
+
+message GetUserGroupUserIdTxtUrlResp{
+    common.base.ErrorMessage ret = 1; // 返回值
+    string url = 2; //文件地址
+}
+
+message BatchGetLastOnlineTimeByUserIdReq {
+    repeated string userId = 1;
+}
+
+message BatchGetLastOnlineTimeByUserIdResp{
+    common.base.ErrorMessage ret = 1; // 返回值
+    repeated UserLastOnlineTime obj = 2;
+}
+
+message UserLastOnlineTime{
+    string userId = 1;
+    string lastOnlineTime = 2;
+}
+
+message GetYesterdayBestSellingOrdinaryProductReq{
+    string countryCode = 1; //國家編碼 馬來：MY 泰國：TH 新加坡：SG
+}
+
+message GetYesterdayBestSellingOrdinaryProductResp{
+    common.base.ErrorMessage ret = 1;   // 返回值
+    repeated int64 productId = 2;       //商品Id最多40個
+}
+
+message UserClickProductInfoReq {
+    int64 userId = 1;
+}
+
+message UserClickProductInfoResp {
+    common.base.ErrorMessage ret = 1;   // 返回值
+    repeated int64 productId = 2;       //商品Id最多40個
+}
+
+service DataHouseService {
+    rpc UserProductBehaviorInfo(UserProductBehaviorInfoReq) returns (UserProductBehaviorInfoResp);
+
+    //用户最近点击商品
+    rpc UserClickProductInfo(UserClickProductInfoReq) returns (UserClickProductInfoResp);
+
+    //查询埋点事件数量
+    rpc GetBuryingPointCount(GetBuryingPointCountReq) returns(GetBuryingPointCountResp);
+
+    //查詢昨天銷量最高的普貨商品 (普貨類型：爆款好物，限时抢购，会场，日常活动)
+    rpc GetYesterdayBestSellingOrdinaryProduct (GetYesterdayBestSellingOrdinaryProductReq) returns (GetYesterdayBestSellingOrdinaryProductResp);
+}
+
+service PushTaskUserGroupInnerService {
+    //提供給chat的內部接口
+    //返回用戶組中所有用戶Id
+    rpc GetPushTaskUserGroupUserIds (GetPushTaskUserGroupUserIdsReq) returns (GetPushTaskUserGroupUserIdsResp);
+
+    //提供給crm的內部接口
+    //返回txt文件的URL (含用戶組中所有用戶Id)
+    rpc GetUserGroupUserIdTxtUrl (GetUserGroupUserIdTxtUrlReq) returns (GetUserGroupUserIdTxtUrlResp);
+
+    //提供給商品的內部接口
+    //返回入參中每個userId的最後在線時間(最後一次觸發埋點的時間)
+    rpc BatchGetLastOnlineTimeByUserId(BatchGetLastOnlineTimeByUserIdReq) returns (BatchGetLastOnlineTimeByUserIdResp);
+}

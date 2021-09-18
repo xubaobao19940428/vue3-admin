@@ -5,11 +5,17 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "proto": "pbjs -t json-module -w commonjs -o src/proto/proto.js src/proto/common/*.proto src/proto/boss/*.proto src/proto/erp/*.proto src/proto/mdc/*.proto src/proto/uc/*.proto"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "core-js": "^3.8.3",
-    "vue": "^3.0.4"
+    "element-plus": "^1.0.2-beta.59",
+    "js-md5": "^0.7.3",
+    "vue": "^3.1.5",
+    "vue-router": "^4.0.8",
+    "vuex": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
@@ -19,7 +25,11 @@
     "@vue/cli-service": "~5.0.0-beta.2",
     "@vue/compiler-sfc": "^3.0.4",
     "eslint": "^7.20.0",
-    "eslint-plugin-vue": "^7.2.0"
+    "eslint-plugin-vue": "^7.2.0",
+    "less-loader": "^10.0.1",
+    "node-sass": "^6.0.1",
+    "protobufjs": "^6.8.8",
+    "sass-loader": "^12.1.0"
   },
   "eslintConfig": {
     "root": true,

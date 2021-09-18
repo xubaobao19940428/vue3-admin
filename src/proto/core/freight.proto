@@ -1,0 +1,110 @@
+//DESC APP littlec-product
+syntax = "proto3";
+package core.freight;
+
+import "common/errcode.proto";
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.freight";
+option java_outer_classname = "Freight";
+
+//功能放在 product 服务中, 需请求product 服务
+
+message PostageProduct {
+    string product_id = 1; //商品 spu id
+    string sku_id = 2; //商品 sku id
+    string freight_id = 3; //运费模板id
+    uint32 count = 4; //商品数量
+    uint32 weight = 5; //单件重量
+    string arrival_id = 6; //到货承诺id
+    common.enum.ProductEnum.FreightType freight_type = 7; //商品运费类型
+}
+
+
+message CalculateFreightFeeReq {
+    repeated PostageProduct postage_product = 1; //需要计算运费的商品基础信息
+    common.enum.FreightEnum.ShippingType shipping_type = 2; //选用的物流方式 1 普通物流 2 经济物流
+    string state_code = 3; //地址州code, 若使用此字段, 优先使用stateCode匹配
+    common.enum.OrderEnum.DeliveryType delivery_type=4;//是否自提
+    string totalAmount=5;//商品总额
+}
+
+message CalculateFreightFeeResp {
+    common.base.ErrorMessage ret = 1; //返回值
+    string freight = 2; //预估运费
+    string estimated_delivery_time = 3; //预计收货时间
+}
+
+message GetSupportShippingTypeReq {
+    string state_code = 1; //地址州code
+    repeated string freight_id = 2; // 所涉及的运费模板id列表, 用于检查是否所有商品的运费模板支持某种物流选项
+}
+
+message GetSupportShippingTypeResp {
+    common.base.ErrorMessage ret = 1; //返回值 
+    repeated common.enum.FreightEnum.ShippingType shipping_type = 2; //选用的物流方式 1 普通物流 3 经济物流
+}
+
+message SelectPostageReq {
+    repeated PostageProduct postage_product = 1; //需要计算运费的商品基础信息
+    string state_code = 3; //地址州code, 若使用此字段, 优先使用stateCode匹配
+    common.enum.OrderEnum.DeliveryType delivery_type=4;//是否自提
+    string totalAmount=5;//商品总额
+
+}
+
+message SelectPostageResp {
+    common.base.ErrorMessage ret = 1; //返回值
+    message PostageOption {
+        common.enum.FreightEnum.ShippingType shipping_type = 1; //选用的物流方式 1 普通物流 2 经济物流
+        string freight = 2; //预估运费
+        string estimated_delivery_time = 3; //预计收货时间
+        string icon_url = 4; //物流展示图标
+    }
+    repeated PostageOption postage_option = 2; //运费选项
+    bool support_shipping = 3; //支持配送
+}
+
+
+message GetNotShippingStateReq {
+    string freight_id = 1;
+}
+
+message GetNotShippingStateResp {
+    common.base.ErrorMessage ret = 1; //返回值
+    repeated string state_code = 2; //不支持配送的地区列表
+}
+
+message GetFreightAdviceReq {
+    string state_code = 1; //地址码
+    common.enum.FreightEnum.ShippingType shipping_type = 2;
+}
+
+message GetFreightAdviceResp {
+    common.base.ErrorMessage ret = 1; //返回值
+    bool suggest_freight_advice = 2; //展示建议
+    string remain_weight_desc = 3; //到下一档剩余的重量--> 展示用 会拼好单位
+    uint32 remain_weight = 4; //用户获取凑单运费时传递的值
+}
+
+
+service FreightTemplateService {
+
+    //计算用户的一批商品运费
+    rpc CalculateFreightFee (CalculateFreightFeeReq) returns (CalculateFreightFeeResp);
+
+    //获取支持的物流方式
+    rpc GetSupportShippingType (GetSupportShippingTypeReq) returns (GetSupportShippingTypeResp);
+
+    //客户端提交订单页面选择运费选项
+    rpc SelectPostage (SelectPostageReq) returns (SelectPostageResp);
+
+    //根据运费模板id获取不支持配送的地区列表
+    rpc GetNotShippingState (GetNotShippingStateReq) returns (GetNotShippingStateResp);
+
+    //运费凑单建议
+    rpc GetFreightAdvice (GetFreightAdviceReq) returns (GetFreightAdviceResp);
+
+}

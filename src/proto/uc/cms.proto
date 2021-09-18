@@ -1,0 +1,342 @@
+//DESC APP littlec-cms
+syntax = "proto3";
+package uc.cms;
+import "common/errcode.proto";
+import "common/enum.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.uc.cms";
+option java_outer_classname = "Cms";
+
+message AppSearchSpecialColumnInfoReq {
+
+}
+
+message AppSearchSpecialColumnInfoResp {
+    common.base.ErrorMessage ret = 1;
+    repeated AppSpecialColumn special_column = 2; // 国家下所有专栏
+}
+
+message AppSpecialColumn {
+    uint32 special_column_id = 1; // 专栏id
+    string special_column_name = 2; // 专栏名字
+    repeated SpecialColumnBannerInfo special_column_banner = 3; // 专栏banner
+    repeated AppSpecialSubject special_subject = 4; // 专栏下的所有专题
+    common.enum.CmsEnum.ArticleContentTypeEnum content_type = 5; // 专栏内容类型
+    // 专栏内容类型 新版使用 20200527
+    string content_type_name = 6;
+    //话题信息
+    repeated AppArticleTopic topics = 7;
+}
+
+
+message SpecialColumnBannerInfo {
+    string article_code = 1; // 文章编号
+    string pic_url = 2; // 第一张封面图片
+    string article_url = 3; // 文章链接
+    // 修改：添加banner的图片信息
+    BannerPicInfo banner_pic_info = 4;
+}
+
+//图片信息
+message BannerPicInfo{
+    string language = 1;
+    string banner_pic_value = 2;
+}
+
+message AppSpecialSubject {
+    uint32 special_subject_id = 1; // 专题id
+    string special_subject_name = 2; // 专题名字
+    // 添加专题携带的文章信息，默认显示3篇文章
+    repeated ArticleViewHomePage article_view_home_page = 3;
+}
+
+message ArticleViewHomePage {
+    string article_url = 1; //文章链接
+    string article_title = 2; //标题
+    string article_describe = 3; //描述
+    string coverPic = 4; //封面图片
+    uint32 browse_number = 5; //浏览数
+    string article_code = 6; // 文章的code
+}
+
+message AppSearchArticleListReq {
+    string specialColumnId = 1; //专栏id
+    string specialSubjectId = 2; //专题id
+    common.base.Pagination page = 3; //分页信息
+    //话题id
+    string article_topic_id = 4;
+    //标签id
+    repeated string tag_id = 5;
+    //标签搜索方式 tag_union：并集：包含所有标签  collection:合集：包含其中一个标签
+    string tag_select_type = 6;
+}
+
+
+message AppSearchArticleListResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated ArticleListView article_list_views = 3;
+}
+
+message ArticleListView {
+    string article_code = 1; //文章编号
+    string article_url = 2; //文章链接
+    string content_type = 3; //内容类型
+    string article_title = 4; //标题
+    string article_describe = 5; //描述
+    // 修改多张
+    repeated string coverPic = 6; //封面图片
+    repeated ArticleProductInfo product_info = 7; //文章商品信息
+    string create_time = 8; //创建时间
+    string share_title = 9; //分享标题
+    string share_describe = 10; //分享描述内容
+    string share_pic = 11; //分享图片
+    uint32 browse_number = 12; //浏览数
+    uint32 share_number = 13; //分享数
+    //视频
+    string videoCover = 14;
+    string videoUrl = 15;
+    //角色头像
+    string role_cover = 16;
+    //角色昵称
+    string role_name = 17;
+    //收藏数
+    uint32 collect_num = 18;
+    //图片数量
+    uint32 pic_num = 19;
+    //视频数量
+    uint32 video_num = 20;
+    //封面图片宽
+    uint32 coverPic_width = 21;
+    //封面图片高
+    uint32 coverPic_high = 22;
+    // 标签信息
+    repeated AppArticleTag tags = 23;
+    //是否收藏 0:未收藏 1:收藏
+    int32 is_collect = 24;
+}
+
+message ArticleProductInfo {
+    string product_id = 1; //商品id
+    string product_cover = 2; //商品图片
+    string product_price = 3; //商品货币单位
+    string currency = 4; //商品货币单位
+    string product_name = 5; // 商品名称
+}
+
+message ArticleDataStatisticsReq {
+    string article_code = 1; //文章编号
+    common.enum.CmsEnum.ArticleDataCountTypeEnum countType = 2; //统计类型
+    uint32 countValue = 3;
+}
+
+message ArticleDataStatisticsResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetArticleDetailsReq {
+    string article_code = 1; //文章编号
+    string cmsPreview = 2;// 不保存，根据前端传递判断，如果为空返回错误码请登录
+}
+
+message GetArticleDetailsResp {
+    common.base.ErrorMessage ret = 1;
+    ArticleContent articleContent = 2;
+}
+
+message ArticleContent {
+    //文章编号
+    string artivleCode = 1;
+    //文章链接
+    string artivleUrl = 2;
+    //内容类型
+    string contentType = 3;
+    //创建时间
+    string createTime = 4;
+    //浏览数
+    uint32 browseNumber = 5;
+    //分享数
+    uint32 shareNumber = 6;
+    //分享标题
+    string shareTitle = 7;
+    //分享描述内容
+    string shareDescribe = 8;
+    //分享图片
+    string sharePic = 9;
+    //文章商品信息
+    repeated ArticleProductInfo productInfos = 10;
+    //内容组件集合
+    repeated ArticleContentComponent contentComponent = 11;
+    // 添加文章标题返回
+    string articleTitle = 12;
+    //角色头像
+    string role_cover = 13;
+    //角色昵称
+    string role_name = 14;
+    //收藏数
+    uint32 collect_num = 15;
+
+    // 标签信息
+    repeated AppArticleTag tags = 16;
+
+    // 话题信息
+    AppArticleTopic topic = 17;
+
+    //是否收藏 0:未收藏 1:收藏
+    int32 is_collect = 24;
+}
+
+message AppArticleTag {
+    //标签id
+    string tag_id = 1;
+    //标签名称
+    string tag_name = 2;
+}
+
+// 话题信息
+message AppArticleTopic {
+    //话题id
+    string topic_id = 1;
+    //话题名称
+    string topic_name = 2;
+    //话题图片
+    string topic_cover = 3;
+}
+
+
+// 2.14 新添加接口,获取浏览数据
+message GetActualViewNumberReq {
+    string articleCode = 1;
+    string actualBrowserNumber = 2;
+    string actualShareNumber = 3;
+    string bannerActualBrowserNumber = 4; // 不用
+}
+
+message GetActualViewNumberResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+
+message ArticleContentComponent {
+    //组件类型
+    common.enum.CmsEnum.ArticleComponentTypeEnum componentType = 1;
+    //组件值
+    string componentValue = 2;
+    //组件位置信息
+    string componentLocation = 3;
+}
+
+message GetCdpContentReq {
+    //页面  shoppingCart_cart_page
+    string page = 1;
+    //组件  Notice
+    string component = 2;
+}
+
+message GetCdpContentResp {
+    common.base.ErrorMessage ret = 1;
+    repeated CdpContent cdpContents = 2;
+}
+
+message CdpContent {
+    //页面
+    string page = 1;
+    //组件
+    string component = 2;
+    //内容
+    string content = 3;
+    //操作信息
+    string action_data = 4;
+}
+
+service AppSpecialColumnService {
+    // 专栏信息查询
+    rpc AppSearchSpecialColumnInfo (AppSearchSpecialColumnInfoReq) returns (AppSearchSpecialColumnInfoResp);
+}
+
+message GetArticlesReq{
+    common.base.Pagination page = 2; //分页信息
+}
+
+message GetArticlesResp{
+    common.base.ErrorMessage ret = 1;
+    repeated Article articles = 2; // 国家下所有专栏
+}
+
+message Article{
+    string title = 1;       //標題
+    string content = 2;     //內容
+    string pictureUrl = 3;  //圖片Url
+    string redirectUrl = 4; //跳轉Url
+    int32 viewNum = 5;      //觀看數
+    int32 likeNum = 6;      //點讚數
+    uint32 select = 7;      //是否點讚
+}
+
+service AppArticleService {
+    // app获取文章列表
+    rpc AppSearchArticleList (AppSearchArticleListReq) returns (AppSearchArticleListResp);
+    // 获取文章详情
+    rpc GetArticleDetails (GetArticleDetailsReq) returns (GetArticleDetailsResp);
+    //APP用户收藏接口
+    rpc CollectArticle (CollectArticleReq) returns (CollectArticleResp);
+    //APP用户取消收藏接口
+    rpc CancelCollectArticle (CancelCollectArticleReq) returns (CancelCollectArticleResp);
+    //APP用户收藏文章列表接口
+    rpc ListCollectArticle (ListCollectArticleReq) returns (ListCollectArticleResp);
+    //MeOne假文章列表
+    rpc GetArticles (GetArticlesReq) returns (GetArticlesResp);
+}
+
+message CollectArticleReq {
+    //文章编号
+    string articleCode = 1;
+}
+
+message CollectArticleResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message CancelCollectArticleReq {
+    //文章编号
+    string articleCode = 1;
+}
+
+message CancelCollectArticleResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message ListCollectArticleReq {
+    //文章内容类型
+    string article_content_type = 1;
+    //分页信息
+    common.base.Pagination page = 2;
+}
+
+message CollectArticleInfo {
+    repeated ArticleListView article_list_view  = 1;
+}
+
+message ListCollectArticleResp {
+    common.base.ErrorMessage ret = 1;
+    //总数
+    int32 total = 2;
+    map<string, CollectArticleInfo> collect_Article_info= 3;
+}
+
+service ArticleDataStatisticsService {
+    //数据统计
+    //rpc ArticleDataStatistics (ArticleDataStatisticsReq) returns (ArticleDataStatisticsResp);
+
+    // 从客户端获取文章真实浏览数据
+    rpc GetActualViewNumber (GetActualViewNumberReq) returns (GetActualViewNumberResp);
+
+}
+
+service CdpService {
+
+    rpc GetCdpContent(GetCdpContentReq) returns(GetCdpContentResp);
+}
+

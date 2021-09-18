@@ -1,0 +1,60 @@
+syntax = "proto3";
+package inner.staff;
+
+import "common/errcode.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.staff";
+option java_outer_classname = "Staff";
+
+
+message GetSysUserByIdReq {
+    repeated int32 sys_user_id = 1;
+}
+
+message SysUserInnerPb {
+    //userId
+    int32 sys_user_id = 1;
+    // 昵称
+    string nick_name = 3;
+    // 真实姓名
+    string real_name = 4;
+    // 邮箱
+    string email = 5;
+    // 手机号
+    string mobile = 6;
+    // 组织名
+    string group_name = 7;
+    // 角色名
+    repeated string role_name = 8;
+    // 账户名
+    string account = 9;
+}
+
+message GetSysUserByIdResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated SysUserInnerPb sys_user_inner_pb = 2;
+}
+
+message GetDDingIdByUserIdReq {
+    repeated int32 sys_user_id = 1;
+}
+
+message GetDDingIdByUserIdResp{
+    common.errcode.ErrorCode ret = 1;
+
+    repeated string dingId = 2;
+}
+
+
+//>>>>>>>>>SysUserInnerService message end>>>>>>>>>>>>>>>>>
+
+service SysUserInnerService {
+    // id查询后台用户
+    rpc GetSysUserById (GetSysUserByIdReq) returns (GetSysUserByIdResp);
+
+    // id查询后台用户釘釘Id
+    rpc GetDDingIdByUserId (GetDDingIdByUserIdReq) returns (GetDDingIdByUserIdResp);
+}
+

@@ -1,0 +1,87 @@
+syntax = "proto3";
+package inner.lazop;
+
+import "common/errcode.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.lazop";
+option java_outer_classname = "Lazop";
+
+
+//商家账户通过authCode授权
+message InitLazopTokenByAuthCodeReq {
+    string auth_code = 2; 
+    //卖家账户authCode，见https://open.lazada.com/doc/doc.htm#?nodeId=10777&docId=108260
+}
+
+message InitLazopTokenByAuthCodeResp{
+    common.errcode.ErrorCode ret = 1;
+}
+
+message GetLazopTokenReq {
+    string account_code = 1; //卖家账户编码(系统内为不重复的)
+}
+
+message GetLazopTokenResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    string access_token = 2; // token
+}
+
+message GetSkuInfoMapBySkuCodeReq{
+    repeated string sku_code = 1;// sku code 集合
+    string country_code = 2; // 国家码
+}
+message GetSkuInfoMapBySkuCodeResp{
+    message SkuInfo {
+        int64 product_id = 1;//fingo product id
+        int64 sku_id = 2;//fingo sku id
+        int32 type = 3;//fingo product type
+        int64 freight_id = 4;//fingo freight id
+        string product_name = 5;//fingo product name
+        string attribute = 6;//fingo attribute
+        string cover = 7;//fingo product cover
+        string arrivalId = 8;//fingo arrivalId
+        string freightType = 9;//fingo freightType
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<string, SkuInfo> sku_info = 2; // 返回结果 sku_code -> sku_info
+}
+
+message GetSkuCodeMapByShopSkuReq{
+    repeated string shop_sku = 1;// sku code 集合
+    string country_code = 2; // 国家码
+}
+message GetSkuCodeMapByShopSkuResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<string, string> sku_code = 2; // 返回Map shop_sku -> sku_code
+}
+
+message GetShopAccountCodesReq{
+    string req_moudle = 1;//请求的业务模块
+}
+
+message GetShopAccountCodesResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated string account_codes = 2;//account codes 集合
+}
+
+service LazopAuthInnerService {
+
+    // 商家账户通过authCode授权开放平台token
+    rpc InitLazopTokenByAuthCode (InitLazopTokenByAuthCodeReq) returns (InitLazopTokenByAuthCodeResp);
+
+    //根据商家账户code获取开放平台token
+    rpc GetLazopToken (GetLazopTokenReq) returns (GetLazopTokenResp);
+
+    //获取所有商家账户code
+    rpc GetShopAccountCodes (GetShopAccountCodesReq) returns (GetShopAccountCodesResp);
+}
+
+service LazadaProductService {
+    // 根据shop_sku 获取 sku_code
+    rpc GetSkuCodeMapByShopSku(GetSkuCodeMapByShopSkuReq) returns (GetSkuCodeMapByShopSkuResp);
+
+    // 根据sku_code 获取 sku信息
+    rpc GetSkuInfoMapBySkuCode (GetSkuInfoMapBySkuCodeReq) returns (GetSkuInfoMapBySkuCodeResp);
+}

@@ -1,0 +1,23 @@
+//DESC APP littlec-chat
+syntax = "proto3";
+
+package core.pushtask;
+
+import "common/errcode.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core";
+option java_outer_classname = "PushTask";
+
+message UploadPushOpenRateReq {
+    string push_task_code = 1; //推送编号
+}
+message UploadPushOpenRateResp {
+    common.base.ErrorMessage ret = 1; //结果
+}
+
+service UploadPushRateService {
+    //汇报推送跳转链接H5打开率
+    rpc UploadPushOpenRate(UploadPushOpenRateReq) returns (UploadPushOpenRateResp);
+}

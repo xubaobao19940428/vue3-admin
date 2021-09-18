@@ -1,0 +1,95 @@
+syntax = "proto3";
+package inner.msggw;
+
+import "common/errcode.proto";
+import "common/enum.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.msggw";
+option java_outer_classname = "Msggw";
+
+message SendPointMsgReq {
+    repeated uint64 user_id = 1; //用户id列表
+    repeated common.base.I18nmsg msg = 2; //多语言消息
+    common.enum.Push.MessageBizCodeEnum biz_code = 3; //业务类型
+    common.enum.MsggwEnum.DeviceType device_type = 4; //客户端
+    int32 isSave = 5;      // 是否保存 1不保存，0保存
+}
+
+message SendPointMsgResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message SendWholeMsgReq {
+    // 需排除用户，可以为空
+    repeated int64 remove_user_id = 1;
+    // 推送类型 1手动推送 2定时推送 3立即推送
+    common.enum.MsggwEnum.PushType push_type = 2;
+    // 推送时间，定时任务使用
+    int64 push_time = 3;
+    //多语言消息内容
+    repeated common.base.I18nmsg msg = 4;
+    // 调用方业务码 如：订单，会员，商品等
+    string biz_code = 5;
+    // 打开方式：0-全部，1——安卓 ,2-ios
+    common.enum.MsggwEnum.DeviceType device_type = 6;
+}
+
+message SendWholeMsgResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message GetTriggerTemplateReq {
+    string event_code = 1; //事件编号
+    string country = 2; //国家
+}
+
+message GetTriggerTemplateResp {
+    common.errcode.ErrorCode ret = 1; //错误码
+    TriggerTemplate template = 2; //触发模版
+}
+
+message TriggerTemplate {
+    string template_code = 1;//模版编号
+    string biz_type = 2; //业务类型
+    string event_img = 5; //事件图片
+    string url = 6;//链接
+    repeated TriggerTemplateLang lang_info = 7;//多语言信息
+    //有效期开始时间
+    uint64 validity_date_start = 8;
+    //有效期结束时间
+    uint64 validity_date_end = 9;
+}
+
+message TriggerTemplateLang {
+    string language = 1; //语言
+    string title = 2; //标题
+    string content = 3; //内容
+    string second_title = 4; //二级标题
+}
+
+message ChangePushGroupUserIdReq{
+    string excelUrl = 1; //Excel文件路徑
+    string pushTaskCode = 2;    //推送任務Id
+}
+
+message ChangePushGroupUserIdResp{
+    common.base.ErrorMessage ret = 1; // 返回值
+}
+
+service MsggwService {
+    // 发定向消息接口
+    rpc SendPointMsg (SendPointMsgReq) returns (SendPointMsgResp);
+
+    // TODO 发送全站消息接口
+    rpc SendWholeMsg (SendWholeMsgReq) returns (SendWholeMsgResp);
+
+    // 获取触发模版
+    rpc GetTriggerTemplate(GetTriggerTemplateReq) returns (GetTriggerTemplateResp);
+}
+
+service PushTaskInnerService {
+    //修改推送用戶組用戶id
+    rpc ChangePushGroupUserId(ChangePushGroupUserIdReq) returns (ChangePushGroupUserIdResp);
+}

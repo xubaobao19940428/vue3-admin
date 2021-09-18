@@ -1,0 +1,43 @@
+//DESC APP littlec-marketing
+syntax = "proto3";
+package inner.market;
+
+import "common/base.proto";
+import "common/errcode.proto";
+import "common/enum.proto";
+
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.market";
+option java_outer_classname = "MarketingSuperLuckyInner";
+
+
+message GetSuperLuckyOrderInfoReq{
+    string super_lucky_order_id= 1;
+}
+message GetSuperLuckyOrderInfoResp{
+    common.errcode.ErrorCode ret = 1;
+    //业务订单号
+    string bns_order_no = 2;
+    //国家码
+    string country_code = 3;
+    //业务类型
+    int32 bnsType = 4;
+    //用户id
+    string user_id = 5;
+    //可否支付
+    bool can_pay = 6;
+    //金额
+    string amount = 7;
+    //订单类型
+    int32 order_type = 8;
+    //业务序号id
+    string serial_id = 9;
+    //是否礼包订单
+    bool is_gift_order = 10;
+}
+
+service SuperLuckyOrderInnerService {
+    //获取一元夺宝订单详情
+    rpc GetSuperLuckyOrderInfo(GetSuperLuckyOrderInfoReq) returns (GetSuperLuckyOrderInfoResp);
+}

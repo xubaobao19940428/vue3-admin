@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package core.erp;
+
+
+import "common/enum.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.erp";
+option java_outer_classname = "Erp";
+
+message GetAddressReq {
+    string country_code = 1;
+    string state_name = 2;
+    string postcode = 3;
+}
+message GetAddressResp {
+    message CityInfo {
+        string city_name = 1;
+        string city_code = 2;
+        repeated string postcode = 3;
+    }
+    message StateInfo {
+        string state_name = 1;
+        string state_code = 2;
+        repeated CityInfo city = 3;
+    }
+    common.base.ErrorMessage ret = 1; //返回值
+    repeated StateInfo stat = 2;
+}
+
+
+message GetSimpleAddressReq {
+    string country_code = 1;
+    string state_name = 2;
+    string postcode = 3;
+}
+
+message GetSimpleAddressResp {
+    message SimpleAddress {
+        string state_name = 1;
+        string state_code = 2;
+        string city_name = 3;
+        string city_code = 4;
+        string postcode = 5;
+        string simple_addr = 6; //拼接地址 邮编+空格+市+空格+省
+    }
+    common.base.ErrorMessage ret = 1; //返回值
+    repeated SimpleAddress stat = 2;
+}
+
+service AddressCoreService {
+    //获取国家区划信息
+    rpc GetAddress (GetAddressReq) returns (GetAddressResp);
+
+    rpc GetSimpleAddress (GetSimpleAddressReq) returns (GetSimpleAddressResp);
+}

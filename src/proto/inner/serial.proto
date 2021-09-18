@@ -1,0 +1,75 @@
+syntax = "proto3";
+package inner.serial;
+import "common/errcode.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.serial";
+option java_outer_classname = "Serial";
+
+//// 获取id请求
+//message SerialIdRequest {
+//}
+
+// 获取id响应
+message SerialIdResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    uint64 serialId = 2; // 序列号
+}
+
+
+// 批量获取id响应
+message BatchSerialIdResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    repeated uint64 serialId = 2; // 序列号
+}
+
+//message GenTokenRequest{
+//}
+
+message GenTokenResponse{
+    common.errcode.ErrorCode ret = 1;
+    string token = 2;
+}
+
+// 生成skucode请求
+//message SkuCodeRequest {
+//    uint64 product_id = 1; //商品ID
+//}
+
+// 生成skucode响应
+message SkuCodeResponse {
+    common.errcode.ErrorCode ret = 1; //返回码 参见ErrorCode
+    string sku_code = 2; //sku_code
+}
+
+
+//message GetUserIdRequest {
+//}
+message GetUserIdResponse {
+    common.errcode.ErrorCode ret = 1; //返回码 参见ErrorCode
+    int64 user_id = 2;
+}
+
+//message GenAutoIncIdRequest{
+//    string key = 1;
+//}
+message GenAutoIncIdResponse {
+    common.errcode.ErrorCode ret = 1; //返回码 参见ErrorCode
+    int64 id = 2;
+}
+
+//// 序列号服务
+//service SerialService {
+//    // 获取序列号
+//    rpc getSerialId(SerialIdRequest) returns (SerialIdResponse);
+//    // 批量获取序列号
+//    rpc getBatchSerialId(BatchSerialIdRequest) returns (BatchSerialIdResponse);
+//    //生成用户TOKEN
+//    rpc GetToken (GenTokenRequest) returns (GenTokenResponse);
+//    // 生成skucode
+//    rpc GetSkucode (SkuCodeRequest) returns (SkuCodeResponse);
+//    //生成用户ID
+//    rpc GetUserId (GetUserIdRequest) returns (GetUserIdResponse);
+//    //生成自增ID
+//    rpc GenAutoIncId (GenAutoIncIdRequest) returns (GenAutoIncIdResponse);
+//}

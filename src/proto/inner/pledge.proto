@@ -1,0 +1,222 @@
+syntax = "proto3";
+package inner.pledge;
+
+import "common/errcode.proto";
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.pledge";
+option java_outer_classname = "Pledge";
+
+//1 售后策略服务
+//售后策略多语言字段
+message PledgeLanguage {
+    uint32 type = 1;//售后策略字段，1：标签2：文案3：详细图
+    string language_code = 2;//语言代码
+    string translation = 3;//译文
+}
+
+//售后策略商品类目
+message AfterSaleCategory {
+    uint64 cate_id = 1;//类目id，若range_application选择了商品类目
+    uint32 level = 2;//类目级别，若range_application选择了商品类目
+}
+message AfterSalePledgeUnit{
+    uint64 pledge_id = 1;//售后策略id
+    string label_zn = 2;//中文标签z
+    string label_en = 3;//英文标签
+    string document_zh = 4;//中文文案
+    string document_en = 5;//英文文案
+    string detail_picture_zh = 6;//中文详细图
+    string detail_picture_en = 7;//英文详细图
+    repeated PledgeLanguage after_sale_lan = 8;//售后多语言
+    uint32 as_restrict = 9;//商品确认收货后，售后申请通道的开放时长
+    common.enum.PledgeEnum.RangeType range_application = 10;//适用范围，1：商品类目，2：商品类型
+    repeated common.enum.ProductEnum.ProductType product_type = 11;//商品类型，若range_application选择了商品类型
+    repeated AfterSaleCategory after_sale_cate = 12;//商品类目，若range_application选择了商品类目
+    common.enum.PledgeEnum.ShowType show_type = 13;//外显类型，1：只外显商品详细页，2：全部外显，3：不外显
+}
+
+message GetAfterPledgeReq {
+   repeated uint64 pledge_id = 1;//售后策略id
+   //string language_code = 2;//语言码
+}
+
+message GetAfterPledgeResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated AfterSalePledgeUnit after_pledge = 2; //售后策略列表
+
+}
+
+//根据获取策略带语言信息
+message GetAfterPledgeByLanguageReq{
+    repeated uint64 pledge_id = 1;//售后策略id
+    string language_code = 2;//语言码
+}
+
+message AfterSalePledgeLanguageUnit{
+    uint64 pledge_id = 1;//售后策略id
+    string label = 2;//标签
+    string document = 3;//文案
+    string detail_picture = 4;//详细图
+    uint32 as_restrict = 5;//商品确认收货后，售后申请通道的开放时长
+    common.enum.PledgeEnum.RangeType range_application = 6;//适用范围，1：商品类目，2：商品类型
+    repeated common.enum.ProductEnum.ProductType product_type = 7;//商品类型，若range_application选择了商品类型
+    repeated AfterSaleCategory after_sale_cate = 8;//商品类目，若range_application选择了商品类目
+    common.enum.PledgeEnum.ShowType show_type = 9;//外显类型，1：只外显商品详细页，2：全部外显，3：不外显
+}
+
+message GetAfterPledgeByLanguageResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated AfterSalePledgeLanguageUnit after_pledge = 2; //售后策略列表
+}
+
+//2 到货承诺服务
+
+//到货承诺配送时效
+message ArrivalDistribution {
+    string area_code  = 1; //地区代码
+    int32 time_limit_min = 2;//最小时效天数
+    int32 time_limit_max = 3;//最大时效天数
+}
+
+message ArrivalPledgeUnit {
+    int64 pledge_id = 1;//到货承诺id
+    string label_zh = 2;//中文标签
+    string label_en = 3;//英文标签
+    string document_zh = 4;//中文文案
+    string document_en = 5;//英文文案
+    string detail_picture_zh = 6;//中文详细图
+    string detail_picture_en = 7;//英文详细图
+    repeated PledgeLanguage arrival_promise_lan = 8;//到货承诺多语言
+    string country_code = 9;//国家码
+    repeated ArrivalDistribution arrival_promise_distribution = 10;//到货承诺配送时效
+    common.enum.PledgeEnum.PaymentType range_application = 11;//是否赔付 ，1：系统自动赔付，2：不赔付
+    common.enum.PledgeEnum.ShowType show_type = 12;//外显类型，1：只外显于商品详情页，2：全部外显，3：不外显
+}
+
+//批量获取到货策略 请求
+message GetArrivalPledgeReq {
+    repeated uint64 pledge_id = 1; //到货策略id
+    //string language_code = 2;//语言码
+}
+
+//批量获取到货策略 响应
+message GetArrivalPledgeResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated ArrivalPledgeUnit arrival_pledge = 2; //到货策略列表
+}
+
+//批量获取到货策略 带语言 请求
+message GetArrivalPledgeByLanguageReq {
+    repeated uint64 pledge_id = 1; //到货策略id
+    string language_code = 2;//语言码
+}
+
+message ArrivalPledgeByLanguageUnit {
+    int64 pledge_id = 1;//到货承诺id
+    string label = 2;//标签
+    string document = 3;//文案
+    string detail_picture = 4;//详细图
+    string country_code = 5;//国家码
+    repeated ArrivalDistribution arrival_promise_distribution = 6;//到货承诺配送时效
+    common.enum.PledgeEnum.PaymentType payment_type = 7;//是否赔付 ，1：系统自动赔付，2：不赔付
+    common.enum.PledgeEnum.ShowType show_type = 8;//外显类型，1：只外显于商品详情页，2：全部外显，3：不外显
+}
+
+//批量获取到货策略 响应
+message GetArrivalPledgeByLanguageResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated ArrivalPledgeByLanguageUnit arrival_pledge = 2; //到货策略列表
+}
+
+message GetArrivalPledgeBaseReq {
+    string language_code = 1;
+    repeated int64 pledge_id = 2;
+    common.enum.PledgeEnum.ShowType show_type = 3;//外显类型，1：只外显商品详细页，2：全部外显，3：不外显
+}
+message GetArrivalPledgeBaseResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<int64, string> label = 2;
+//    map<uint64, PledgeBaseUnit> pledge_base = 3;
+}
+
+message GetAfterPledgeBaseReq {
+    string language_code = 1;
+    repeated int64 pledge_id = 2;
+    common.enum.PledgeEnum.ShowType show_type = 3;//外显类型，1：只外显商品详细页，2：全部外显，3：不外显
+}
+message GetAfterPledgeBaseResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<int64, string> label = 2;
+//    map<uint64, PledgeBaseUnit> pledge_base = 3;
+}
+
+message PledgeBaseUnit{
+    uint64 pledge_id = 1;
+    string label = 2;
+    common.enum.PledgeEnum.ShowType show_type = 3;//外显类型，1：只外显商品详细页，2：全部外显，3：不外显
+}
+
+message CalculateArrivalPledgeReq{
+    string country_code = 1; //国家码
+    //uint64 address_id = 2; //地址id
+    repeated uint64 arrival_id = 3;//到货承诺模板id列表
+    string state_code = 4; //地址所在state
+}
+
+message CalculateArrivalPledgeResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    uint32 min = 2; //最短时效
+    uint32 max = 3; //最长时效
+    string content = 4; //文案
+}
+
+
+message GetProductArrivalPledgeReq{
+    repeated uint64 product_id = 1;
+    string state_code = 2;
+    string country_code = 3;
+}
+
+message GetProductArrivalPledgeResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    message ArrivalPledgeUnit {
+        uint64 pledge_id = 1;
+        uint64 product_id = 2;
+        string state_code = 3;
+        string country_code = 4;
+        int32 time_limit_min = 5;//最小时效天数
+        int32 time_limit_max = 6;//最大时效天数
+        common.enum.PledgeEnum.PaymentType range_application = 7;//是否赔付 ，1：系统自动赔付，2：不赔付
+    }
+    map<uint64, ArrivalPledgeUnit> product_arrival_pledge = 2;
+}
+
+
+
+service ArrivalPledgeService {
+    //批量获取到货策略
+    rpc GetArrivalPledge(GetArrivalPledgeReq) returns (GetArrivalPledgeResp);
+    rpc GetArrivalPledgeBase (GetArrivalPledgeBaseReq) returns (GetArrivalPledgeBaseResp);
+
+    ////批量获取到货策略 带语言
+    rpc GetArrivalPledgeByLanguage (GetArrivalPledgeByLanguageReq) returns (GetArrivalPledgeByLanguageResp);
+
+    //计算到货承诺时效
+    rpc CalculateArrivalPledge (CalculateArrivalPledgeReq) returns (CalculateArrivalPledgeResp);
+
+    //根据商品id及地区码获取商品的到货策略
+    rpc GetProductArrivalPledge (GetProductArrivalPledgeReq) returns(GetProductArrivalPledgeResp);
+}
+service AfterSalePledgeService {
+    //获取售后策略
+    rpc GetAfterPledge(GetAfterPledgeReq) returns (GetAfterPledgeResp);
+    rpc GetAfterPledgeBase (GetAfterPledgeBaseReq) returns (GetAfterPledgeBaseResp);
+
+    //根据获取策略带语言信息
+    rpc GetAfterPledgeByLanguage (GetAfterPledgeByLanguageReq) returns(GetAfterPledgeByLanguageResp);
+
+
+}

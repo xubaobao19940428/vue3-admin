@@ -1,0 +1,253 @@
+//DESC APP littlec-cart
+syntax = "proto3";
+package core.cart;
+
+
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.cart";
+option java_outer_classname = "Cart";
+
+
+message AddToCartRequest {
+    string product_id = 2;
+    string sku_id = 3;
+    int32 number = 4; //购物车中商品数量
+    string shop_id = 5; //店铺id
+    string sku_code = 6;
+}
+message AddToCartResponse {
+    common.base.ErrorMessage ret = 1;
+    uint32 number = 2; //购物车修改数量结果
+    uint32 limit_rest = 3; //限购剩余数量
+}
+
+message UpdateGoodsNumRequest {
+    int32 number = 2;
+    string cart_item_id = 3; //购物车项目ID
+}
+message UpdateGoodsNumResponse {
+    common.base.ErrorMessage ret = 1;
+    uint32 number = 2; //购物车修改数量结果
+    uint32 limit_rest = 3; //限购剩余数量
+}
+
+//购物车商品信息
+message CartItem {
+    //cartItem基础信息
+    string cart_item_id = 1; //购物车ID
+    string product_id = 2; //商品id
+    string sku_id = 3; //sku id
+    string sku_code = 4; //sku_code
+    uint32 item_number = 5; //购物车中商品数量
+    //spu
+    string name = 6; //商品名
+    string freight_id = 7; //运费模板id
+    common.enum.ProductEnum.ShelveStatus shelve_status = 8; //上下架状态
+    //sku
+    string cover = 9; //sku 封面缩略图
+    uint32 weight = 10; //重量
+    string attribute = 11; //属性
+    string commission = 12; //可得佣金
+    string commission_rate = 13; //佣金率
+    string price = 14; //原价
+    string price_vip = 15; //会员价
+    common.enum.ProductEnum.SaleStatus saleStatus = 16; //是否在售 sku 在售状态
+    //活动
+    string activity_price = 17; //活动价格
+    string activity_id = 18; //活动价格id
+    string activity_commission_rate = 19; //活动佣金率
+    repeated ItemLabel item_label = 20; //购物车项标签
+    bool is_select = 21; //是否选中 --> 客户端使用, 平台不做修改
+    string reason = 22; //不能购买的原因 1.SKU已被删除：商品不存在或已被删除 2. SKU 不在售：商品已经下架了 3. SKU无货：库存不足 4. 不支持在该国销售
+    string arrival_id = 23; //到货承诺id
+    common.enum.ProductEnum.FreightType freight_type = 24; //运费类型
+    //预售
+    string advance_id = 25; //预售id
+    string delivery_deadline = 26; //预计最迟发货时间
+    //活动预热所需字段
+    string active_start_time = 27; //开始时间
+    string active_end_time = 28; //结束时间
+    common.enum.MarketingEnum.ActiveStatus active_status = 29; //活动状态
+    string shop_id = 30; //店铺id
+    common.enum.ProductEnum.ProductType product_type = 31; //商品类型
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 32;
+    //价格底图
+    string activity_bottom_img = 33;
+    //活动角标
+    string active_icon = 34;
+    //活动佣金
+    //string activity_commission = 35;
+    //开始时间
+    string start_time = 36;
+    //结束时间
+    string end_time = 37;
+    //预热
+    common.enum.MarketingEnum.PreheatType preheat_type = 38;
+    //sku中最低活动价
+    string active_price = 39;
+    // 自购节省
+    //string activity_commission_self = 40;
+    //活动价格底图跳转地址
+    string active_bc_url = 41;
+    //选中状态
+    common.enum.CartEnum.SelectedType selected = 42;
+    //单品体积 立方厘米
+    uint32 volume = 43;
+    //sku重量
+    string weight_desc = 44;
+
+    string feature1_unit = 45; //体积或重量单位
+    string feature1 = 46; //单个的重量或者体积
+    message CartGiveActiveInfo{
+        int32 give_id = 1;
+        string label = 2;
+    }
+    CartGiveActiveInfo cart_give_active_info = 47 ; //赠品活动信息
+    repeated string titleLabels = 48; //标题标签
+    string discountRate = 49; //折扣率
+}
+
+message ItemLabel {
+    common.enum.CartEnum.ItemLabelType label_type = 1; //购物车标签类型
+    string content = 2; //内容
+}
+
+//购物车分组类型
+enum CartGroupType {
+    NORMAL = 0; //普通商品分组
+    INVALID = 1; //失效商品分组
+    PROMOTION = 2; //促销
+}
+
+//购物车分组
+message CartGroup {
+    repeated CartItem item = 1;
+    string group_id = 2; //分组id
+    CartGroupType group_type = 3; //分组类型
+    string group_detail_type = 4; //分组类型下的具体类型值
+    uint32 group_count = 5; //分组商品数量
+    string start_time = 6; //开始时间
+    string end_time = 7; //结束时间
+    string group_label = 8; //分组标签
+    string discount = 9; //优惠 -->  客户端使用
+    uint32 level = 10; //级别 --> 客户端使用
+    repeated string max_sale_product_cover = 11;//两个销量最高的商品cover
+}
+
+message ViewCartItemsRequest {
+    common.base.Pagination page = 2;
+}
+
+message ViewCartItemsResponse {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated CartGroup cartGroup = 3;
+}
+
+message DelCartItemsRequest {
+    repeated string cart_item_id = 2;
+}
+
+message DelCartItemsResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message CountCartItemReq {
+    //    string product_id = 1;//商品id
+}
+
+message CountCartItemResp {
+    common.base.ErrorMessage ret = 1;
+    uint32 total_count = 2;
+}
+
+message ChangeCartItemSelectedReq {
+    message ChangeUnit {
+        common.enum.CartEnum.SelectedType selected = 1;
+        string cart_item_id = 2;
+    }
+    repeated ChangeUnit change_unit = 1;
+}
+
+message ChangeCartItemSelectedResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message SwitchSkuReq {
+    string product_id = 1; //商品id
+    string sku_id = 2; //sku id
+    string sku_code = 3; //sku_code
+    uint32 number = 4; //商品数量
+    string cart_item_id = 5; //原始购物车itemID
+}
+
+message SwitchSkuResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message CartAmountDetailReq {
+    message BuyItem {
+        string sku_id = 1;
+        int32 num = 2;
+        string promotion_id = 3;
+        string product_id =4;
+    }
+    repeated BuyItem buy_item = 1;
+    string address_id = 2;//地址信息，可以不传，不传时，响应数据没有运费
+    int32 shipping_type = 3;// 发货类型   若收到此认为是普通物流  SHIPPING_NORMAL = 1;  普通物流  | 经济物流   SHIPPING_ECONOMY = 3;
+}
+message Money {
+    string amount = 1; //金额
+    string currency = 2; //币种
+
+}
+
+
+message PromotionGroup {
+    string label = 1;
+    Money amount = 2; //促销组金额
+    repeated string pics = 3; //图片
+    string promotion_id=4;//促销id
+}
+
+message CartAmountDetailResp {
+    common.base.ErrorMessage ret = 1;
+    Money subtotal = 2; //subtotal
+    Money total = 3; //total
+    Money shipping_fee = 4; //shipping_fee
+    string estimated_points = 5; // 返佣金积分
+    Money promotion_amount = 6; //promotion 总金额
+    repeated PromotionGroup promotion_group = 7; //促销组
+}
+
+// 购物车
+
+// >>>>>message_end>>>>>>>>>>>>CartService 购物车模块>>>>>>>>
+
+// 购物车模块
+service CartService {
+    //商品加入购物车
+    rpc AddToCart (AddToCartRequest) returns (AddToCartResponse);
+    //更新购物车商品数量
+    rpc UpdateGoodsNum (UpdateGoodsNumRequest) returns (UpdateGoodsNumResponse);
+    //查看购物车，分页
+    rpc ViewCartItems (ViewCartItemsRequest) returns (ViewCartItemsResponse);
+    //删除购物车商品
+    rpc DelCartItems (DelCartItemsRequest) returns (DelCartItemsResponse);
+    //统计购物车商品数量
+    rpc CountCartItem (CountCartItemReq) returns (CountCartItemResp);
+    //修改购物车项选中状态
+    rpc ChangeCartItemSelected (ChangeCartItemSelectedReq) returns (ChangeCartItemSelectedResp);
+
+    //切换规格
+    rpc SwitchSku (SwitchSkuReq) returns (SwitchSkuResp);
+
+    //购物车金额明细
+    rpc CartAmountDetail (CartAmountDetailReq) returns (CartAmountDetailResp);
+
+
+}

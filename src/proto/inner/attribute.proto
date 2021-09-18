@@ -1,0 +1,65 @@
+syntax = "proto3";
+package inner.attribute;
+
+import "common/errcode.proto";
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.attribute";
+option java_outer_classname = "Attribute";
+
+//功能放在 product 服务中, 需请求product 服务
+
+//获取属性的信息
+message GetAttributeInfoReq{
+    message AttrIdInfo{
+        uint64 attr_id = 1;
+        uint64 value_id = 2;
+        uint32 sort = 3;
+    }
+    repeated AttrIdInfo attr_info = 1;//请求的属性参数列表
+    string language_code = 2; //语言码
+//    common.enum.AttributeEnum.ContentType  contentType = 3; //属性类型
+}
+
+message GetAttributeInfoResp{
+    message AttrInfoUnit{
+        uint64 attr_id = 1;
+        string attr_name = 2;
+        uint64 value_id = 3;
+        string value_name = 4;
+        common.enum.AttributeEnum.Customize customize = 5; //是否允许自定义 1 允许, 0 不允许
+    }
+
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated AttrInfoUnit Attr_info = 2; //属性信息
+    string attr_str = 3; //规格属性-CN 例如：[{"颜色":"黑色"},{"大小":"XL"}]
+    string save_str = 4; //[{"valueId":"12","attrId":"11","valueName":"黑色","attrName":"颜色"}], 存储用
+
+}
+
+message GetAttrNameByCateIdReq{
+    repeated uint32 cate_id = 1;
+}
+
+
+message GetAttrNameByCateIdResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    message AttrName{
+        uint32 cate_id = 1;
+        repeated string param_attr_name = 2;
+        repeated string standard_attr_name = 3;
+    }
+    repeated AttrName attr_name = 3;
+}
+
+service AttributeService {
+
+    //根据属性名id与属性值id获取属性的信息, 支持多语言
+    rpc GetAttributeInfo (GetAttributeInfoReq) returns (GetAttributeInfoResp);
+
+    //根据类目id 获取属性名列表
+    rpc GetAttrNameByCateId (GetAttrNameByCateIdReq) returns (GetAttrNameByCateIdResp);
+
+}

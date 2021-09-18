@@ -1,0 +1,165 @@
+//DESC APP littlec-i18n
+syntax = "proto3";
+package core.i18n;
+
+
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.i18n";
+option java_outer_classname = "I18n";
+
+
+// message start I18nCountryLanguageService
+message CountryInfo{
+    string code = 1; //国家编码
+    string short_code = 2; //简码
+    string name_cn = 3; //国家中文名
+    string name_en = 4; //国家英文名
+    string name_local = 5; //国家当地名
+    string area_code = 6; //地区编码
+    string jet_lag = 7; //时区差
+    string image = 8 ; //国家图片
+    repeated LanguageInfo language_info = 9;//国家使用的语言列表
+    string currency_code = 10; //国家使用的货币
+    string currency_unit = 11; //货币单位
+    string time_zone = 12; //时区
+}
+
+
+message LanguageInfo{
+    string code = 1; //语言简码
+    string name = 2; //语言中文描述
+}
+
+// message start  i18nTerminalService
+message TranslationUnit{
+    string variable_code = 1; //变量码
+    string name_cn = 2; //变量中文名
+    string name_en = 3; //变量英文名
+    string translation = 4; //翻译内容
+}
+
+enum VariableRetType{
+    DEFAULT = 0; //默认值, 不使用
+    MAP = 1; //返回map 类型
+    LIST = 2; //返回list 类型
+    MAP_JSON = 3; //返回map类型, json为value
+}
+
+//终端获取指定语言的翻译项列表
+message GetTerminalVariableListReq{
+    string language_code = 1; //语言编码
+    VariableRetType variable_ret_type = 2; //翻译项返回类型, 可选map与list
+}
+
+message GetTerminalVariableListResp{
+    common.base.ErrorMessage ret = 1; //返回值
+    map<string, TranslationUnit> variable_translation_map = 2; //翻译项map返回值
+    repeated TranslationUnit variable_translation = 3; //翻译项列表返回
+    string language_code = 4; //语言编码
+    uint64 update_time = 5; //更新时间
+    map<string, string>  variable_translation_json = 6; //翻译项列表
+}
+
+//客户端判断是否需要更新语言包
+message GetTerminalVariableUpdateFlagReq{
+    string language_code = 1; //语言编码
+    uint64 last_update_time = 2; //上次更新时间戳
+}
+
+message GetTerminalVariableUpdateFlagResp{
+    common.base.ErrorMessage ret = 1; //返回值
+    bool update_flag = 2; //是否需要更新
+}
+
+//获取国家列表
+message GetTerminalCountryListReq{
+    //int32 page_size = 1; //每页大小
+    //int32 page_num = 10; //第几页
+    common.base.Pagination page = 1;
+}
+
+message GetTerminalCountryListResp{
+    common.base.ErrorMessage ret = 1; //返回值
+    repeated CountryInfo country_info = 2;//国家信息列表, 包含语言
+}
+
+//获取语言列表
+message GetTerminalVariableLanguageListReq{
+
+}
+
+message GetTerminalVariableLanguageListResp{
+    common.base.ErrorMessage ret = 1; //返回值
+    repeated LanguageInfo language_info = 9;//国家使用的语言列表
+}
+
+message GetCountryDivisionReq {
+    string country_code = 1;
+    string state_name = 2;
+}
+message GetCountryDivisionResp {
+    message CityInfo {
+        string city_name = 1;
+        string city_code = 2;
+        repeated string postcode = 3;
+    }
+    message StateInfo {
+        string state_name = 1;
+        string state_code = 2;
+        repeated CityInfo city = 3;
+    }
+    common.base.ErrorMessage ret = 1; //返回值
+    repeated StateInfo stat = 2;
+}
+
+message GetShareDomainReq{
+
+}
+
+message GetShareDomainResp{
+    common.base.ErrorMessage ret = 1; //返回值
+    string domain = 2; //分享域名
+    string app_domain = 3; // APP域名
+}
+
+message GetDetailPageConfigReq{
+
+}
+
+message GetDetailPageConfigResp{
+    enum DetailShowWay{
+        DEFAULT_NULL = 0; //不使用
+        NATIVE = 1; //native页
+        H5 = 2; //H5
+    }
+    common.base.ErrorMessage ret = 1; //返回值
+    DetailShowWay detail_config = 2;
+}
+
+// message end  i18nTerminalService
+
+service I18nTerminalService{
+    //终端获取指定语言的翻译项列表
+    rpc GetTerminalVariableList(GetTerminalVariableListReq) returns (GetTerminalVariableListResp);
+
+    //客户端判断是否需要更新语言包
+    rpc GetTerminalVariableUpdateFlag(GetTerminalVariableUpdateFlagReq) returns (GetTerminalVariableUpdateFlagResp);
+
+    //获取国家列表
+    rpc GetTerminalCountryList(GetTerminalCountryListReq) returns (GetTerminalCountryListResp);
+
+    //获取语言列表
+    rpc GetTerminalVariableLanguageList(GetTerminalVariableLanguageListReq) returns (GetTerminalVariableLanguageListResp);
+
+    //获取国家区划信息
+    rpc GetCountryDivision (GetCountryDivisionReq) returns (GetCountryDivisionResp);
+
+    //获取分享域名信息
+    rpc GetShareDomain (GetShareDomainReq) returns (GetShareDomainResp);
+
+    //详情页配置
+    rpc GetDetailPageConfig (GetDetailPageConfigReq) returns (GetDetailPageConfigResp);
+
+}

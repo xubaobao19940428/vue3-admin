@@ -1,0 +1,146 @@
+//DESC APP littlec-product
+syntax = "proto3";
+package core.search;
+
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.search";
+option java_outer_classname = "Search";
+
+
+message ProductSearchResult{
+    // 商品ID
+    string product_id = 1;
+    // 缩略图
+    string cover = 2;
+    // 商品名
+    string name = 4;
+    // 商品描述
+    string desc = 6;
+    // 商品价格
+    string price = 8;
+    // 商品VIP价格
+    string price_vip = 9;
+    // 返利
+    string commission = 10;
+    //标签
+    common.enum.ProductEnum.LabelType label = 11;
+    //副标题
+    string sub_name = 12;
+    //活动价
+    string active_price = 13;
+    //是否是活动
+    bool is_active = 14;
+    //是否热卖
+    bool is_sales = 15;
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 16;
+    //活动状态
+    common.enum.MarketingEnum.ActiveStatus active_status = 17;
+    //活动佣金
+    string active_commission = 18;
+    //促销标签
+    repeated string promotion_label = 19;
+    //促销信息
+    repeated PromotionUnit promotion = 20;
+    //活动标签
+    string active_icon = 21;
+
+    message PromotionUnit{
+        string promotion_label = 1;
+        string promotion_id = 2;
+    }
+    //活动开始结束时间
+    string active_start_time = 22; //开始时间
+    string active_end_time = 23; //结束时间
+
+    //预售
+    string advance_id = 24; //预售id
+    string delivery_deadline = 25; //预计最迟发货时间
+
+    //item pvid
+    string pvid = 26;//商品pvid
+
+    // 商品类型
+    common.enum.ProductEnum.ProductType product_type = 27;
+
+    //销量
+    uint32 grand_total_sales = 28;
+    //优惠率
+    string discount_rate = 29;
+
+    //多标签
+    repeated  common.enum.ProductEnum.LabelType labels = 30;
+    //标题标签
+    repeated string titleLabels = 31;
+
+    int32 spu_stock = 32 ; //sku的库存总和
+
+    bool show_stock = 33 ; //是否展示库存
+
+    int32 available_sku_count = 34 ; // 可售sku数
+
+    bool add_cart = 35;  // 是否能加购
+
+    string advance_price = 36;  // 预售价
+
+    string advance_commission =37 ; //预售返佣
+
+    string advance_discount = 38 ; //预售折扣
+
+
+
+}
+
+
+message ProductSearchRequest{
+
+    //排序字段
+    enum SortColumn{
+        DEFAULT = 0; //默认
+        SALES_VOLUME = 1; //销量
+        PRICE = 2; //价格
+    }
+    //排序类型
+    enum SortType{
+        ASC = 0; // 正序
+        DESC = 1; // 倒序
+    }
+
+    string keyword = 1; //关键词
+    common.base.Pagination page = 2;  //分页
+    SortColumn sort_column = 3; //排序字段
+    SortType sort_type = 4; // 排序类型
+    string pvid = 5; //搜索返回的pvid, 弃用
+}
+
+message ProductSearchResponse{
+    common.base.ErrorMessage ret = 1;
+    repeated ProductSearchResult product_info = 2;
+    //关联热词信息查询结果
+    string hot_id = 3;
+    string hot_word = 4;
+    string icon = 5; //角标
+    int32 url_type = 6; //热词跳转类型，1为跳转h5，2为应用内，3-普通搜索
+    string url = 7; //热词跳转地址
+    string pvid = 8; //pvid
+    int32 total = 9;
+}
+
+message ProductSearchByIdReq{
+    string productId = 1;
+}
+
+message ProductSearchByIdResp{
+    common.base.ErrorMessage ret = 1;
+}
+
+
+
+service ProductSearchService {
+    rpc ProductSearch (ProductSearchRequest) returns (ProductSearchResponse);
+    rpc ProductSearchById (ProductSearchByIdReq) returns (ProductSearchByIdResp);
+}
+

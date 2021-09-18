@@ -1,0 +1,71 @@
+syntax = "proto3";
+package inner.exchange;
+
+import "common/errcode.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.exchange";
+option java_outer_classname = "Exchange";
+
+// message start i18nExchangeService
+message ExchangeRate {
+    string currency_code = 1; //货币代码
+    string rate = 2; //兑换汇率
+    string base_currency_code = 3; //基准货币代码
+    string name_cn = 4; //货币中文描述
+    string template_code = 5; //模板代码
+    string snap_code = 6; // exchange_rate_save_id 对应审核的id
+}
+
+//获取货币间转换汇率 例如 传入USD CNY, 则返回 1美元兑换人民币的汇率值7.18
+message ExchangeGetRateReq {
+    string from_currency_code = 1; // 基准货币
+    string to_currency_code = 2; // 目标货币
+    string template_code = 3; // 汇率模板
+}
+
+message ExchangeGetRateResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    string rate = 2; //转换汇率
+}
+
+//根据当前配置汇率获得转换后价格
+message ExchangeConvertReq {
+    string from_currency_code = 1; // 基准货币
+    string to_currency_code = 2; // 目标货币
+    string template_code = 3; // 汇率模板
+    string from_price = 4; //待转换价格
+
+}
+
+message ExchangeConvertResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    string from_currency_code = 2; // 基准货币
+    string to_currency_code = 3; // 目标货币
+    string template_code = 4; // 汇率模板
+    string from_price = 5; // 待转换价格
+    string to_price = 6; // 转换后价格
+    string rate = 7; //转换汇率
+    string usd_price = 8; //美元价格
+}
+
+message GetExchangeConfigReq {
+    string template_code = 1;
+}
+
+message GetExchangeConfigResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<string, string> rate_map = 2;
+}
+
+service ExchangeService {
+
+    //获取货币间转换汇率
+    rpc ExchangeGetRate (ExchangeGetRateReq) returns (ExchangeGetRateResp);
+
+    //根据当前配置汇率获得转换后价格
+    rpc ExchangeConvert (ExchangeConvertReq) returns (ExchangeConvertResp);
+
+    //获取货币汇率配置
+    rpc GetExchangeConfig (GetExchangeConfigReq) returns (GetExchangeConfigResp);
+}

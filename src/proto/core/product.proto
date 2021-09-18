@@ -1,0 +1,1556 @@
+//DESC APP littlec-product
+syntax = "proto3";
+package core.product;
+
+
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.product";
+option java_outer_classname = "Product";
+
+// >>>>>message_start>>>>>>>>>>>>ProductService 商品模块>>>>>>>>
+
+message SkuInfo {
+    //sku_id
+    string sku_id = 1;
+    //sku_code
+    string sku_code = 2;
+    //sku_cover
+    string cover = 3;
+    //是否组合sku
+    bool is_composite = 4;
+    //sku的规格属性
+    repeated ProductAttr standard_attr = 5;
+    // 商品价
+    string price = 6;
+    // vip价
+    string price_vip = 7;
+    // 返利
+    string commission = 8;
+    //自购返利
+    string commission_self = 9;
+    //sku 活动价
+    string activity_price = 10;
+    //属性path
+    string prop_path = 11;
+    //库存
+    uint32 stock = 12;
+    //是否需要校验库存 -> 根据边采边卖还是售完即止设置
+    bool need_check_stock = 13;
+    //sku 佣金率
+    string commission_rate = 14;
+    //活动信息需要校验
+    bool need_check_activity = 15;
+    //sku 活动信息
+    ActivitySkuInfo sku_activity_info = 16;
+    //sku 重量
+    uint32 weight = 17;
+    //sku 在售状态
+    common.enum.ProductEnum.SaleStatus sale_status = 18; // 在售状态 1 在售, 0 停售
+    //sku 预售信息
+    AdvanceSaleSkuInfo advance_sale_sku_info = 19;
+    //优惠率
+    string discount_rate = 20;
+    //标题标签
+    repeated string titleLabels = 21;
+
+    string pre_prime_commission_self = 22;
+}
+
+//sku 预售信息
+message AdvanceSaleSkuInfo {
+    //预售id
+    string advance_id = 1;
+    //预计最迟发货时间
+    string delivery_deadline = 2;
+    //预售开始时间
+    string start_time = 3;
+    //预售结束时间
+    string end_time = 4;
+
+    string advance_price = 5;
+
+    ArrivalPledge advance_arrive =6 ;
+
+}
+
+message AdvanceSaleSpuInfo {
+    //预售id
+    string advance_id = 1;
+    //预计最迟发货时间
+    string delivery_deadline = 2;
+}
+
+//商品属性信息
+message Properties {
+    string attr_id = 1;
+    string attr_name = 2;
+    message Values {
+        string value_id = 1;
+        string value_name = 2;
+        uint32 sort = 3;
+        string value_cover = 4; // 属性图片
+    }
+    repeated Values values = 3; //属性值信息
+    bool show_attr_cover = 4; // 展示属性图片
+}
+
+
+message SkuBase {
+    //sku 信息
+    repeated SkuInfo sku_info = 1;
+    //属性信息
+    repeated Properties props = 2;
+    SkuInfo default_skuInfo = 3; // 默认选中的sku
+}
+
+//商品规格信息, 多语言信息需单独查询
+message ProductAttr {
+    string attr_id = 1;
+    string attr_name = 2;
+    string value_id = 3;
+    string value_name = 4;
+}
+
+//售后策略结构体
+message AfterSalePledge {
+    string pledge_id = 1; //售后策略id
+    string title = 2; //售后策略标签
+    string desc = 3;
+    uint32 restrict = 4; //售后时限
+    string cover = 5; //图
+    common.enum.PledgeEnum.ShowType show_type = 9; //外显类型，1：只外显商品详细页，2：全部外显，3：不外显
+}
+
+//到货策略结构体
+message ArrivalPledge {
+    string pledge_id = 1; //到货策略id
+    string title = 2; //到货承诺
+    string desc = 3; //描述
+    string cover = 4; //图
+    common.enum.PledgeEnum.ShowType show_type = 12; //外显类型，1：只外显于商品详情页，2：全部外显，3：不外显
+}
+
+//服务模板
+message PledgeInfo {
+    AfterSalePledge afterSale = 1; //售后策略
+    ArrivalPledge arrival = 2; //到货策略
+    bool after_sale_match = 3; //有售后策略
+    bool arrival_match = 4; //有到货策略
+}
+
+//销售国家
+message ProductSaleCountry {
+    string country_code = 1; //国家码
+    common.enum.ProductEnum.ShelveStatus shelve_status = 2; //对应国家内的上下架状态
+}
+
+/*message ProductLabel{
+    common.enum.ProductEnum.LabelType type = 1;
+    string name_cn = 2;
+    string name_en = 3;
+    string icon_cn = 4;
+    string icon_en = 5;
+}*/
+
+message BrandInfo {
+    string brand_id = 1;
+    string name_cn = 2;
+    string name_en = 3;
+    string logo = 4; //品牌名图片
+}
+message RangeInfo {
+    bool has_range = 1;
+    string min = 2;
+    string max = 3;
+}
+//spu信息加sku信息
+message ProductDetailInfo {
+    // 商品id
+    string product_id = 1;
+    // 商品类型
+    common.enum.ProductEnum.ProductType product_type = 2;
+    //支持的销售国家列表
+    repeated ProductSaleCountry sale_country = 3;
+    // 商品轮图
+    string rotation = 4;
+    // 商品详情
+    string detail = 5;
+    // 商品缩略图
+    string cover = 6;
+    // 商品价 - 国家
+    string price = 7;
+    // vip价 - 国家
+    string price_vip = 8;
+    // 商品 --> title
+    string name = 9;
+    // 副标题  --> sub title
+    string sub_name = 10;
+    // 商品描述
+    string desc = 11;
+    // 商品视频
+    string video = 12;
+    // 自购节省 - 国家
+    string commission_self = 13;
+    // 分享返利
+    string commission = 14;
+    // 商品SKU
+    SkuBase sku_base = 15;
+    // 商品标签
+    common.enum.ProductEnum.LabelType product_label = 16;
+    //商品参数属性
+    repeated ProductAttr param_attr = 17;
+    //服务策略
+    PledgeInfo pledge_info = 18;
+    // 商品库存
+    int32 stock = 19;
+    //品牌信息
+    BrandInfo brand_info = 20;
+    //上下架状态
+    common.enum.ProductEnum.ShelveStatus shelve_status = 21; //上下架状态
+    //重量范围 0.4 - 0.5 公斤
+    string weight_range = 22;
+    // 运费 - 国家
+    string freight = 23;
+    //运费id
+    string freight_id = 24;
+    //预计收货时间
+    string estimated_delivery_time = 25;
+    //商品活动信息
+    ActivitySpuInfo spu_activity_info = 26;
+    //促销信息
+    repeated PromotionDetailInfo promotion_info = 27;
+    //是否收藏标记位
+    bool is_collected = 28;
+    //销量
+    uint32 grand_total_sales = 29;
+    //限购数量
+    int32 purchase_limit = 30;
+    //需要检查活动
+    bool activity_check = 31;
+    //需要检查促销
+    bool promotion_check = 32;
+    //是否礼包商品
+    bool is_gift_product = 33;
+    // 需要检查预售
+    bool advance_sale_check = 37;
+    //预售spu信息 -> spu下某个在售sku为预售sku, 将会填充该字段
+    AdvanceSaleSpuInfo advance_sale_spu = 38;
+    //最小重量
+    uint32 min_weight = 34;
+    //最大重量
+    uint32 max_weight = 35;
+    //运费类型
+    common.enum.ProductEnum.FreightType freight_type = 36;
+    //详情页展示库存规则阈值
+    uint32 stock_threshold = 39;
+    //详情页货币单位
+    string currency_unit = 40;
+    //商品售卖国家
+    string show_country = 41;
+    //sku价格存在不同
+    bool sku_price_different = 42;
+    //优惠率
+    string discount_rate = 43;
+    //多标签
+    repeated common.enum.ProductEnum.LabelType labels = 44;
+    //限购类型
+    common.enum.PromotionEnum.PurchaseLimitRuleType purchase_limit_rule_type = 45; //限购规则类型
+    //限购数量 --> 旧有的为兼容老版本还继续用
+    int32 purchase_type_limit = 46;
+
+    RangeInfo price_range = 47; // 价格区间
+    RangeInfo commission_range = 48; // 返佣区间
+    RangeInfo org_price_range = 49; // 原价区间
+    string product_label_image = 50; // 商品标签图片
+    int32 give_id = 51; // 买赠活动ID
+    string give_label = 52; // 买赠活动标签
+    repeated string titleLabels = 53;    //标题标签SimpleSkuCountryInfoUnit
+    bool show_gift_product = 54;    // 是否显示为礼包商品
+    bool add_cart = 55;
+    RangeInfo pre_prime_commission_range = 56; //PP的返佣区间
+    string pre_prime_commission_self = 57; //PP的自购返佣
+
+
+}
+message PromotionDetailInfo {
+    string promotion_id = 2; // 营销ID
+    common.enum.PromotionEnum.PromotionType promotion_type = 3; // 营销类型
+    string start_time = 4; //开始时间
+    string end_time = 5; //结束时间
+    string label = 6; //促销标签
+    //预热
+    common.enum.MarketingEnum.PreheatType preheat_type = 7;
+}
+
+//sku活动结构体
+message ActivitySkuInfo {
+
+    //活动价格
+    string activity_price = 1;
+    //活动id
+    string activity_id = 2;
+    //活动佣金率
+    string activity_commission_rate = 3;
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 4;
+    //活动状态
+    common.enum.MarketingEnum.ActiveStatus active_status = 5;
+    //预热
+    common.enum.MarketingEnum.PreheatType preheat_type = 6;
+    //价格底图
+    string activity_bottom_img = 7;
+    //开始时间
+    string start_time = 8;
+    //结束时间
+    string end_time = 9;
+    //活动角标
+    string active_icon = 10;
+    //活动佣金
+    string activity_commission = 11;
+    // 自购节省
+    string activity_commission_self = 13;
+    //活动价格底图跳转地址
+    string active_bc_url = 14;
+    //优惠率
+    string discount_rate = 15;
+
+    string pre_prime_activity_commission_self = 16;
+}
+
+//spu活动结构体
+message ActivitySpuInfo {
+    //活动id
+    string activity_id = 1;
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 2;
+    //活动状态
+    common.enum.MarketingEnum.ActiveStatus active_status = 3;
+    //价格底图
+    string activity_bottom_img = 4;
+    //活动角标
+    string active_icon = 5;
+    //活动佣金 spu维度的
+    string activity_commission = 6;
+    //开始时间
+    string start_time = 7;
+    //结束时间
+    string end_time = 8;
+    //预热
+    common.enum.MarketingEnum.PreheatType preheat_type = 9;
+    //sku中最低活动价
+    string active_price = 10;
+    // 自购节省 spu维度的
+    string activity_commission_self = 13;
+    //活动价格底图跳转地址
+    string active_bc_url = 14;
+    //优惠率
+    string discount_rate = 15;
+    int32 active_base_cover_type = 16;//价格底图类型 0->不含价格,1->含价格
+    //是否显示活动价
+    int32 active_price_show = 17;
+    //dd/MM HH:mm 开始时间
+    string start_time_format = 18;
+    string start_countdown = 19;
+    string end_countdown = 20;
+    string pre_prime_activity_commission_self = 21;
+}
+
+//查看商品详细信息
+message ViewProductReq {
+    string product_id = 1; //商品id
+    string pvid = 2; //pvid
+}
+
+message ViewProductResp {
+    common.base.ErrorMessage ret = 1;
+    ProductDetailInfo product_info = 2;
+}
+
+message ListProductByCategoryReq {
+    string cate_id = 1;
+    common.base.Pagination page = 6;
+}
+
+message ListProductByCategoryResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated ListProductInfo product_info = 3;
+}
+
+message CategoryBanner {
+    int32 cate_banner_id = 1; //类目banner id
+    uint64 cate_id = 2; //类目ID
+    string cover = 3; //图片
+    string title = 4; //名称
+    int32 url_type = 5; //跳转类型，1为跳转h5，2为应用内
+    string url = 6; //跳转地址
+    string category_banner_font_color = 7; //每个类目banner字体的颜色
+    string category_back_ground = 8; //类目banner的背景图
+}
+
+message SecondCateProduct {
+    string cate_id_2 = 1; //搜索结果二级前台类目id
+    string cate_name_2 = 2; //二级前台类目名称
+    repeated ListProductInfo product_info = 3;
+}
+
+message ClassifyProductByCategoryReq {
+    string cate_id = 1; //一级前台类目id
+    int32 spu_num = 2; //二级前台类目下展示几个spu
+}
+
+message ClassifyProductByCategoryResp {
+    common.base.ErrorMessage ret = 1;
+    CategoryBanner category_banner = 3;
+    repeated SecondCateProduct second_cate_product = 2;
+}
+
+message ListGiftProductReq {
+    // 礼包类型
+    int32 type = 1;
+    common.base.Pagination page = 2; //分页
+}
+
+//礼包商品信息
+message GiftProductInfo {
+    // 商品ID
+    string product_id = 1;
+    // 缩略图
+    string cover = 2;
+    // 商品名
+    string name = 3;
+    // 商品描述
+    //string desc = 4;
+    // 商品价格
+    //string price = 5;
+    // 商品VIP价格
+    //string price_vip = 6;
+    // 礼包商品的sku信息
+    repeated SkuInfo sku_info = 7;
+    //查看数量->虚拟销量
+    uint32 member_count = 8;
+    // 返利
+    //string commission = 9;
+    //优惠率
+    string discount_rate = 10;
+
+    // 商品类型
+    common.enum.ProductEnum.ProductType product_type = 11; //商品类型
+
+}
+
+
+message ListGiftProductResp {
+    common.base.ErrorMessage ret = 1;
+    repeated GiftProductInfo gift_product_info = 3;
+    uint32 total = 4; //总数
+    uint32 member_count = 5; //销量管理中礼包商品总数
+}
+
+
+message ListProductInfo {
+    // 商品ID
+    string product_id = 1;
+    // 缩略图
+    string cover = 2;
+    // 商品名
+    string name = 4;
+    // 商品描述
+    string desc = 6;
+    // 商品价格
+    string price = 8;
+    // 商品VIP价格
+    string price_vip = 9;
+    // 返利
+    string commission = 10;
+    //标签
+    common.enum.ProductEnum.LabelType label = 11;
+    //副标题
+    string sub_name = 12;
+    //活动价
+    string active_price = 13;
+    //是否是活动
+    bool is_active = 14;
+    //是否热卖
+    bool is_sales = 15;
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 16;
+    //活动状态
+    common.enum.MarketingEnum.ActiveStatus active_status = 17;
+    //活动角标
+    string active_icon = 18;
+    //运费类型
+    //    common.enum.ProductEnum.FreightType freight_type = 19;
+    //促销标签
+    repeated string promotion_label = 20;
+    //需要检查活动
+    bool activity_check = 21;
+
+    //需要检查促销
+    bool promotion_check = 22;
+
+    //促销信息
+    repeated PromotionUnit promotion = 23;
+
+    //活动佣金
+    string active_commission = 24;
+
+    message PromotionUnit {
+        string promotion_label = 1;
+        string promotion_id = 2;
+    }
+    string pvid = 25; //推荐id
+
+    //商品类型
+    common.enum.ProductEnum.ProductType product_type = 26;
+
+    //优惠率
+    string discount_rate = 27;
+
+    //销量
+    uint32 grand_total_sales = 28;
+    //多标签
+    repeated common.enum.ProductEnum.LabelType labels = 29;
+
+}
+
+// >>>>>message_start>>>>>>>>>>>>ProductsCategoryService 前台分类模块>>>>>>>>
+// 类目图标信息
+message CategoryIcon {
+    // 选中时图标
+    string selected = 1;
+    // 不选中时图标
+    string unselected = 2;
+    // 是否选中 给客户端用
+    bool is_selected = 3;
+}
+//一级类目
+message FrontCategory {
+    // 分类id
+    string cate_id = 1;
+    // 父分类ID
+    string pid = 2;
+    // 分类排序的ID
+    uint32 sort = 3;
+    // 商品分类图片
+    string cover = 4;
+    // 分类名称, 根据languageCode 获取
+    string name = 7;
+    //每个类目banner字体的颜色
+    string category_banner_font_color = 8;
+    // 图标信息
+    CategoryIcon category_icon = 9;
+    // 二级分类
+    repeated LevelTwoCategory level_two = 10;
+}
+
+message LevelTwoCategory {
+    // 分类id
+    string cate_id = 1;
+    // 父分类ID
+    string pid = 2;
+    // 分类排序的ID
+    uint32 sort = 3;
+    // 商品分类图片
+    string cover = 4;
+    // 分类名称, 根据languageCode 获取
+    string name = 7;
+
+    // 父分类名称, 根据languageCode 获取
+    string p_name = 8;
+}
+
+message ListCategoryReq {
+    string pid = 1; //父id, 传0返回 一级前台类目列表
+    enum ResultType {
+        NORMAL = 0; //按层取
+        ALL = 1; //返回中加上下级类目
+    }
+    ResultType result_type = 2; //返回结果的类型, normal 仅返回一层, ALL 增加二级类目信息
+}
+
+message ListCategoryResp {
+    common.base.ErrorMessage ret = 1;
+    repeated FrontCategory front_category = 2;
+    string background = 3; //背景色值
+}
+
+message CategoryGroup {
+    // 分类分组id
+    string category_group_id = 1;
+    // 分类分组名称
+    string category_group_name = 2;
+    // 父分类ID
+    //    string pid = 3;
+    // 分类排序的ID
+    uint32 sort = 4;
+    // 二级类目信息 此处sort值使用分组中的二级类目sort值
+    repeated LevelTwoCategory level_two = 5;
+}
+message ListCategoryWithGroupReq {
+    //父id 一级类目id
+    string pid = 1;
+}
+message ListCategoryWithGroupResp {
+    common.base.ErrorMessage ret = 1;
+    repeated CategoryGroup category_group = 2;
+    CategoryBanner category_banner = 3;
+}
+
+message CategoryGroupInfo {
+    //一级类目信息
+    FrontCategory first_front_category = 1;
+    repeated CategoryGroup category_group = 2;
+    CategoryBanner category_banner = 3;
+}
+message ListAllSecondCategoryWithGroupReq {
+
+}
+message ListAllSecondCategoryWithGroupResp {
+    repeated CategoryGroupInfo category_group_info= 1;
+    common.base.ErrorMessage ret = 2;
+    string background = 3; //背景色值
+}
+// >>>>>message_end>>>>>>>>>>>>ProductsCategoryService 前台分类模块>>>>>>>>
+
+// >>>>>message_start>>>>>>>>>>>>SearchService >>>>>>>>
+message HotSearchConfig {
+    string id = 1;
+    string keyword = 2;
+}
+
+//message SearchProductListReq {
+//    string keyword = 1;
+//    common.base.Pagination page = 2;
+//}
+//
+//message SearchProductListResp {
+//    common.base.ErrorMessage ret = 1;
+//    repeated ListProductInfo product_info = 2;
+//    uint32 total = 3; //总数
+//}
+
+// >>>>>message_end>>>>>>>>>>>>SearchService >>>>>>>>
+
+//获取商品spu信息, 获取在该国上架的, 建议分批拉取
+message GetProductSpuReq {
+    repeated string product_id = 1;
+    string page_country_code = 2;
+    common.enum.ProductEnum.SortColumn sort_column = 3; // 排序字段
+}
+
+
+message GetProductSpuResp {
+    common.base.ErrorMessage ret = 1;
+    message ProductSpu {
+        string product_id = 1;
+        string title = 2;
+        string cover = 3;
+        string price = 4;
+        string price_vip = 5;
+        string commission = 6;
+        //销量
+        uint32 grand_total_sales = 7;
+        //优惠率
+        string discount_rate = 8;
+        uint64 cart_count = 9; // 加购量
+        common.enum.ProductEnum.ProductType product_type = 10; // 商品类型
+        string active_price = 11; //活动价
+        common.enum.MarketingEnum.ActiveType active_type=12;//活动类型
+        string advance_price = 13;
+        string advance_commission = 14; //预售返佣
+        string advance_discount = 15; //预售折扣
+
+    }
+    repeated ProductSpu spu = 2;
+}
+
+
+message GetProductMarqueeReq {
+    string product_id = 1;
+    common.base.Pagination page = 2;
+}
+
+message GetProductMarqueeResp {
+    common.base.ErrorMessage ret = 1;
+    message MarqueeInfo {
+        string avatar = 1; //头像
+        string nick = 2; //昵称
+        uint32 type = 3; //信息类型 1.浏览商品, 2.加购物车, 3.提交订单
+        string time = 4; //时间
+        string desc = 5; //描述 -> 暂不使用
+    }
+    repeated MarqueeInfo marquee = 2;
+}
+
+message ListProductByTypeReq {
+    //商品类型
+    common.enum.ProductEnum.ProductType product_type = 1;
+    common.base.Pagination page = 2;
+}
+
+message ListProductByTypeResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated ListProductInfo product_info = 3;
+}
+
+// 前台类目模块
+service CategoryService {
+    // 获取类目信息
+    rpc ListCategory (ListCategoryReq) returns (ListCategoryResp);
+
+    // 获取一级类目下的类目分组的二级类目
+    rpc ListSecondCategoryWithGroup (ListCategoryWithGroupReq) returns (ListCategoryWithGroupResp);
+
+    // 获取所有一级类目下的类目分组 暂不实现
+    rpc ListAllSecondCategoryWithGroup (ListAllSecondCategoryWithGroupReq) returns (ListAllSecondCategoryWithGroupResp);
+}
+
+message GetProductLabelInfoReq {
+    repeated string product_id = 1;
+    string country_code = 2;
+}
+message GetProductLabelInfoResp {
+    message ProductLabelInfo {
+        string product_id = 1; //商品ID
+        repeated common.enum.ProductEnum.LabelType labels = 2; //标签列表
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated ProductLabelInfo label_info = 2;
+}
+
+message GetProductLiveInfoReq {
+    string product_id = 1;
+    string country_code = 2;
+}
+
+message GetProductLiveInfoResp {
+    common.base.ErrorMessage ret = 1;
+    bool has_live = 2; // 有没有直播（默认没有）
+    string live_url = 3; //直播链接
+    string start_time = 4; // 直播开始时间
+    string advice_time = 5; // 直播建议播放时间
+    bool is_live = 6; // 在直播中
+}
+
+message ListProductByPreferredCategoryReq {
+    string cate_id = 1;
+    //类目类型
+    common.enum.CategoryEnum.PreferredCateType preferred_cate_type = 2;
+    common.base.Pagination page = 6;
+    bool filter_price = 3; // 是否按价格过滤
+}
+
+message ListProductByPreferredCategoryResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated PreferredDataInfo preferred_data_info = 3;
+}
+
+
+message PreferredDataInfo {
+    // 数据类型
+    uint32 type = 1; //1-普通商品 ；2-推荐商品列表
+    ListRecommendProductInfo recommend_product_info = 2; //推荐商品信息
+    ListPreferredProductInfo preferred_product_info = 3; //普通商品列表
+}
+
+message ListRecommendProductInfo {
+    string title = 1; //标题
+    string sub_title = 2; //副标题
+    uint32 url_type = 3; //跳转类型
+    string url = 4; //跳转地址
+    uint32 display_type = 5; //展示类型 1-展示商品列表，2-展示图片
+    string cover = 6; //图片
+    repeated ListPreferredProductInfo product_info = 7;
+    uint32 id = 8; //ID //埋点使用
+}
+
+message ListPreferredProductInfo {
+    // 商品ID
+    string product_id = 1;
+    // 缩略图
+    string cover = 2;
+    // 商品名
+    string name = 4;
+    // 商品描述
+    string desc = 6;
+    // 商品价格
+    string price = 8;
+    // 商品VIP价格
+    string price_vip = 9;
+    // 返利
+    string commission = 10;
+    //标签
+    common.enum.ProductEnum.LabelType label = 11;
+    //副标题
+    string sub_name = 12;
+    //活动价
+    string active_price = 13;
+    //是否是活动
+    bool is_active = 14;
+    //是否热卖
+    bool is_sales = 15;
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 16;
+    //活动状态
+    common.enum.MarketingEnum.ActiveStatus active_status = 17;
+    //活动角标
+    string active_icon = 18;
+    //运费类型
+    //    common.enum.ProductEnum.FreightType freight_type = 19;
+    //促销标签
+    repeated string promotion_label = 20;
+    //需要检查活动
+    bool activity_check = 21;
+
+    //需要检查促销
+    bool promotion_check = 22;
+
+    //促销信息
+    repeated PromotionUnit promotion = 23;
+
+    //活动佣金
+    string active_commission = 24;
+
+    message PromotionUnit {
+        string promotion_label = 1;
+        string promotion_id = 2;
+    }
+
+    //活动开始结束时间
+    string active_start_time = 25; //开始时间
+    string active_end_time = 26; //结束时间
+
+    //预售
+    string advance_id = 27; //预售id
+    string delivery_deadline = 28; //预计最迟发货时间
+    string pvid = 29; //商品推荐id
+    //商品类型
+    common.enum.ProductEnum.ProductType product_type = 30;
+    //优惠率
+    string discount_rate = 31;
+    //销量
+    uint32 grand_total_sales = 32;
+    //多标签
+    repeated common.enum.ProductEnum.LabelType labels = 33;
+    //标题标签
+    repeated string titleLabels = 34;
+
+    int32 available_sku_count = 35 ; // 可用sku数
+
+    bool add_cart = 36 ; // 是否能加购
+
+
+}
+
+// >>>>>message_start>>>>>>>>>>>>ProductsCategoryService 前台分类模块>>>>>>>>
+
+//一级类目
+message FrontPreferredCategory {
+    // 分类id
+    string cate_id = 1;
+    // 类目类型
+    common.enum.CategoryEnum.PreferredCateType preferred_cate_type = 2;
+    // 分类名称, 根据languageCode 获取
+    string name = 3;
+
+    bool is_selected = 4; //是否选中, 客户端用
+
+    // 前台星标二级类目
+    repeated FrontStarSubCategory front_star_second_category = 5;
+
+}
+
+message ListPreferredCategoryReq {
+    bool from_sign = 1; //是否从签到页面访问
+}
+
+message ListPreferredCategoryResp {
+    common.base.ErrorMessage ret = 1;
+    repeated FrontPreferredCategory front_preferred_category = 2;
+}
+//前台星标二级类目
+message FrontStarSubCategory {
+    // 分类id
+    string cate_id = 1;
+    // 分类名称, 根据languageCode 获取
+    string name = 2;
+    // 是否选中, 客户端用
+    bool is_selected = 3;
+}
+
+message ListStarSubCategoryReq {
+    // 前台一级类目id
+    string cate_id = 1;
+}
+
+message ListStarSubCategoryResp {
+    common.base.ErrorMessage ret = 1;
+    repeated FrontStarSubCategory front_star_sub_category = 2;// 前台星标二级类目
+}
+// >>>>>message_end>>>>>>>>>>>>ProductsCategoryService 优选类目模块>>>>>>>>
+
+message RecommendProductInfo {
+    // 商品ID
+    string product_id = 1;
+    // 缩略图
+    string cover = 2;
+    // 商品名
+    string name = 3;
+    // 商品价格
+    string price = 4;
+    // 商品VIP价格
+    string price_vip = 5;
+    // 返利
+    string commission = 6;
+    //标签
+    common.enum.ProductEnum.LabelType label = 7;
+    //副标题
+    string sub_name = 8;
+    //活动价
+    string active_price = 9;
+    //是否是活动
+    bool is_active = 10;
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 11;
+    //活动状态
+    common.enum.MarketingEnum.ActiveStatus active_status = 12;
+    //活动角标
+    string active_icon = 13;
+    //促销标签
+    repeated string promotion_label = 14;
+    //需要检查活动
+    bool activity_check = 15;
+    //需要检查促销
+    bool promotion_check = 16;
+    //促销信息
+    repeated PromotionUnit promotion = 17;
+    //活动佣金
+    string active_commission = 18;
+
+    message PromotionUnit {
+        string promotion_label = 1;
+        string promotion_id = 2;
+    }
+
+    string pvid = 19; //在用户点击查看商品详情的时候需要传入
+    //商品类型
+    common.enum.ProductEnum.ProductType product_type = 20;
+    //优惠率
+    string discount_rate = 21;
+    //销量
+    uint32 grand_total_sales = 22;
+    //多标签
+    //多标签
+    repeated common.enum.ProductEnum.LabelType labels = 23;
+
+    string weight_desc = 24; //商品最小重量, 单位kg
+}
+
+//商品详情页中根据商品获取推荐商品信息
+message RecommendProductReq {
+    string product_id = 1; //商品id
+    uint32 num = 2; //一次需要获取多少个, 为0按照后台默认配置返回
+}
+
+message RecommendProductResp {
+    common.base.ErrorMessage ret = 1;
+    repeated RecommendProductInfo recommend_product_info = 3;
+}
+
+//在商品详情页中推荐商品点击展示更多获取推荐商品列表
+message RecommendProductListReq {
+    common.base.Pagination page = 1;
+    string product_id = 2;
+}
+
+message RecommendProductListResp {
+    common.base.ErrorMessage ret = 1;
+    repeated RecommendProductInfo recommend_product_info = 3;
+    //由于推荐商品无法关联表查询, 因此当后台发现返回分页列表为空时会向后继续查找, 因此当前页请取此page内的pageNum
+    common.base.Pagination page = 4;
+}
+
+message FreightWeightRecommendReq {
+    uint32 remain_weight = 1; //到下一档剩余的重量
+    string freight_id = 2;
+    common.base.Pagination page = 3;
+}
+
+message FreightWeightRecommendResp {
+    common.base.ErrorMessage ret = 1;
+    repeated RecommendProductInfo recommend_product_info = 3;
+}
+
+message RecommendProductForYouReq {
+    string product_id = 1;
+    common.base.Pagination page = 2;
+}
+
+message RecommendProductForYouResp {
+    common.base.ErrorMessage ret = 1;
+    repeated RecommendProductInfo recommend_product_info = 2;
+    bool ended = 3; //是否是最后一页
+}
+
+message RecommendCartForYouReq {
+    common.base.Pagination page = 1;
+}
+
+message RecommendCartForYouResp {
+    common.base.ErrorMessage ret = 1;
+    repeated RecommendProductInfo recommend_product_info = 2;
+    bool ended = 3; //是否是最后一页
+}
+
+message RecommendPersonalCenterForYouReq {
+    common.base.Pagination page = 1;
+}
+
+message RecommendPersonalCenterForYouResp {
+    common.base.ErrorMessage ret = 1;
+    repeated RecommendProductInfo recommend_product_info = 2;
+    bool ended = 3; //是否是最后一页
+}
+
+message ListGiftProductV2Req {
+}
+
+message ListGiftProductInfo {
+    uint32 gift_id = 1; // 礼包ID
+    string product_id = 2; // 商品ID
+    string cover = 3; // 缩略图
+    string name = 4; // 商品名
+    string price_vip = 5; // 商品VIP价格
+    uint32 grand_total_sales = 6; //销量
+    string coupon_amount = 7; // 优惠券优惠金额
+    uint32 sort = 8; //排序
+}
+
+message ListGiftProductV2Resp {
+    message ListGiftInfoV2 {
+        uint32 gift_id = 1; // 礼包ID
+        string name = 2; // 礼包名称
+        repeated ListGiftProductInfo gift_product = 3;
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated ListGiftInfoV2 gift = 2;
+}
+
+message ListHeadGiftProductReq {
+}
+
+message ListHeadGiftProductResp {
+    common.base.ErrorMessage ret = 1;
+    repeated ListGiftProductInfo gift_product = 3;
+    string commission = 4; //返利
+}
+
+message ListGiftRecommendProductInfo {
+    string product_id = 1; // 商品ID
+    string cover = 2; // 缩略图
+    string name = 3; // 商品名
+    string price = 4; // 商品划线价
+    string price_vip = 5; // 商品VIP价格
+}
+
+message ListRecommendProductReq {
+    common.base.Pagination page = 1;
+}
+
+message ListRecommendProductResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated ListGiftRecommendProductInfo product = 3;
+}
+
+message NewProductListReq {
+    string cate_id = 1; // 前台一级类目id，默认不传返回top100
+    bool is_top9 = 2; // 是否为top9
+}
+
+message NewProductListResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    message NewProductPb {
+        string product_id = 1; // 商品ID
+        string cover = 2; // 缩略图
+        string name = 3; // 商品名
+        string price = 4; // 商品划线价
+        string price_vip = 5; // 商品VIP价格
+        string false_sales = 6; // 虚假销量
+    }
+    repeated NewProductPb product = 3;
+    int32 new_product_count = 4; // 上新量
+}
+
+message NewProductCateListReq {
+}
+
+message NewProductCateListResp {
+    common.base.ErrorMessage ret = 1;
+    message NewProductCatePb {
+        string cate_id = 1; // 商品前台一级类目
+        string name = 2; // 类目名称
+    }
+    repeated NewProductCatePb cate = 2;
+}
+
+message VirtualTopUpCategoryReq {
+}
+
+message VirtualTopUpCategoryResp {
+    common.base.ErrorMessage ret = 1;
+    message TopUpsPb {
+        string second_cate_name = 1; // 后台第二级类目top ups
+        string third_cate_name = 2; // 三级类目 话费充值
+        message TopUpsItemPb {
+            string brand_name = 1; // 运营商名称
+            string brand_logo = 2; //运营商logo
+            repeated string product_ids = 3; // 商品ids
+        }
+        repeated TopUpsItemPb top_ups_item_pbs = 3; //运营商列表 （运营商对应品牌）
+    }
+    message BillsPb {
+        string second_cate_name = 1; // 类目名称 Bills
+        message BillsItemPb {
+            string third_cate_id = 1; // 后台三级类目id
+            string third_cate_name = 2; //后台三级类目名称
+            string third_cate_icon = 3; //后台三级类目icon
+        }
+        repeated BillsItemPb bills_item_pbs = 2; //Bills的后台三级类目列表
+    }
+    TopUpsPb top_ups_pb = 2;
+    BillsPb bills_pb = 3;
+}
+
+message VirtualTopUpProdcutListReq {
+    //下面两个参数二选一
+    string cate_id = 1; // 后台三级类目id
+    repeated string product_ids = 2; // 商品ids
+}
+
+message VirtualTopUpProdcutListResp {
+    common.base.ErrorMessage ret = 1;
+    message VirtualTopUpProdcutPb {
+        string product_id = 1; // 商品id
+        string price = 2; // 充值面额/最低价
+        string price_vip = 3; // 支付面额/最高价
+        string price_active = 16; //
+        string example_url = 4; // 示例（对应商品原链接字段）
+        string sku_id = 5;
+        int32 product_type = 6; //商品类型
+        string attribute = 7; // sku属性
+        string sku_cover = 8; //sku 封面缩略图
+        string product_name = 9; // 运营商名称
+        string product_cover = 10; // 运营商logo
+        string price_difference = 11; // 差额
+        int32 activity_type = 12; // 活动类型 0 无 1、新人专享 2、限时特价
+        //运费id
+        string freight_id = 13;
+        string activity_id = 14; // 活动id
+        string activity_rate = 15; // 活动佣金率
+    }
+    repeated VirtualTopUpProdcutPb virtual_top_up_prodcut_pbs = 4;
+}
+
+//查看商品详细信息
+message ViewMeOneProductReq {
+    string product_id = 1; //商品id
+    string pvid = 2; //pvid
+}
+
+message ViewMeOneProductResp {
+    common.base.ErrorMessage ret = 1;
+    MeOneProductDetailInfo product_info = 2;
+}
+
+//spu信息加sku信息
+message MeOneProductDetailInfo {
+    // 商品id
+    string product_id = 1;
+    // 商品类型
+    common.enum.ProductEnum.ProductType product_type = 2;
+    //支持的销售国家列表
+    repeated ProductSaleCountry sale_country = 3;
+    // 商品轮图
+    string rotation = 4;
+    // 商品详情
+    string detail = 5;
+    // 商品缩略图
+    string cover = 6;
+    // 商品价
+    string price = 7;
+    // vip折扣价
+    string price_vip = 8;
+    // vip标准价
+    string price_vip_standard = 17;
+    // 商品 --> title
+    string name = 9;
+    // 副标题  --> sub title
+    string sub_name = 10;
+    // 商品描述
+    string desc = 11;
+    // 商品视频
+    string video = 12;
+    // 分享返利
+    string commission = 14;
+    // 商品SKU
+    SkuBase sku_base = 15;
+    // 商品标签
+    common.enum.ProductEnum.LabelType product_label = 16;
+    //服务策略
+    PledgeInfo pledge_info = 18;
+    //上下架状态
+    common.enum.ProductEnum.ShelveStatus shelve_status = 21; //上下架状态
+    //运费id
+    string freight_id = 24;
+    //预计收货时间
+    string estimated_delivery_time = 25;
+    //是否收藏标记位
+    bool is_collected = 28;
+    //销量
+    uint32 grand_total_sales = 29;
+    // 需要检查预售
+    bool advance_sale_check = 37;
+    //预售spu信息 -> spu下某个在售sku为预售sku, 将会填充该字段
+    AdvanceSaleSpuInfo advance_sale_spu = 38;
+    //运费类型
+    common.enum.ProductEnum.FreightType freight_type = 36;
+    //详情页展示库存规则阈值
+    uint32 stock_threshold = 39;
+    //详情页货币单位
+    string currency_unit = 40;
+    //商品售卖国家
+    string show_country = 41;
+    //sku价格存在不同
+    bool sku_price_different = 42;
+    //优惠率
+    string discount_rate = 43;
+    RangeInfo price_range = 47; // 价格区间
+    RangeInfo commission_range = 48; // 返佣区间
+    RangeInfo org_price_range = 49; // 原价区间
+    string product_label_image = 50; // 商品标签图片
+    //标题标签
+    repeated string titleLabels = 53;
+
+    bool add_cart = 54; //是否可以加入购物车
+
+}
+message ListPreferredMeOneProductReq {
+    string cate_id = 1;
+    common.enum.CategoryEnum.PreferredCateType preferred_cate_type = 2;
+    common.base.Pagination page = 3;
+}
+
+message LiveProductInfo {
+    string product_id = 1;
+    string name = 2;
+    string cover = 3;
+    int32 sale = 4;
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 16;
+    //商品类型
+    common.enum.ProductEnum.ProductType product_type = 30;
+}
+
+message LiveCardInfo {
+    string id = 1; //ID //埋点使用
+    string title = 2; //标题
+    string sub_title = 3; //副标题
+    uint32 url_type = 4; //跳转类型
+    string url = 5; //跳转地址
+    //uint32 display_type = 5; //展示类型 1-展示商品列表，2-展示图片
+    string cover = 6; //图片
+    string start_time = 7; //直播开始时间
+    string end_time = 8; //直播结束时间
+    string commission = 9; //返佣金
+    string share_reward = 10; //分享奖励
+    LiveProductInfo live_product_info = 11;//直播商品信息
+    int32 height = 12; //高
+    int32 width = 13; //宽
+    int32 viewers = 14; //观看人数
+}
+
+message ActiveCardInfo {
+    string id = 8; //ID //埋点使用
+    string title = 1; //标题
+    string sub_title = 2; //副标题
+    uint32 url_type = 3; //跳转类型
+    string url = 4; //跳转地址
+    string cover = 6; //图片
+    int32 height = 9; //高
+    int32 width = 10; //宽
+}
+
+message PreferredProductInfo {
+    // 商品ID
+    string product_id = 1;
+    // 缩略图
+    string cover = 2;
+    // 商品名
+    string name = 4;
+    // 商品价格
+    string price = 8;
+    // 商品VIP价格
+    string price_vip = 9;
+    //活动价
+    string active_price = 10;
+    // 返利
+    string commission = 11;
+    //活动佣金
+    string active_commission = 12;
+    //是否是活动
+    bool is_active = 14;
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 16;
+    //活动状态
+    common.enum.MarketingEnum.ActiveStatus active_status = 17;
+    //活动角标
+    string active_icon = 18;
+    //促销标签
+    repeated string promotion_label = 20;
+    //商品推荐id
+    string pvid = 29;
+    //商品类型
+    common.enum.ProductEnum.ProductType product_type = 30;
+    //优惠率
+    string discount_rate = 31;
+    //销量
+    uint32 grand_total_sales = 32;
+    //多标签
+    repeated common.enum.ProductEnum.LabelType labels = 33;
+    //标题标签
+    repeated string titleLabels = 34;
+    int32 height = 35; //高
+    int32 width = 36; //宽
+}
+
+message ProductCardInfo {
+    // 商品ID
+    string product_id = 1;
+    // 缩略图
+    string cover = 2;
+    // 商品价格
+    string price = 8;
+    // 商品VIP价格
+    string price_vip = 9;
+    //活动价
+    string active_price = 10;
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 16;
+    //商品类型
+    common.enum.ProductEnum.ProductType product_type = 30;
+    //优惠率
+    string discount_rate = 32;
+}
+
+message HotCardInfo {
+    string id = 1;
+    //跳转地址
+    string url = 34;
+    int32 url_type = 35;
+    repeated ProductCardInfo product_card_info = 2;
+}
+
+message LimitCardInfo {
+    string id = 1;
+    string count_down_time = 2; //限时抢购结束时间戳
+    repeated ProductCardInfo product_card_info = 3;
+}
+
+message PreferredCardInfo {
+    // 数据类型
+    uint32 type = 1; //0:商品 1:直播中 2:直播回放 3:直播预告 4:爆款好物 5:限时抢购 6:营销资源位
+    LiveCardInfo live_card_info = 2; //直播商品信息
+    ActiveCardInfo active_card_info = 3; //营销card
+    PreferredProductInfo preferred_product_info = 4; //普通商品列表
+    HotCardInfo hot_card_info = 5; //爆款好物
+    LimitCardInfo limit_card_info = 6; //限时抢购
+}
+
+message ListPreferredMeOneProductResp {
+    common.base.ErrorMessage ret = 1;
+    repeated PreferredCardInfo preferred_card_info = 3;
+}
+
+message LiveUnitProduct {
+    string image = 1;
+    string title = 2;
+    string growth = 3;
+    string price = 4;
+    string product_id = 5;
+}
+
+message ListVirtualGiftReq {
+
+}
+
+message ListVirtualGiftResp {
+    common.base.ErrorMessage ret = 1;
+    repeated LiveUnitProduct live_unit_product = 2;
+}
+
+message ListProductByIdForLiveReq {
+    repeated string product_id = 1;
+}
+
+message ListProductByIdForLiveResp {
+    common.base.ErrorMessage ret = 1;
+    repeated LiveUnitProduct live_unit_product = 2;
+}
+
+message UpdateUserPriceRateReq {
+    string rate = 2;
+}
+
+message UpdateUserPriceRateResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message ViewSharePriceInfoReq {
+    string product_id = 1;
+}
+
+message ViewSharePriceInfoResp {
+    common.base.ErrorMessage ret = 1;
+    string price = 2;
+    string rate = 3;
+    RangeInfo price_range = 4; // 价格区间
+}
+
+message ShareProductReq {
+    string product_id = 1;
+    string price = 2;
+}
+
+message ShareProductResp {
+    common.base.ErrorMessage ret = 1;
+    string share_id = 2;
+}
+
+// 商品模块
+service ProductService {
+    //分享加价商品
+    rpc ShareProduct (ShareProductReq) returns (ShareProductResp);
+
+    //修改默认加价率
+    rpc UpdateUserPriceRate (UpdateUserPriceRateReq) returns (UpdateUserPriceRateResp);
+
+    //查看转发基础信息
+    rpc ViewSharePriceInfo (ViewSharePriceInfoReq) returns (ViewSharePriceInfoResp);
+
+    // 虚拟礼包商品
+    rpc ListVirtualGift (ListVirtualGiftReq) returns (ListVirtualGiftResp);
+
+    // 会员介绍页商品
+    rpc ListProductByIdForLive (ListProductByIdForLiveReq) returns (ListProductByIdForLiveResp);
+
+    // 商品详情
+    rpc ViewProduct (ViewProductReq) returns (ViewProductResp);
+
+    // meone商品详情
+    rpc ViewMeOneProduct (ViewMeOneProductReq) returns (ViewMeOneProductResp);
+
+    // 普通分类下商品列表，通过类目id
+    rpc ListProductByCategory (ListProductByCategoryReq) returns (ListProductByCategoryResp);
+
+    // 通过类目id 实现商品分类
+    rpc ClassifyProductByCategory (ClassifyProductByCategoryReq) returns (ClassifyProductByCategoryResp);
+
+    // 获取礼包商品
+    rpc ListGiftProduct (ListGiftProductReq) returns (ListGiftProductResp);
+
+    //搜索商品列表  转移至search 模块
+    //rpc SearchProductList (SearchProductListReq) returns (SearchProductListResp);
+
+    //获取Spu信息
+    rpc GetProductSpu (GetProductSpuReq) returns (GetProductSpuResp);
+
+    //详情页跑马灯
+    rpc GetProductMarquee (GetProductMarqueeReq) returns (GetProductMarqueeResp);
+
+    //根据商品类型获取商品列表
+    rpc ListProductByType (ListProductByTypeReq) returns (ListProductByTypeResp);
+
+    //获取商品标签 基础标签不在此处
+    rpc GetProductLabelInfo (GetProductLabelInfoReq) returns (GetProductLabelInfoResp);
+
+    //商品直播信息
+    rpc GetProductLiveInfo (GetProductLiveInfoReq) returns (GetProductLiveInfoResp);
+
+
+}
+
+// meOne优选类目模块
+service PreferredMeOneProductService {
+    // 普通分类下商品列表，通过类目id
+    rpc ListPreferredMeOneProduct (ListPreferredMeOneProductReq) returns (ListPreferredMeOneProductResp);
+
+}
+
+// 优选类目模块
+service PreferredCategoryService {
+    // 获取类目信息
+    rpc ListPreferredCategory (ListPreferredCategoryReq) returns (ListPreferredCategoryResp);
+
+    // 普通分类下商品列表，通过类目id
+    rpc ListProductByPreferredCategory (ListProductByPreferredCategoryReq) returns (ListProductByPreferredCategoryResp);
+
+    // 获取前台类目下星标子类目
+    rpc ListStarSubCategory (ListStarSubCategoryReq) returns (ListStarSubCategoryResp);
+}
+
+
+service GiftService {
+    // 礼包列表
+    rpc ListGiftProductV2 (ListGiftProductV2Req) returns (ListGiftProductV2Resp);
+
+    // 头部礼包列表
+    rpc ListHeadGiftProduct (ListHeadGiftProductReq) returns (ListHeadGiftProductResp);
+
+    // 获取礼包推荐商品列表
+    rpc ListRecommendProduct (ListRecommendProductReq) returns (ListRecommendProductResp);
+
+}
+
+service RecommendProductService {
+
+    //详情页
+    rpc RecommendProduct (RecommendProductReq) returns (RecommendProductResp);
+
+    //推荐列表页
+    rpc RecommendProductList (RecommendProductListReq) returns (RecommendProductListResp);
+
+    //运费推荐
+    rpc FreightWeightRecommend (FreightWeightRecommendReq) returns (FreightWeightRecommendResp);
+
+    //商品详情页为你推荐
+    rpc RecommendProductForYou (RecommendProductForYouReq) returns (RecommendProductForYouResp);
+
+    //购物车为你推荐
+    rpc RecommendCartForYou (RecommendCartForYouReq) returns (RecommendCartForYouResp);
+
+    //个人中心为你推荐
+    rpc RecommendPersonalCenterForYou (RecommendPersonalCenterForYouReq) returns (RecommendPersonalCenterForYouResp);
+
+    //新品页
+    rpc NewProductList (NewProductListReq) returns (NewProductListResp);
+
+    //新品页类目
+    rpc NewProductCateList (NewProductCateListReq) returns (NewProductCateListResp);
+}
+
+// 虚拟充值
+service VirtualTopUpService {
+    // 虚拟充值类目信息
+    rpc VirtualTopUpCategory (VirtualTopUpCategoryReq) returns (VirtualTopUpCategoryResp);
+
+    // 虚拟充值商品列表
+    rpc VirtualTopUpProdcutList (VirtualTopUpProdcutListReq) returns (VirtualTopUpProdcutListResp);
+}

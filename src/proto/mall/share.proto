@@ -1,0 +1,33 @@
+syntax = "proto3";
+package mall.share;
+
+import "common/errcode.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.mall.share";
+option java_outer_classname = "Share";
+
+
+message ShareProductReq {
+    string product_id = 1;
+}
+
+//    mav.addObject("productId", product.getId());
+//    mav.addObject("productsFormCn", product.getProductsFormCn());
+//    mav.addObject("productsFormEn", product.getProductsFormEn());
+//    把map替换成下面这个返回格式
+message ShareProductResp {
+    common.base.ErrorMessage ret = 1;
+    string product_id = 2;
+    string product_from_cn = 3;
+    string product_from_en = 4;
+}
+
+// >>>>>message_end>>>>>>>>>>>>ProductShareService >>>>>>>>
+
+// 商品分享
+service ProductShareService {
+    // 商品分享
+    rpc ShareProduct (ShareProductReq) returns (ShareProductResp);
+}

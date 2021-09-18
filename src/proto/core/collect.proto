@@ -1,0 +1,109 @@
+//DESC APP littlec-cart
+syntax = "proto3";
+package core.collect;
+
+
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.collect";
+option java_outer_classname = "Collect";
+
+//该功能放置于cart 服务, 请求时请确保向cart服务请求
+
+// >>>>>message_start>>>>>>>>>>>>ProductCollectService 商品收藏模块>>>>>>>>
+message AddProductCollectReq {
+    string product_id = 1; //待收藏商品id
+    //    string user_id = 2; //用户id
+}
+
+message AddProductCollectResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message DeleteProductCollectReq {
+    // true:一键删除无效商品，false：不删除无效商品
+    bool is_delete_invalid = 1;
+    // 商品id
+    repeated string product_id = 2;
+    // 用户id
+    //    string user_id = 3;
+    string collect_item_id = 4; //收藏项id
+
+}
+
+message DeleteProductCollectResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message CollectProductInfo {
+    string product_id = 1; //商品信息
+    string price = 2; //商品价格
+    string price_vip = 3; //商品优惠价格
+    string cover = 4; //商品缩略图
+    string title = 5; //商品标题
+    common.enum.ProductEnum.ShelveStatus shelve_status = 6; //商品上下架状态
+    string label = 7; //标签
+    string points = 8; //积分
+    //活动
+    string activity_price = 9; //活动价格
+    string activity_id = 10; //活动价格id
+    string activity_commission_rate = 11; //活动佣金率
+    //活动类型
+    common.enum.MarketingEnum.ActiveType active_type = 12;
+    //活动状态
+    common.enum.MarketingEnum.ActiveStatus active_status = 13;
+    //价格底图
+    string activity_bottom_img = 14;
+    //活动角标
+    string active_icon = 15;
+    //活动佣金
+    //string activity_commission = 16;
+    //开始时间
+    string start_time = 17;
+    //结束时间
+    string end_time = 18;
+    //预热
+    common.enum.MarketingEnum.PreheatType preheat_type = 19;
+    //sku中最低活动价
+    string active_price = 20;
+    // 自购节省
+    //string activity_commission_self = 21;
+    //活动价格底图跳转地址
+    string active_bc_url = 22;
+    //商品类型
+    common.enum.ProductEnum.ProductType product_type =  23;
+
+}
+
+message ListProductCollectReq {
+    // 请求来源，客户端：1，H5:2
+    int32 come_from = 1;
+    // 点击分享链接时，传入分享人的邀请码
+    string invited_code = 2;
+    common.base.Pagination page = 3;
+//    string country_code = 4; //国家码
+}
+
+message ListProductCollectResp {
+    common.base.ErrorMessage ret = 1;
+    repeated CollectProductInfo collect_product_info = 2; // 商品信息集合
+    int32 invalid_count = 3; // 无效商品总数
+    string view_count = 4; // 被浏览总数
+    uint32 total = 5; //总数
+    string label = 6; //商品标签
+    string desc = 7; //商品描述
+    string commission = 8; // 分拥金额
+}
+// >>>>>message_end>>>>>>>>>>>>ProductCollectService 商品收藏模块>>>>>>>>
+
+// 商品收藏
+service CollectService {
+    // 商品添加收藏
+    rpc AddProductCollect (AddProductCollectReq) returns (AddProductCollectResp);
+    // 商品删除收藏
+    rpc DeleteProductCollect (DeleteProductCollectReq) returns (DeleteProductCollectResp);
+    // 查询商品收藏
+    rpc ListProductCollect (ListProductCollectReq) returns (ListProductCollectResp);
+}

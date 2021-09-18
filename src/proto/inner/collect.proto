@@ -1,0 +1,40 @@
+syntax = "proto3";
+package core.cart;
+
+import "common/errcode.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.collect";
+option java_outer_classname = "Collect";
+
+//商品上下架时回调信息
+message ChangeCollectProductStatusReq {
+    uint64 product_id = 1; //商品id
+    uint32 status = 2; // 商品记录状态 1 有效 2 失效, 对应商品spu的上架, 下架
+}
+
+message ChangeCollectProductStatusResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+
+//判断用户是否收藏商品
+message CheckUserCollectRecordReq {
+    uint64 user_id = 1;
+    uint64 product_id = 2;
+}
+
+message CheckUserCollectRecordResp {
+    //返回码
+    common.errcode.ErrorCode ret = 1;
+    //是否收藏
+    bool collected = 2;
+}
+
+service CollectService {
+    //商品上下架时更新收藏记录中商品的status 状态
+    rpc ChangeCollectProductStatus (ChangeCollectProductStatusReq) returns (ChangeCollectProductStatusResp);
+    //判断用户是否收藏商品
+    rpc CheckUserCollectRecord (CheckUserCollectRecordReq) returns (CheckUserCollectRecordResp);
+}

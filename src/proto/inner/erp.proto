@@ -1,0 +1,801 @@
+// 供应链 - 供应商
+syntax = "proto3";
+package inner.erp;
+
+import "common/errcode.proto";
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.erp";
+option java_outer_classname = "Erp";
+
+// ################################ 供应商信息 ################################
+message SupplierPB {
+    uint64 supplier_id = 1; // 供应商ID
+    string supplier_name = 2; // 供应商全称
+    string sort_name = 3; //供应商简称
+    string country_code =4;//国家码
+    string brand_ids = 5;//品牌信息
+}
+
+message SupplierPageReq {
+    common.base.Pagination page = 1; // 分页结构体
+    repeated uint64 supplier_id = 2; // 供应商ID
+    string supplier_name = 3; // 供应商全称
+    string sort_name = 4; //供应商简称
+}
+
+message SupplierPageResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    uint32 total = 2; //总数
+    repeated SupplierPB list = 3; //库存列表信息
+}
+message SupplierQueryResp{
+    common.errcode.ErrorCode ret = 1; // 返回值
+    string supplier_id =2;//商家id
+    string country_code = 3;//国家编码
+    string supplier_name =4;//供应商名称
+
+}
+message SupplierQueryReq{
+    string user_id = 1;//用户id
+}
+
+// ################################ 仓库信息 ################################
+message WarehousePB {
+    string warehouse_no = 1; // 仓库代码
+    string warehouse_name = 2; // 仓库名称
+}
+
+message WarehousePageReq {
+    common.base.Pagination page = 1; // 分页结构体
+    repeated string warehouse_no = 2; // 仓库代码
+    string warehouse_name = 3; // 仓库名称
+}
+
+message WarehousePageResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    uint32 total = 2; //总数
+    repeated WarehousePB list = 3; //库存列表信息
+}
+
+
+message OrderPaySuccReq {
+    string order_no = 1; // 订单编号
+    int64 pay_time = 2; // 付款成功时间，时间戳
+    string pay_type =3; // 支付类型。COD:COD；其他:OTHER
+}
+message OrderPaySuccResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+
+// 订单申请全部退款
+message OrderApplyFullRefundReq {
+    string order_no = 1; // 订单编号
+}
+message OrderApplyFullRefundResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+
+
+// 订单中部分sku全部退款
+message OrderSkuApplyFullRefundReq {
+    string order_no = 1; // 订单编号
+    string remark = 2; // 退款理由
+    repeated string sku_code = 3; // 退款的sku
+}
+message OrderSkuApplyFullRefundResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+
+// 订单申请部分退款
+message OrderApplyPartRefundReq {
+    string order_no = 1; // 订单编号
+    repeated OutNoSkuItem item = 2;//退款信息
+}
+
+message OutNoSkuItem {
+    string out_no = 1; // 出库单号
+    string sku_code = 2; //sku代码
+    int32 count = 3; // 操作数量
+    common.enum.ErpEnum.OutOrderStatus out_status = 4; // 出库状态
+    string cannel_reason = 5; // 取消原因
+}
+
+message OrderApplyRefundItemResp {
+    int64 suborder_no = 1; // 子单号
+    string out_no=2; //出库单号
+    string sku_code=3; //sku代码
+    int32 count=4;  //操作数量
+}
+
+message OrderApplyPartRefundResp {
+//    common.errcode.ErrorCode ret = 1; // 返回值
+    common.base.ErrorMessage ret = 1;// 返回值
+    string order_no = 2; // 订单编号
+    repeated OrderApplyRefundItemResp item = 3;
+}
+
+// 根据订单号和skus查询sku对应的所有出库单信息
+message QueryOutOrderInfoReq {
+    string order_no = 1; // 订单编号
+    repeated string sku_code = 2; // sku代码
+}
+message QueryOutOrderInfoResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated OutOrderItem item = 2; //sku信息
+    message OutOrderItem {
+        string out_no = 1; //出库单编号
+        common.enum.ErpEnum.OutOrderStatus out_status = 2; // 出库状态
+        repeated SkuCountItem sku = 3; //sku信息
+    }
+}
+message SkuCountItem {
+    string sku_code = 1; //skucode
+    int32 count = 2; //商品数量
+}
+
+// 订单拒绝全部退款
+message OrderRefuseFullRefundReq {
+    string order_no = 1; // 订单编号
+}
+message OrderRefuseFullRefundResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+
+message OutOrderCallbackSkuPB {
+    string sku_code = 1; // 出库的sku
+    uint32 count = 2; // 实际数量
+    uint32 expected_count = 3; // 预期数量
+}
+message OutOrderCallbackReq {
+    string outNo = 1; // 出库单号
+    string company_code = 2; // 仓库公司代码 JYD|JNT
+    string logi_code = 3; // 配送单号
+    string logi_company = 4; // 配送公司
+    repeated OutOrderCallbackSkuPB sku = 5; // 出库的sku
+    string content = 6; // 请求的原始参数
+}
+message OutOrderCallbackResp {
+    common.errcode.ErrorCode code = 1;
+    string message = 2;
+}
+
+message QuerySplitOrderReq {
+    repeated string order_no = 1; // 订单编号
+}
+message QuerySplitOrderResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated SplitOrderItem item = 2;//拆单子单信息
+    message SplitOrderItem {
+        int64 suborder_no = 1;
+        string warehouse_no = 2; //仓库ID
+        string warehouse_name = 3;
+        string split_type = 4; //拆单类型
+        string order_no = 5; //订单编号
+        repeated ProductItem product = 6;
+    }
+}
+
+message ProductItem {
+    string sku_code = 1;
+    int32 num = 2; //购买件数
+    string snap_code = 3; //快照码
+    int64 supplier_id = 4;//供应商ID
+}
+
+message CheckModifyOrderAddressReq {
+    string order_no = 1; // 订单编号
+}
+message CheckModifyOrderAddressResp {
+    common.base.ErrorMessage ret = 1; // 返回值
+    common.enum.ErpEnum.YesNo can_modify = 2;//是否可修改
+}
+
+message QueryOrderSkuCountReq {
+    repeated string order_no = 1; // 订单编号
+}
+message QueryOrderSkuCountResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated OrderSkuItem item = 2;//发货商品信息
+    message OrderSkuItem {
+        string order_no = 1; //订单号
+        repeated OrderSkuCountItem item = 2;//发货商品信息
+    }
+}
+message OrderSkuCountItem {
+    string sku_code = 1;//skucode
+    int32 count = 2;//数量
+}
+
+message QueryOutPurchaseInfoReq {
+    string order_no = 1; // 订单编号
+}
+message QueryOutPurchaseInfoResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated OutPurchaseInfo info = 2;//返回信息
+    message OutPurchaseInfo {
+        string sub_order_no = 1; //子订单编号
+        repeated OutPurchaseDetail detail = 2;//返回具体信息
+    }
+}
+message OutPurchaseDetail {
+    string sku_code = 1;//skucode
+    int32 delivery_count = 2;//发货数量
+    int32 purchase_count = 3;//采购数量
+    repeated OutPurchaseOutDetail out_detail = 4;//出库单信息
+    repeated OutPurchasePurDetail pur_detail = 5;//采购单信息
+}
+message OutPurchaseOutDetail {
+    string out_no = 1;//出库单号
+    common.enum.ErpEnum.OutOrderStatus out_status = 2; // 出库状态
+    int64 continue_time = 3;//持续时间
+    common.enum.ErpEnum.YesNo is_timeout = 4; // 是否超时
+}
+message OutPurchasePurDetail {
+    string purchase_no = 1;//采购单号
+    string purchase_order_status = 2; //采购单状态
+    int64 continue_time = 3;//持续时间
+    common.enum.ErpEnum.YesNo is_timeout = 4; // 是否超时
+}
+
+// ################################ 采购单 ################################
+
+message ManualPushPurchaseOrderReq {
+    repeated PushAdvanceSku sku = 1; // 注意：sku传空会推送所有的预售SKU ！！
+    message PushAdvanceSku { // advance_id、sku_code 不能同时为空
+        int64 advance_id = 1;
+        string sku_code = 2;
+    }
+}
+message ManualPushPurchaseOrderResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+
+// ################################ 库存 ################################
+message GetInventoryReq {
+    repeated string sku_code = 1;
+    string country_code = 2; // 国家码
+    repeated int64 sku_id = 3;
+}
+
+message GetInventoryResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated InventoryPB list = 2; //查询的信息列表
+}
+
+message InventoryPB {
+    string country_code = 1; // 国家码
+    string sku_code = 2;
+    int32 qty = 3; // 商家库存 + 可用库存 - 备货阀值
+    int32 in_stock_qty = 4; //在库库存
+    int64 sku_id = 5;//skuId
+}
+
+
+message CreateOrderLockQtyReq {
+    string order_no = 1; // 订单号
+    string remark = 2; // 备注
+    repeated SkuInfo skuInfo = 3;
+    string country_code = 4; // 订单的国家码
+    message SkuInfo {
+        string warehouse_no = 1; // 仓库编号
+        string sub_order_no = 2; // 子单号
+        string sku_code = 3; // skuCode
+        string snap_code = 4;
+        int32 count = 5; // 数量
+    }
+}
+
+message CreateOrderLockQtyResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+
+
+// 查询物流信息
+message QueryLogiReq { // 订单物流号查询
+   string logi_code = 1; // 物流单号
+   string logi_company = 2; // 物流公司代码
+   common.enum.ErpEnum.YesNo refresh = 3; // 是否刷新缓存
+}
+
+message QueryLogiResp { // 订单物流号查询
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated LogiPB logi = 2; // 物流信息
+    string query_url = 3; // 查询url
+    message LogiPB {
+        string time = 1; // 当前操作时间 | 时间戳,毫秒
+        string type = 2; // 操作类型 | 收件
+        string desc = 3; // 类型描述 | 深圳中转中心】的【黄主管】已收件
+    }
+}
+
+message GetLogiReq {
+    string suborder_no = 1;
+    string language_code = 2; // 国家码
+}
+
+message GetLogiResp {
+    message LogiItem{
+        string logi_code=1;//物流单号
+        string logi_company = 2; // 物流公司代码
+        string query_url = 3; // 查询url
+        repeated ProductItem product=4;//商品信息
+        repeated LogiPB logi = 5; // 物流详情
+        string language_code = 6;//语言码
+    }
+    message LogiPB {
+        string time = 1; // 当前操作时间 | 时间戳,毫秒
+        string type = 2; // 操作类型
+        string desc = 3; // 类型描述
+        int32 need_i18n =4; //是否需要i18，1-需要 其它不需要
+    }
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated LogiItem logi_item=2;//物流信息
+}
+
+message GetLogiSkuReq {
+    repeated string logi_code=1;
+}
+
+message GetLogiSkuResp {
+    message LogiProduct{
+        string logi_code=1;
+        string suborder_no=2;
+        repeated ProductItem product=3;//商品信息
+    }
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated LogiProduct logi_product=2;
+}
+
+// 查询订单最后派送时间
+message QueryOrderLastDeliverReq {
+    string logi_company = 1; // 查询的物流公司
+    repeated string order_no = 2; // 订单号
+}
+message QueryOrderLastDeliverResp { // 订单物流号查询
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated OrderDeliver deliver = 2; // 订单物流信息
+    message OrderDeliver {
+        string order_no = 1; // 订单号
+        string sub_order_no = 2; // 子单号
+        string logi_code = 3; // 物流单号
+        string time = 4; // 最后派送时间，时间戳
+    }
+}
+
+//货代时效获取
+message GetLogiAgingAgentReq {
+    repeated LogiAgentInfo agent_info = 1;
+    message LogiAgentInfo {
+        string sub_order_no = 1; // 子单号
+        string area = 2;//区
+        string state = 3;//省
+        string country_code = 4;//国家码
+        string nature = 5;//GENERAL:普货;SENSITIVE:敏感货
+    }
+}
+message GetLogiAgingAgentResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated LogiAgentDay agent_day = 2;
+    message LogiAgentDay {
+        string sub_order_no = 1; // 子单号
+        int32 min_day = 2;
+        int32 max_day = 3;
+    }
+}
+//宅配时效获取
+message GetLogiAgingHomeReq {
+    repeated LogiHomeInfo home_info = 1;
+    message LogiHomeInfo {
+        string country_code =1;//国家码
+        string area = 2;//区
+        string state = 3;//省
+    }
+}
+message GetLogiAgingHomeResp {
+     common.errcode.ErrorCode ret = 1; // 返回值
+     repeated LogiHomeDay home_day = 2;
+     message LogiHomeDay {
+         string country_code =1;//国家码
+         string area = 2;//区
+         string state = 3;//省
+         int32 min_day = 4;
+         int32 max_day = 5;
+     }
+}
+
+
+// 查询订单最后派送时间
+message InitInventoryReq {
+    repeated string sku_code = 1; // sku编码
+}
+message InitInventoryResp { // 订单物流号查询
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+
+message GetAddressReq {
+    string country_code = 1;
+    string state_name = 2;
+    string postcode = 3;
+}
+message GetAddressResp {
+    message CityInfo {
+        string city_name = 1;
+        string city_code = 2;
+        repeated string postcode = 3;
+    }
+    message StateInfo {
+        string state_name = 1;
+        string state_code = 2;
+        repeated CityInfo city = 3;
+    }
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated StateInfo stat = 2;
+}
+
+message GetAddress2Resp {
+    message AddressRecord {
+        string country_code=1;
+        string area=2;
+        string state = 3;
+        string state_en = 4;
+        string city = 5;
+        string city_en = 6;
+        string postcode = 7;
+        string superior_postcode = 8;
+    }
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated AddressRecord address = 2;
+}
+
+message CheckAddressStatusReq {
+    string country_code = 1;
+    string state_en = 2;
+    string city_en = 3;
+    string postcode = 4;
+}
+message CheckAddressStatusResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    common.enum.ErpEnum.YesNo status = 2;//是否有效。yes:有效；no:无效
+}
+
+message QueryOutOrderSkuInfoReq {
+    repeated QueryOutOrderSkuInfoPb item = 1; //根据子单号、物流单号查询SKU信息，最多只能查询50个
+
+    message QueryOutOrderSkuInfoPb {
+        string sub_order_no = 1; // 子订单编号
+        string logi_code = 2;    //物流单号
+    }
+}
+
+message QueryOutOrderSkuInfoResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated OutOrderItem item = 2; //子订单、物流单号、SKU信息
+
+    message OutOrderItem {
+        string sub_order_no = 1; // 子订单编号
+        string logi_code = 2;    //物流单号
+        repeated OutOrderSkuItem sku_item = 3; //出库单sku信息
+    }
+
+    message OutOrderSkuItem {
+        string sku_code = 1;
+        int32 num = 2;
+    }
+}
+
+message SfCallbackReq {
+    string content = 1;
+}
+
+message SfCallbackResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+
+
+message LogiTrackingCallbackReq {
+    string logiCode = 1;        //物流单号
+    string logiCompany = 2;     //物流方式
+    string tracking_info = 3;   //物流跟踪信息
+    bool kuaidi100 = 4;         //是否快递100
+}
+
+message LogiTrackingCallbackResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+message SupplierEditAndSaveInventoryReq{
+    string language_code = 7;//语言码
+    repeated SupplierInventoryEditAndSavePB inventorySaveAndEdit =2;//商家库存修改接收参数
+}
+message SupplierInventoryEditAndSavePB{
+    string sku_code = 2; //sku编码
+    string snap_code = 3; //商品版本号
+    string supplier_id = 4; //供应商id
+    int32 count = 6; //库存数量
+    int32 channel=7;//来源 商家新增商品才需要维护库存
+    int32 sale_way = 8;//销售方式
+    int32 delivery_way = 9;//发货方式
+}
+
+message SupplierEditAndSaveInventoryRes{
+    common.base.ErrorMessage ret = 1; // 返回值
+    string message = 2; //返回信息
+}
+
+message SupplierSkuInventoryQueryReq{
+    repeated string sku_code = 2; //sku编码 必填
+    string snap_code = 3; //商品版本号
+    string supplier_id = 4; //供应商id 必填
+}
+message SupplierSkuInventoryQueryRes{
+    common.base.ErrorMessage ret = 1; // 返回值
+    repeated SupplierSkuInventoryPB inventoryList = 2;
+}
+
+message SupplierSkuInventoryPB{
+    string sku_code = 1;//skuCode
+    string snap_code =2;//商品版本号
+    string supplier_id = 3;//商家ID
+    int32 book_qty = 4; //占用库存
+    int32 stock_qty = 5;//商家库存
+}
+
+//商家库存相关信息
+service SupplierInventoryService{
+    //商家编辑保存库存信息
+    rpc SupplierInventorySaveAndEdit (SupplierEditAndSaveInventoryReq) returns (SupplierEditAndSaveInventoryRes);
+
+    //根据SKU信息查询对应库存
+    rpc SupplierSkuInventoryQuery (SupplierSkuInventoryQueryReq) returns (SupplierSkuInventoryQueryRes);
+}
+
+message AliOceanReq {
+    string message = 1; // 消息的json串
+    string signature =2;// 签名
+}
+message AliOceanResp {
+    common.errcode.ErrorCode ret = 1;
+}
+message IncomeOrderSignCallbackReq{
+    string income_order_no = 1;//入库单号
+    string sign_time =2;//签收时间
+    string income_time =3;//入库时间
+    repeated IncomeOrderSkuPB skuList =4;
+
+}
+message IncomeOrderSkuPB{
+    string sku_code =1; //skucode
+    int32 count =2;//实际入库数量
+}
+message IncomeOrderSignCallbackResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message SupplierTraceabilityReq {
+    uint64 org_id = 1; // offer id
+    uint64 product_id = 2; // spu product id
+}
+
+message SupplierTraceabilityResp {
+    message SupplierInfo {
+        uint64 supplier_id = 1; // supplierId
+    }
+    common.base.ErrorMessage ret = 1; // 返回值
+    string message = 2;
+    SupplierInfo supplier_info = 3; // 供应商信息
+}
+
+message ProductIdListFilterReq {
+    string country_code = 1;//国家码
+    repeated int64 spuList = 2;//商品id集合
+}
+
+message ProductIdListFilterResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    string message = 2;
+    repeated int64 spuList = 3;//商品id集合
+}
+message LogisticsSignStatusReq{
+    string order_no = 1;//订单号
+}
+message LogisticsSignStatusResp{
+    common.errcode.ErrorCode ret = 1; // 返回值
+    int32 sign_status = 2;//1为签收 2未签收
+}
+
+message GetAdvanceSkuStatReq {
+    repeated AdvanceSku sku = 1;
+    message AdvanceSku {
+        int64 advance_id = 1;
+        string sku_code = 2;
+    }
+}
+message GetAdvanceSkuStatResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated AdvanceSkuStat list = 2; //查询的信息列表
+    message AdvanceSkuStat {
+        int64 advance_id = 1;
+        string sku_code = 2;
+        int32 wait_push_count = 6; // 待推采购单
+        int32 timeout_push_count = 7; // 超时未推单
+    }
+}
+
+// 预售手动推送采购单
+service AdvanceInventoryService {
+    // 获取预售sku统计
+    rpc GetAdvanceSkuStat (GetAdvanceSkuStatReq) returns (GetAdvanceSkuStatResp);
+    // 预售手动推送采购单
+    rpc ManualPushPurchaseOrder (ManualPushPurchaseOrderReq) returns (ManualPushPurchaseOrderResp);
+}
+
+// 出库单
+service OutOrderService {
+    // 订单付款成功通知
+    rpc OrderPaySucc (OrderPaySuccReq) returns (OrderPaySuccResp);
+
+    // 订单申请全部退款
+    rpc OrderApplyFullRefund (OrderApplyFullRefundReq) returns (OrderApplyFullRefundResp);
+
+    // 订单中部分sku全部退款
+    rpc OrderSkuApplyFullRefund (OrderSkuApplyFullRefundReq) returns (OrderSkuApplyFullRefundResp);
+
+    // 拒绝全部退款
+    rpc OrderRefuseFullRefund (OrderRefuseFullRefundReq) returns (OrderRefuseFullRefundResp);
+
+    // 出库单回调、出库单发货
+    rpc OutOrderCallback (OutOrderCallbackReq) returns (OutOrderCallbackResp);
+
+    // 根据订单号查询拆单信息
+    rpc QuerySplitOrder (QuerySplitOrderReq) returns (QuerySplitOrderResp);
+
+    // 订单申请部分退款
+    rpc OrderApplyPartRefund (OrderApplyPartRefundReq) returns (OrderApplyPartRefundResp);
+
+    // 根据订单号和skus查询sku对应的所有出库单信息
+    rpc QueryOutOrderInfo (QueryOutOrderInfoReq) returns (QueryOutOrderInfoResp);
+
+    // 修改订单收货地址
+    rpc CheckModifyOrderAddress (CheckModifyOrderAddressReq) returns (CheckModifyOrderAddressResp);
+
+    // 根据订单号查询发货信息(skuCode,count)
+    rpc QueryOrderSkuCount (QueryOrderSkuCountReq) returns (QueryOrderSkuCountResp);
+
+    // 根据子单号查询发货、采购等信息
+    rpc QueryOutPurchaseInfo (QueryOutPurchaseInfoReq) returns (QueryOutPurchaseInfoResp);
+
+    rpc QueryOutOrderSkuInfo (QueryOutOrderSkuInfoReq) returns (QueryOutOrderSkuInfoResp);
+
+    rpc SfCallback (SfCallbackReq) returns (SfCallbackResp);
+    //根据订单号查询物流状态
+    rpc LogisticsSignStatus(LogisticsSignStatusReq) returns (LogisticsSignStatusResp);
+}
+
+// 物流
+service LogisticsService {
+    // 查询物流信息
+    rpc QueryLogi (QueryLogiReq) returns (QueryLogiResp);
+
+    // 获得物流信息
+    rpc GetLogi (GetLogiReq) returns (GetLogiResp);
+
+    // 获得物流sku信息
+    rpc GetLogiSku (GetLogiSkuReq) returns (GetLogiSkuResp);
+
+    // 查询订单最后派送时间
+    rpc QueryOrderLastDeliver (QueryOrderLastDeliverReq) returns (QueryOrderLastDeliverResp);
+
+    // 获取货代时效配置
+    rpc GetLogiAgingAgent (GetLogiAgingAgentReq) returns (GetLogiAgingAgentResp);
+
+    //获取宅配时效配置
+    rpc GetLogiAgingHome (GetLogiAgingHomeReq) returns (GetLogiAgingHomeResp);
+
+    //物流跟踪回调
+    rpc TrackingCallback(LogiTrackingCallbackReq) returns (LogiTrackingCallbackResp);
+
+}
+
+// 仓库
+service WarehouseService {
+    // 仓库列表分页
+    rpc WarehousePage (WarehousePageReq) returns (WarehousePageResp);
+}
+
+// 供应商后台接口
+service SupplierService {
+    // 供应商列表，分页
+    rpc SupplierPage (SupplierPageReq) returns (SupplierPageResp);
+    //根据用户ID查询商家ID
+    rpc SupplierQuery(SupplierQueryReq) returns (SupplierQueryResp);
+    //根据orgId商品溯源
+    rpc SupplierTraceability(SupplierTraceabilityReq) returns (SupplierTraceabilityResp);
+}
+
+// 库存
+service InventoryService {
+    rpc GetCountryInventoryBySkuCodes (GetInventoryReq) returns (GetInventoryResp);
+    rpc GetCountryInventoryBySkuIds (GetInventoryReq) returns (GetInventoryResp);
+    // 创建订单锁定库存
+    rpc CreateOrderLockQty (CreateOrderLockQtyReq) returns (CreateOrderLockQtyResp);
+
+    // 初始化库存数据
+    rpc InitInventory (InitInventoryReq) returns (InitInventoryResp);
+
+    //获取国家可售库存，国家本地仓在库库存
+    rpc GetLocalCountryInventory (GetInventoryReq) returns (GetInventoryResp);
+
+    // 根据库存筛选spu集合
+    rpc ProductIdListFilterByInventory (ProductIdListFilterReq) returns (ProductIdListFilterResp);
+}
+
+//地址
+service AddressService {
+    //获取国家区划信息
+    rpc GetAddress (GetAddressReq) returns (GetAddressResp);
+    //获取地址列表
+    rpc GetAddress2 (GetAddressReq) returns (GetAddress2Resp);
+    //校验地址是否有效
+    rpc CheckAddressStatus (CheckAddressStatusReq) returns (CheckAddressStatusResp);
+}
+service IncomeOrderService{
+    //入库单回调
+    rpc IncomeOrderCallback (IncomeOrderSignCallbackReq) returns (IncomeOrderSignCallbackResp);
+}
+//采购
+service PurchaseService {
+    //阿里巴巴开放平台消息通知
+    rpc AliOceanCallback (AliOceanReq) returns (AliOceanResp);
+}
+
+//团长收货单详情
+message MeStoreReceivingDetailPb {
+    string receiveNo=1;//收货单编号
+    string skuCode=2;//sku
+    int32 count=3;//数量
+    int32 realCount=4;//实收数量
+    int64 createTime=5;//创建时间
+    int64 updateTime=6;//更新时间
+    string skuCover=7;//图片
+    string title=8;//商品名称
+}
+//团长收货单
+message MeStoreReceivingPb {
+    string outNo=1;//出库单
+    string receiveNo=2;//收货单编号
+    int64 createTime=3;//创建时间
+    int64 updateTime=4;//更新时间
+    common.enum.ErpEnum.ReceiveStatus receiveStatus=5;//状态
+    repeated MeStoreReceivingDetailPb details = 6;//收货单明细
+}
+//收货单请求
+message MeStoreReceivingReqPb {
+    common.base.Pagination page = 1; // 分页结构体
+    common.enum.ErpEnum.ReceiveStatus receiveStatus = 2; // 收货清单状态
+}
+//收货单
+message MeStoreReceivingRespPb {
+    common.base.ErrorMessage ret = 1;// 返回值
+    string message = 2;
+    repeated MeStoreReceivingPb receive = 3;//收货单
+    uint64 total = 4; //总数
+}
+//收货单确认收货请求
+message MeStoreReceivingSureReceiveReqPb {
+    string receiveNo=1;
+    repeated MeStoreReceivingDetailPb details = 2;//收货单明细
+}
+//收货单确认收货请求返回
+message MeStoreReceivingSureReceiveRespPb {
+    common.base.ErrorMessage ret = 1;// 返回值
+}
+
+//收货清单
+service MeStoreReceivingRpcService {
+    //查询收货清单
+    rpc GetReceiving (MeStoreReceivingReqPb) returns (MeStoreReceivingRespPb);
+    //收货清单确认
+    rpc SureReceive (MeStoreReceivingSureReceiveReqPb) returns (MeStoreReceivingSureReceiveRespPb);
+}

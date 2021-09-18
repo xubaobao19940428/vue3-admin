@@ -1,0 +1,133 @@
+syntax = "proto3";
+package inner.pushtask;
+
+import "common/errcode.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.pushtask";
+option java_outer_classname = "Pushtask";
+
+
+enum TaskTypeEnum {
+    TASK_TYPE_NULL = 0;
+    TASK = 1; // 任务
+    RECORD = 2; // 记录
+}
+
+enum GroupTypeEnum {
+    GROUP_TYPE_NULL = 0; //空
+    GROUP_ALL = 1; //全员
+    USER_LEVEL = 2; //用户等级分
+    USER_IDS = 3; //用户id分
+    USER_PROFILE_GROUP = 4; //用戶畫像分組
+}
+
+message PushAchieveCountReq {
+    string push_task_code = 1;
+    int64 count = 2;
+}
+
+enum SendStatusEnum {
+    SEND_STATUS_NULL = 0; //空
+    DONE = 1; //已发送
+    SENDING = 2; //发送中
+    SCHEDULE = 3; //定时发送
+}
+
+
+enum PushChannelEnum {
+    PUSH_CHANNEL_NULL = 0; //空
+    CHANNEL_ALL = 1; //站内和站外
+    INNER = 2; //站内
+    OUTER = 3; //站外
+}
+
+message EmptyResp {
+
+}
+
+enum SendMethodEnum {
+    PUSH = 0;
+    STRATEGY_PUSH = 1;
+    SHORT_MESSAGE = 2;
+    EMAIL = 3;
+}
+
+enum TenantEnum{
+    TASK_NULL = 0;
+    GENERAL_TASK = 1;
+    STRATEGY_TASK = 2;
+}
+
+enum RedirectTypeEnum {
+    REDIRECT_TYPE_NULL = 0; //空
+    LINK = 1; //链接
+    INNER_APP = 2; //应用内
+    NO_REDIRECT = 3; //不跳转
+}
+
+enum SendTypeEnum {
+    SEND_TYPE_NULL = 0; //空
+    IMMEDIATELY = 1; //立即发送
+    TIMING_TASK = 2; //定时发送
+}
+
+message PushLang {
+    string language = 1; //语言
+    string title = 2; //标题
+    string content = 3; //内容
+}
+
+message CreatePushTaskInnerReq {
+    PushChannelEnum push_channel = 4; //推送渠道
+    string push_type = 5; //推送类型（二级标题）
+    string country = 6;
+    string filePath = 7;
+    string templateId = 8;
+    GroupTypeEnum group_type = 13; //推送人群类型get
+    repeated PushLang item_lang = 16; // 多语言
+    string push_pic = 17; // 推送图片
+    RedirectTypeEnum redirect = 18; // 跳转
+    string redirect_param = 19; // 跳转参数
+    string userGroupId = 20; //用戶分群Id
+    int64 push_time = 21; //发送日期
+    SendMethodEnum send_method = 22; //发送方式
+    int64 crm_strategy_task_code = 24; //策略任务code
+}
+
+message DeletePushTaskInnerReq {
+    string push_task_code = 1; //推送编号
+}
+
+message CreatePushTaskInnerResp {
+    common.base.ErrorMessage ret = 1; //结果
+    int64 code = 2;
+}
+message DeletePushTaskInnerResp {
+    common.base.ErrorMessage ret = 1; //结果
+}
+
+message EveryPushTaskCountInnerReq {
+    string push_task_code = 1;
+}
+
+message EveryPushTaskCountInnerResp {
+    common.base.ErrorMessage ret = 1; //结果
+    int64 success_sum = 2;
+    int64 open_sum = 3;
+    int64 achieve_sum = 4;
+    int64 read_sum = 5;
+    SendStatusEnum send_status_enum = 6;
+}
+
+service PushTaskInnerForStrategyService {
+    rpc CountPushAchieve (PushAchieveCountReq) returns (EmptyResp);
+    // 创建推送任务
+    rpc CreatePushTask(CreatePushTaskInnerReq) returns (CreatePushTaskInnerResp);
+    // 删除推送任务
+    rpc DeletePushTask(DeletePushTaskInnerReq) returns (DeletePushTaskInnerResp);
+    // 打开数和触达数
+    rpc EveryPushTaskCount(EveryPushTaskCountInnerReq) returns (EveryPushTaskCountInnerResp);
+
+}

@@ -1,0 +1,263 @@
+syntax = "proto3";
+package inner.coupon;
+import "common/errcode.proto";
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.coupon";
+option java_outer_classname = "Coupon";
+
+message CouponUseInfo {
+    message Sku {
+        int64 product_id = 1;
+        int64 sku_id = 2;
+        string price = 3;//商品优惠后总价
+        int32 num = 4;//购买数量
+        int32 sku_type = 5;//1->拼团商品
+    }
+    int64 coupon_code = 1; //优惠券码
+    int64 user_id = 2; //用户ID
+    repeated Sku sku = 3;
+    bool type = 4; //请求类型：true-计算优惠券并失效，false-只计算
+    string order_no = 6; //订单号
+    string freight= 7;//运费
+    int32 pickup_type = 8 ; // 是否是自提点 1=自提 2=到家
+    string state = 9; // 地址中的state字段
+
+}
+
+message UserUsableCouponReq {
+    CouponUseInfo couponUseInfo = 1;
+}
+
+message UserUsableCouponResp {
+    message DiscountDetail {//优惠详情
+        int64 sku_id = 1;
+        string discount = 2;//优惠总金额
+    }
+    common.errcode.ErrorCode ret = 1;
+    repeated DiscountDetail detail = 3;//详情
+}
+
+message BatchGetCouponLabelReq {
+    repeated int64 coupon_code = 1;
+}
+
+message BatchGetCouponLabelResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<int64, string> label = 2;
+}
+
+message CheckCouponExistReq {
+    int64 coupon_id = 1;
+    string country_code = 2;
+}
+
+message CheckCouponExistResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    bool exist = 2;//是否存在
+}
+
+message CouponDetail {
+    string coupon_id = 1;//优惠券id
+    int32 coupon_type = 3;//优惠券类型 1:满减券,2:折扣券,3:立减券,4:包邮券,4:运费券
+    string name = 4;//优惠券名称 多语言
+    string amount = 5;//优惠券金额
+    string discount = 6;//折扣
+    string fullAmt = 7;//门槛
+}
+
+message GetCouponDetailReq {
+    repeated int64 coupon_id = 1;
+}
+
+message GetCouponDetailResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated CouponDetail coupon_detail = 2;
+}
+
+message CouponUseRequest {
+    CouponUseInfo couponUseInfo = 1;
+}
+
+message CouponUseResp {
+    message DiscountDetail {
+        int64 sku_id = 1;
+        string discount = 2;//优惠总金额
+    }
+    common.errcode.ErrorCode ret = 1;
+    bool is_free_shipping = 2;//是否是包邮劵
+    repeated DiscountDetail detail = 3;
+    string total_discount = 4;//总优惠金额
+    int32 coupon_type = 5;//优惠券类型
+}
+
+message OTCompensateAddUserCouponReq {
+    int64 user_id = 1; //用户ID
+    string amount = 2;//订单金额
+    string order_no = 3;//订单号
+}
+
+message OTCompensateAddUserCouponResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message ReturnCouponReq {
+    string order_no = 1;//订单号
+}
+
+message ReturnCouponResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message NewUserAddCouponReq {
+    common.enum.PromotionEnum.CouponReceivingChannelEnum receiving_channel = 1;//发放方式
+    repeated int64 user_list = 2; //用户ID列表
+    string uniqueCode = 3; //发放标示，注册途径传手机号，首单填写下单用户ID
+    string country_code = 4; //国家码
+    int32 app_type = 5;
+}
+
+message NewUserAddCouponResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message OrderPayIssueCouponsReq {
+     int64 order_no = 1;//订单号
+     int64 user_id = 2;
+     repeated int64 product_id = 3; //商品ID
+     string country_code = 4; //国家码
+     int64 pay_time = 5; //订单支付成功时间
+}
+
+message OrderPayIssueCouponsResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message PromotionAddCouponReq {
+    int64 order_no = 1;//订单号
+    int64 user_id = 2;//用户ID
+    uint64 promotion_id = 3;
+    int32 level = 4;//层级
+}
+
+message PromotionAddCouponResp {
+    common.base.ErrorMessage ret = 1;
+}
+message GiftProductSetCouponReq {
+    string country_code = 1; //国家码
+    repeated int64 product_id = 2;//商品ID
+    int64 coupon_package_id = 3; //优惠券包ID
+    int64 active_coupon_package_id = 4; //活动 优惠券包ID
+    string start_time = 5; //活动 优惠券包 开始时间
+    string end_time = 6; //活动 优惠券包 结束时间
+    int64 operationId = 8;//操作人ID
+}
+
+message DeleteGiftProductReq {
+    repeated int32 id = 1;//主键ID
+}
+message DeleteGiftProductResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message GiftProductSetCouponResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message CouponProductDetail {
+    string amount = 1;//面值
+    int64 coupon_id = 2;//日常优惠券包ID
+    int64 active_coupon_id = 3;//活动优惠券包ID
+    int64 start_time = 4;//开始时间
+    int64 end_time = 5;//结束时间
+    int32 id = 6;//主键ID
+}
+
+message GetGiftProductCouponAmountResp {
+    common.errcode.ErrorCode ret = 1;
+    map<int64,CouponProductDetail> coupon_product_map = 2;//券包面值
+}
+
+message GetGiftProductCouponAmountReq {
+    string country_code = 1; //国家码
+    repeated int64 product_id = 2;//商品ID
+}
+
+message UserCouponListReq {
+    int32 status = 1; //用户优惠券使用状态
+    string user_id = 2; //用户ID
+    common.base.Pagination page = 3; //分页参数
+}
+
+message UserCouponListResp {
+    message CouponUserList {
+        int32 type = 1; //优惠券类型
+        string name = 2; //优惠券名
+        string rule = 3; //优惠规则
+        string discount = 4; //优惠规则
+        string coupon_desc = 5; //优惠券描述
+        string amount = 6; //优惠券金额
+        string full_amt = 7; //满减金额
+        string preferential_amount = 8; //预计优惠金额-排序使用
+        string user_id = 9; //用户ID
+        string coupon_code = 10; //优惠券码
+        string coupon_id = 11; //优惠券ID
+        int32 coupon_use_status = 12; //优惠券使用状态
+        string start_time = 13; //生效时间
+        string end_time = 14; //失效时间
+        string takeback_remaining_time = 15;//限时领取剩余时间
+        string remainTimeCopyWriter = 16;//优惠券过期文案
+        string giving_user_head_img = 17;//赠送人头像
+        string giving_user_name = 18;//赠送人昵称
+        int32 gift_giving_permitted = 19;//能否转赠：0-不能，1-能
+        int32 receive_way = 20;//0-限时领取, 1-永久领取, 2-非赠送领取的优惠券
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated CouponUserList coupon_user_list = 2;
+    bool country_coupon_tips = 3;//其他国家优惠券提示
+}
+
+
+service UserCouponInnerService{
+
+    // 用户下单使用优惠券校验
+    rpc checkUserCoupon (CouponUseRequest) returns (CouponUseResp);
+
+    //查询
+    rpc BatchGetCouponLabel (BatchGetCouponLabelReq) returns (BatchGetCouponLabelResp);
+
+    //慢必赔业务 补偿券发放
+    rpc OTCompensateAddUserCoupon (OTCompensateAddUserCouponReq) returns (OTCompensateAddUserCouponResp);
+
+    //取消订单返回优惠券
+    rpc ReturnCoupon (ReturnCouponReq) returns (ReturnCouponResp);
+
+    //新用户发放优惠券
+    rpc NewUserAddCoupon (NewUserAddCouponReq) returns (NewUserAddCouponResp);
+
+    //礼包购买发放优惠券
+    rpc OrderPayIssueCoupons (OrderPayIssueCouponsReq) returns (OrderPayIssueCouponsResp);
+
+    //促销工具发放优惠券
+    rpc PromotionAddCoupon (PromotionAddCouponReq) returns (PromotionAddCouponResp);
+
+    //礼包商品配置优惠券
+    rpc GiftProductSetCoupon (GiftProductSetCouponReq) returns (GiftProductSetCouponResp);
+
+    //礼包商品页返回优惠券信息
+    rpc GetGiftProductCouponAmount (GetGiftProductCouponAmountReq) returns (GetGiftProductCouponAmountResp);
+
+    //批量解绑礼包商品
+    rpc DeleteGiftProduct (DeleteGiftProductReq) returns (DeleteGiftProductResp);
+
+    //检查优惠券是否存在
+    rpc CheckCouponExist (CheckCouponExistReq) returns (CheckCouponExistResp);
+
+    //批量获取优惠券基础信息
+    rpc GetCouponDetail (GetCouponDetailReq) returns (GetCouponDetailResp);
+
+    // 查询用户所有优惠券
+    rpc UserCouponList (UserCouponListReq) returns (UserCouponListResp);
+}

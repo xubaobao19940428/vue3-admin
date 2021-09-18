@@ -1,0 +1,34 @@
+syntax = "proto3";
+package inner.price;
+
+
+import "common/base.proto";
+import "common/enum.proto";
+import "common/errcode.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.price";
+option java_outer_classname = "Price";
+
+//功能放在 product 服务中, 需请求 product 服务
+
+//根据类目检查定价模板信息
+message CheckPriceTemplateByCateIdReq{
+    repeated uint32 cate_id = 1;
+}
+
+message CheckPriceTemplateByCateIdResp{
+    common.errcode.ErrorCode ret = 1;
+    // 相同类目 可能有多个国家下的 定价模板
+    message CheckResult{
+        uint64 template_id = 1;
+        uint32 cate_id = 2;
+        string country_code = 4;
+    }
+    repeated CheckResult check_result = 2;
+}
+
+service PriceTemplateService{
+    //根据类目检查定价模板信息
+    rpc CheckPriceTemplateByCateId (CheckPriceTemplateByCateIdReq) returns (CheckPriceTemplateByCateIdResp);
+}

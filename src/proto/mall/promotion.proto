@@ -1,0 +1,666 @@
+//DESC APP littlec-promotion
+syntax = "proto3";
+package mall.promotion;
+
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.mall.promotion";
+option java_outer_classname = "Promotion";
+
+// 热点关键字 配置获取
+message GetHotWordConfigReq {
+
+}
+
+message GetHotWordConfigResp {
+    message HotWordUnit {
+        string hot_id = 1;
+        string hot_word = 2;
+        string icon = 3; //角标
+        int32 url_type = 4; //热词跳转类型，1为跳转h5，2为应用内，3-普通搜索
+        string url = 5; //热词跳转地址
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated HotWordUnit hot_word = 2; //热词列表
+}
+
+service HotWordService {
+    // 热点搜索关键词列表
+    rpc GetHotWordConfig (GetHotWordConfigReq) returns (GetHotWordConfigResp);
+
+}
+
+message GetSpuInfoReq {
+    string promotion_id = 1;// 营销ID
+    string limitSpuNumber = 2;//商品数量
+}
+
+message GetSpuInfoResp {
+    message SpuInfo {
+        //商品id
+        string product_id = 1;
+        //标题
+        string title = 2;
+        //缩略图
+        string cover = 3;
+        //划线价格
+        string price = 4;
+        //vip价格
+        string price_vip = 5;
+        //活动价格
+        string price_activity = 12;
+        //是否参与活动
+        int32 is_in_activity = 13;//1 表示参与活动，2表示未参加活动
+        //上下架状态
+        common.enum.ProductEnum.ShelveStatus shelve_status = 6;
+        //副标题
+        string sub_title = 7;
+        //快照码
+        string snap_code = 8;
+        //商品标签
+        common.enum.ProductEnum.LabelType label = 9;
+        //商品类型
+        common.enum.ProductEnum.ProductType product_type = 10;
+        //积分
+        string points = 11;
+    }
+    repeated SpuInfo spu_info = 1;
+    string promotion_label = 2; //营销标签
+    string promotion_rule_desc = 3; //营销规则
+    string start_time = 4; //开始时间
+    string end_time = 5; //结束时间
+    common.base.ErrorMessage ret = 6;
+}
+
+message GetPromotionDiscountReq {
+    message Sku {
+        string product_id = 1;
+        string sku_id = 2;
+        string price = 3; //商品价格
+        int32 num = 4; //购买数量
+    }
+
+    message PromotionSkuInfo {
+        repeated Sku sku = 1; //sku列表
+        string promotion_id = 2; // 营销ID
+//        string state_name = 3;//地区名称
+//        string state_code = 6;//地区code
+//        int32 logistics_mode = 4;//物流模式 0：无意义, 1：普通物流模式，3：经济物流模式
+//        string address_id = 5;//地址ID
+    }
+
+    repeated PromotionSkuInfo promotion_sku_info = 1;
+}
+
+message GetPromotionDiscountResp {
+    message PromotionDiscountInfo {
+        string promotion_id = 1; // 营销ID
+        string discount = 2; //优惠总金额
+        int32 level = 3; //层级 0就代表没有满足
+        string moreDocument = 4; //满足更高级别优惠规则的文案
+        string points = 5;//积分
+        common.enum.PromotionEnum.PromotionType type = 6;//促销类型
+        repeated string max_sale_product_cover = 7;//两个销量最高的商品cover
+        string label = 8;//促销标签
+//        string type = 7;//促销类型字符串型
+        int32 type_new = 9;//促销类型int
+    }
+
+    repeated PromotionDiscountInfo promotion_discount_info = 1;
+    common.base.ErrorMessage ret = 2; //返回值
+}
+
+service PromotionService {
+    //根据sku集合和促销活动计算满足的规则
+    rpc GetPromotionDiscount (GetPromotionDiscountReq) returns (GetPromotionDiscountResp);
+    //根据营销id查询该营销活动下的所有spu集合
+    rpc GetSpuInfo(GetSpuInfoReq) returns (GetSpuInfoResp);
+}
+
+message ShortUrlReq {
+    string shortKey = 1;
+    string url = 2;
+}
+
+message ShortUrlResp {
+    common.base.ErrorMessage ret = 1;
+    string shortKey = 2;
+    string url = 3;
+}
+
+message GetDomainReq{
+
+}
+
+message GetDomainResp{
+    string domain = 1;
+    common.base.ErrorMessage ret = 2;
+}
+
+
+service ShortUrlService {
+    //根据短链接返回URL
+    rpc GetUrlByShortKey (ShortUrlReq) returns (ShortUrlResp);
+    //根据URL生成短链接
+    rpc GetShortKeyByUrl (ShortUrlReq) returns (ShortUrlResp);
+    //获取短链域名
+    rpc GetDomain (GetDomainReq) returns (GetDomainResp);
+}
+
+//banner和闪屏广告 ========== 接口定义 start ======
+
+message BannerInfo {
+    string banner_id = 1; //banner的id
+    string image = 3; //banner图片
+    string url = 4; //banner的跳转url
+    string start_time = 5; //banner的开始时间
+    string end_time = 6; //banner的结束时间
+    uint32 sort_no = 7; //排序
+    common.enum.PromotionEnum.BannerTypeEnum banner_type = 8;
+    string background = 9; //背景颜色
+}
+
+message ListBannerReq {
+    int32 type = 1;//1-首页banner 3-PS店铺banner 4-个人中心banner
+}
+
+message ListBannerResp {
+    common.base.ErrorMessage ret = 1;
+    repeated BannerInfo banner_info = 2;
+}
+
+message ViewSplashScreenReq {
+}
+
+message ViewSplashScreenResp {
+    common.base.ErrorMessage ret = 1;
+    BannerInfo banner_info = 2;
+}
+
+service BannerMallService {
+    //banner 轮播banner
+    rpc ListBanner (ListBannerReq) returns (ListBannerResp);
+
+    //获取闪屏
+    rpc ViewSplashScreen (ViewSplashScreenReq) returns (ViewSplashScreenResp);
+}
+
+//banner和闪屏广告 ========== 接口定义 end ======
+
+//活动抽屉卡片 ========== 接口定义 start ======
+message BoxcardInfo {
+    string boxcard_id = 1; //Boxcard的id
+    string name = 2; //Boxcard标题
+    string image = 3; //Boxcard图片
+    string banner_image = 4; //Boxcard图片
+    common.enum.PromotionEnum.BoxCardType type = 5; //卡片类型
+    //    uint32 sort_no = 6; //排序
+    string country_code = 7; //国家码
+    common.enum.PromotionEnum.PromotionAppUrlType url_type = 9; //跳转类型
+    string url = 10; //跳转地址
+}
+
+message BoxcardReq {
+
+
+}
+message BoxcardResp {
+    common.base.ErrorMessage ret = 1;
+    repeated BoxcardInfo list = 2;
+}
+
+message ListProductByBoxcardReq {
+    common.base.Pagination page = 1;
+    string boxcard_id = 2; //Boxcard的id
+}
+
+message ListProfuctByBoxcardResp {
+    common.base.ErrorMessage ret = 1;
+    message ProductInfo {
+        //商品id
+        string product_id = 1;
+        //标题
+        string title = 2;
+        //缩略图
+        string cover = 3;
+        //划线价格
+        string price = 4;
+        //vip价格 最低
+        string price_vip = 5;
+        //商品积分，最高积分
+        string product_commission = 6;
+        //排序
+        uint32 sort_no = 7;
+        //副标题
+        string sub_title = 8;
+    }
+    repeated ProductInfo product_info = 2;
+    uint64 total = 3;
+
+}
+
+service BoxcardMallService {
+
+    //获取运营分类
+    rpc ListBoxcard (BoxcardReq) returns (BoxcardResp);
+
+    //获取运营分类的商品信息
+    rpc ListProductByBoxcard (ListProductByBoxcardReq) returns (ListProfuctByBoxcardResp);
+}
+
+//活动抽屉卡片 ========== 接口定义 end ======
+//腰封 ========== 接口定义 start ======
+
+message GirdleInfo {
+    string girdle_id = 1; //girdle_id
+    string title = 2; //标题
+    string img_url = 3; //图片地址
+    string link_url = 4; //链接url
+    common.enum.PromotionEnum.BuyTypeEnum buy_type = 5;
+    common.enum.PromotionEnum.TimeTypeEnum time_type = 6;
+    string start_time = 7; //banner的开始时间
+    string end_time = 8; //banner的结束时间
+    uint32 sort_no = 9; //排序
+    common.enum.PromotionEnum.PromotionAppUrlType url_type = 10; //跳转类型
+}
+
+message GirdleReq {
+}
+message CardBoxInfo{
+    string boxcard_id = 1; //boxcard_id
+    string title = 2; //标题
+    string img_url = 3; //图片地址
+    string link_url = 4; //链接url
+    common.enum.PromotionEnum.BuyTypeEnum buy_type = 5;
+    common.enum.PromotionEnum.TimeTypeEnum time_type = 6;
+    string start_time = 7; //banner的开始时间
+    string end_time = 8; //banner的结束时间
+    uint32 sort_no = 9; //排序
+    string background = 10; //背景
+}
+message GirdleResp {
+    common.base.ErrorMessage ret = 1;
+    repeated GirdleInfo girdle_info = 2; //腰封
+}
+//腰封模块跟营销分类结合一起返回
+message GirdleAllResp {
+    common.base.ErrorMessage ret = 1;
+    repeated GirdleInfo girdle_info = 2; //腰封
+    repeated BoxcardInfo box_card_info = 3; //营销card
+    string girdle_background = 4; //腰封背景
+    string box_card_background = 5; //营销card背景
+}
+
+service GirdleMallService {
+    //首页腰封
+    rpc ListGirdle (GirdleReq) returns (GirdleResp);
+    //腰封一
+    rpc ListGirdleByOne (GirdleReq) returns (GirdleAllResp);
+    //腰封二
+    rpc ListGirdleByTwo (GirdleReq) returns (GirdleAllResp);
+}
+//腰封 ========== 接口定义 end ======
+
+
+message BombScreenInfo {
+    int32 id = 1; //主键ID
+    string name = 2; //名称
+    string cover = 3; //图片
+    int32 status = 4; //1有效 0无效
+    int32 type = 5; //跳转类型：1-H5,2-APP
+    string url = 6; //跳转url
+    int32 bomb_status = 7; //弹屏状态：0-首次弹，1-每次弹
+}
+
+message BombScreenReq {
+}
+message BombScreenResp {
+    common.base.ErrorMessage ret = 1;
+    repeated BombScreenInfo bomb_screen_info = 2;
+}
+
+service BombScreenService {
+    //app获取弹屏广告
+    rpc GetBombScreen (BombScreenReq) returns (BombScreenResp);
+}
+message ClickReq{
+    //类型
+    //        BANNERS = 1;//banner
+    //        SERVICE_DESC = 2;//服务文案
+    //        FUNCTIONAL_AREA = 3;//功能区
+    //        GIRDLE = 4;//腰封
+    //        PROMOTION_BOX_CARD = 5;//营销card
+    //        GIRDLE_ADVERTISE = 6;//平台广告位
+    //        ADVERTISE_BOX_CARD = 7; //广告card
+    //        MARKETING_GRID = 8; //宫格区
+    int32 type = 1;
+    string bindId = 2; //绑定id
+}
+message ClickResp{
+    common.base.ErrorMessage ret = 1;
+}
+service ClickMallService {
+    //点击广告
+    rpc Click (ClickReq) returns (ClickResp);
+}
+
+//功能区 ========== 接口定义 开始 ======
+message FunctionAreaInfo {
+    int32 id = 1; //主键ID
+    string title = 2; //名称
+    common.enum.PromotionEnum.PromotionAppUrlType url_type = 3; //跳转类型
+    string url = 4; //跳转地址
+    int32 sort = 5; //排序
+    string cover = 6; //图片
+    string title_color = 7; //文案颜色
+}
+
+message ServiceDescInfo {
+    int32 id = 1; //主键ID
+    string name = 2; //名称
+    string name_color = 3; //服务文案颜色
+    int32 sort = 4; //服务文案排序
+}
+
+message FunctionAreaReq {
+}
+message FunctionAreaResp {
+    common.base.ErrorMessage ret = 1;
+    repeated FunctionAreaInfo function_area_info = 2; //功能区数据
+    repeated ServiceDescInfo service_desc_info = 3; //服务文案数据
+    string background_cover = 4; //背景图
+}
+
+service FunctionAreaService {
+    //app功能区获取
+    rpc GetFunctionAreaInfo (FunctionAreaReq) returns (FunctionAreaResp);
+}
+//功能区 ========== 接口定义 结束 ======
+
+//宫格区 ========== 接口定义 开始 ======
+message MarketingGridInfo {
+    int32 id = 1; //主键ID
+    int32 type = 2; //模块类型 1-限时特价，2-其他,3-新人专区，4-爆款好物，限时特价时标题下方展示倒计时，其他情况展示副标题，新人专区只展示图片
+    string title = 3; //名称
+    string sub_title = 4; //副标题
+    string countdown = 5; //倒计时
+    int32 countdown_type = 6; //倒计时类型 ， 1-据开始，2-据结束
+    common.enum.PromotionEnum.PromotionAppUrlType url_type = 7; //跳转类型
+    string url = 8; //跳转地址
+    int32 sort = 9; //排序
+    repeated string cover = 10; //图片
+    int32 grand_total_sales = 13;//第一个spu的销量
+    string spu_id = 14;//第一个spu的spuId
+}
+
+message MarketingSpecialAreaInfo {
+    int32 id = 1; //主键ID
+    int32 type = 2; //暂时可不用。模块类型 1-限时特价，2-其他,3-新人专区，限时特价时标题下方展示倒计时，其他情况展示副标题，新人专区只展示图片
+    common.enum.PromotionEnum.PromotionAppUrlType url_type = 3; //跳转类型
+    string url = 4; //跳转地址
+    string cover = 5; //图片
+}
+
+message MarketingGridReq {
+}
+message MarketingGridResp {
+    common.base.ErrorMessage ret = 1;
+    repeated MarketingGridInfo marketing_grid_info = 2; //宫格区数据
+    string background_color = 3; //背景色
+    bool bool_special_area = 4; //是否展示特殊区域数据
+    MarketingSpecialAreaInfo marketing_special_area_info = 5; //特殊区域数据
+}
+
+message HotSaleProductInfo{
+    string cover = 17; //spu主图
+    string active_price = 18;//活动价
+}
+
+message HotSaleInfoList {
+    string product_id = 1; //商品ID
+    string product_name = 2; //商品名称
+    string product_desc = 4; // 产品描述
+    string price = 5; // 产品价格
+    string price_vip = 6; // 产品VIP价格
+    string product_label = 7; // 商品标签
+    string active_price = 8; // 活动价格
+    string start_time = 9; // 开始时间
+    string end_time = 10; //结束时间
+    string active_id = 11; // 活动ID
+    string active_name = 12; // 活动名称
+    string promotion_id = 13; //促销ID
+    string promotion_name = 14; //促销名称
+    string product_corner = 15; //商品角标
+    string promotion_desc = 16; //营销文案
+    string cover = 17; //营销图-单品和单图都使用这个字段
+    //倒计时时间
+    string countdown_time = 19;
+    int32 hot_sale_status = 20; //1-今日爆款，2-即将到来
+    int32 sale_count = 21; //销量
+    repeated string head_img = 22; //用户头像，最多30个
+    int32 display_type = 23; //显示类型，1-商品信息，2-图片
+    string discount_rate = 24; //优惠力度值
+    int32 countdown_type = 25; //倒计时类型 ， 1-据开始，2-据结束
+    common.enum.PromotionEnum.PromotionAppUrlType url_type = 26; //跳转类型
+    string url = 27; //跳转地址
+    // 自购节省
+    string commission_self = 28;
+    // 分享返利
+    string commission = 29;
+    string active_icon = 30; //活动图标
+    repeated HotSaleProductInfo hotSaleProductInfo = 31;// 爆款好物展示商品小图信息
+}
+
+message HotSaleListInfoReq {
+}
+
+message HotSaleListInfoResp {
+    common.base.ErrorMessage ret = 1;
+    repeated HotSaleInfoList hot_sale = 2;
+    string background_color = 3; //背景色
+}
+
+
+service MarketingGridService {
+    //app宫格区获取
+    rpc GetMarketingGridInfo (MarketingGridReq) returns (MarketingGridResp);
+
+    // app获取爆款好物,
+    //先判断hot_sale_status爆款状态，在判断display_type显示状态，
+    rpc GetHotSaleListInfo (HotSaleListInfoReq) returns (HotSaleListInfoResp);
+}
+
+//抽奖
+message LaunchLuckDrawByIdReq {
+    string luck_draw_id = 2; //加密后的ID
+    string order_id = 3;//订单ID
+}
+
+message TipInfo {
+    common.enum.PromotionEnum.PromotionTipsType winning_tips_type = 1;    //中奖提示类型：1-弹窗，2-文案
+    string winning_tips_desc = 2;    //弹窗图片或文案
+    string winning_tips_url = 3;    //弹窗链接
+}
+
+message LaunchLuckDrawByIdResp {
+    message CouponInfo {
+        string coupon_name = 1;//优惠券名称
+        int32 coupon_count = 2; //优惠券数量
+    }
+    common.base.ErrorMessage ret = 1; //返回值
+    string luck_draw_id = 2;    //抽奖活动ID
+    common.enum.PromotionEnum.PromotionLuckDrawType luck_prize_type = 3;    //奖品类型：1-优惠券，2-自定义奖品，3-非奖品，4-保险栓 5-积分
+    string luck_prize_name = 4;    //奖品名称
+    repeated CouponInfo coupon_info = 5; //优惠券信息
+    int32 coupon_total = 6; //优惠券总数量
+    TipInfo tipInfo = 7;
+    string points = 8;//积分值
+    string luck_prize_id = 9;
+    int32 gold = 10; //金币值
+}
+
+message GetLuckPrizeByIdReq {
+    string luck_draw_id = 1; //加密后的ID
+}
+
+message LuckPrizeTemplateInfo {
+    common.enum.PromotionEnum.PromotionLuckDrawType luck_prize_type = 2;    //奖品类型：1-优惠券，2-自定义奖品，3-非奖品，4-保险栓 5-积分
+    string luck_prize_name = 3;    //奖品名称
+    TipInfo tipInfo = 4;
+    string luck_prize_id = 5;
+    string image = 6;    //奖品图片
+}
+
+message GetLuckPrizeByIdResp {
+    common.base.ErrorMessage ret = 1; //返回值
+    repeated LuckPrizeTemplateInfo luckPrizeTemplateInfo = 2;//奖池信息
+}
+
+message GetLuckChanceByInviteReq {
+    string serial_id = 1;//页面搭建ID
+    string invite_code= 2;//邀请码
+}
+message GetLuckChanceByInviteResp {
+    common.base.ErrorMessage ret = 1; //返回值
+}
+
+
+service LuckDrawMallService {
+    // 用户发起并拿到抽奖结果
+    rpc LaunchLuckDrawById (LaunchLuckDrawByIdReq) returns (LaunchLuckDrawByIdResp);
+    //用户获取本场抽奖结果
+    rpc ListPrizeAtAnEvent (ListPrizeAtAnEventReq) returns (ListPrizeAtAnEventResp);
+    //添加用户参与本场抽奖记录
+    rpc ParticipateAtAnEvent (ParticipateAtAnEventReq) returns (ParticipateAtAnEventResp);
+    //获取用户抽奖机会
+    rpc GetUserChance (GetUserChanceReq) returns (GetUserChanceResp);
+    //跑马灯抽奖信息
+    rpc HorseRacePrizeInfo (HorseRacePrizeInfoReq) returns (HorseRacePrizeInfoResp);
+    //奖金池数据
+    rpc GetPrizePool (GetPrizePoolReq) returns (GetPrizePoolResp);
+    //用户抽奖结果
+    rpc ListUserPrize (ListUserPrizeReq) returns (ListUserPrizeResp);
+    //获取抽奖ID对应的奖池信息
+    rpc GetLuckPrizeById (GetLuckPrizeByIdReq) returns (GetLuckPrizeByIdResp);
+    //获取抽奖ID对应的奖池信息
+    rpc GetLuckChanceByInvite (GetLuckChanceByInviteReq) returns (GetLuckChanceByInviteResp);
+}
+
+message ListUserPrizeReq{
+    string luck_draw_id = 1;//加密后的抽奖ID
+}
+
+message LuckPrizeInfo{
+    string luck_prize_name = 1;//中奖名称
+    string win_time = 2;//中奖时间
+}
+
+message ListUserPrizeResp{
+    repeated LuckPrizeInfo luck_prize_info = 1;
+    common.base.ErrorMessage ret = 2;
+    int32 participate_count = 3;//参与抽奖次数
+    int32 win_count = 4;//中奖次数
+}
+
+
+message GetPrizePoolReq {
+}
+
+message GetPrizePoolResp {
+    string pool_amount = 1;//奖金池剩余金额
+    common.base.ErrorMessage ret = 2;
+}
+
+message HorseRacePrizeInfoReq {
+    string luck_draw_id = 1;//加密后的抽奖ID
+}
+
+message HorseRacePrizeInfo {
+    string nick_name = 1; //用户名
+    string prize_name = 2;//奖品名
+    string win_previous_time = 3;//XXX时间前抽中
+}
+
+message HorseRacePrizeInfoResp {
+    common.base.ErrorMessage ret = 1;
+    repeated HorseRacePrizeInfo horseRacePrizeInfos = 2;
+    int32 count = 3;//返回结果条数
+}
+
+message GetUserChanceReq{
+    string luck_draw_id = 1;//加密后的抽奖ID
+}
+
+message GetUserChanceResp{
+    common.base.ErrorMessage ret = 1;
+    int32 chance = 2;//剩余机会
+}
+
+message ParticipateAtAnEventReq{
+    string luck_draw_id = 1;
+}
+
+message ParticipateAtAnEventResp{
+    common.base.ErrorMessage ret = 2;
+}
+
+message ListPrizeAtAnEventReq{
+    string luck_draw_id = 1;
+    int64 start_time = 3;
+}
+
+message PrizeAtAnEventPB{
+     string luck_prize_name = 1;
+     int32 luck_prize_count = 2;
+}
+
+message ListPrizeAtAnEventResp{
+    repeated PrizeAtAnEventPB prizeAtAnEventPB = 1;
+    common.base.ErrorMessage ret = 2;
+    bool participated = 3;//之前是否参与过本场抽奖
+}
+
+message GetAppIconInfoReq {
+
+}
+
+message AppIconInfo {
+    common.enum.PromotionEnum.AppIconType  app_icon_type = 1; //类型
+    string unselected = 2; //未选中
+    string selected = 3;   //选中
+}
+
+message GetAppIconInfoResp {
+    common.base.ErrorMessage ret = 1;
+    repeated AppIconInfo app_icon_info = 2;
+}
+
+service AppIconMallService {
+    //获取app icon信息
+    rpc GetAppIconInfo(GetAppIconInfoReq) returns (GetAppIconInfoResp);
+}
+
+service HomePageService {
+    //获取首页模版排序
+    rpc GetHomePageSort(GetHomePageSortReq) returns (GetHomePageSortResp);
+}
+
+message HomePageSort {
+    int32 type = 1;
+    int32 sort = 2;
+}
+
+message HomePageSortList {
+    repeated HomePageSort homePageSort = 1;
+}
+
+message GetHomePageSortReq {
+    string country_code = 1;//国家 为空直接返回现有的所有排序
+}
+
+message GetHomePageSortResp {
+    common.base.ErrorMessage ret = 1;
+    map<string, HomePageSortList> home_page_sort_map = 2;//顺序从小到到排列
+}

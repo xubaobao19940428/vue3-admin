@@ -1,0 +1,58 @@
+syntax = "proto3";
+package inner.brand;
+
+import "common/errcode.proto";
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.brand";
+option java_outer_classname = "Brand";
+
+//功能放在 product 服务中, 需请求product 服务
+
+
+// 品牌管理
+message BrandInfo {
+    string brand_id = 1; //品牌id
+    string name_cn = 2; //品牌名 中文
+    string name_en = 3; // 品牌名 英文
+    string logo = 4; //品牌名图片
+    string come_from = 5; //产地
+    string memo = 6; //备注
+    uint32 status = 7; //有效状态, 查询时返回 1有效, 2 无效
+}
+
+
+message BrandPageReq {
+    common.base.Pagination page = 1; // 分页结构体
+    repeated uint64 brand_id = 2; // 品牌 ID
+    string brand_name = 3; // 品牌全称
+}
+
+message BrandPageResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    uint32 total = 2; //总数
+    repeated BrandInfo list = 3; //库存列表信息
+}
+
+message BrandInfoGetReq{
+    repeated uint64 brand_id = 1; //品牌id列表
+}
+
+message BrandInfoGetResp{
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated BrandInfo list = 3; //库存列表信息
+}
+
+
+service ProductBrandService {
+
+    //品牌分页
+    rpc BrandPage (BrandPageReq) returns (BrandPageResp);
+
+    //根据品牌id获取品牌信息
+    rpc BrandInfoGet (BrandInfoGetReq) returns (BrandInfoGetResp);
+
+}
+

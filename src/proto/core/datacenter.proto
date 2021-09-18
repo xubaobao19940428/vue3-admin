@@ -1,0 +1,33 @@
+//DESC APP littlec-datacenter
+syntax = "proto3";
+
+package core.appversion;
+
+
+import "common/enum.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.datacenter";
+option java_outer_classname = "DataCenter";
+
+
+message UploadBuryingPointDataReq {
+    //埋点事件key
+    string point_event_key = 1;
+    //埋点事件类型
+    string point_event_type = 2;
+    //埋点事件名称
+    string point_event_name = 3;
+    //埋点参数集合
+    map<string, string> point_params = 4;
+}
+
+message UploadBuryingPointDataResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+service BuryingPointService {
+    //上传埋点数据
+    rpc UploadBuryingPointData(UploadBuryingPointDataReq) returns (UploadBuryingPointDataResp);
+}

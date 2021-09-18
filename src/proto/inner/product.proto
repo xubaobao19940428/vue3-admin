@@ -1,0 +1,1432 @@
+syntax = "proto3";
+package inner.product;
+import "common/errcode.proto";
+import "common/enum.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.product";
+option java_outer_classname = "Product";
+
+
+message GetProductShelfStatusReq {
+    repeated uint64 product_id = 1; //商品Id 列表
+    string country_code = 2; //国家码
+}
+
+message ProductShelveStatus {
+    uint64 product_id = 1; //商品id
+    common.enum.ProductEnum.ShelveStatus shelve_status = 2; //上下架状态
+}
+
+message GetProductShelfStatusResp {
+    common.errcode.ErrorCode ret = 1;
+    map<uint64, common.enum.ProductEnum.ShelveStatus> shelve_status_map = 2; //商品的上下架状态
+}
+
+//查询商品快照信息请求结构体
+message SnapQueryInfo {
+    uint64 product_id = 1; //商品id
+    uint64 sku_id = 2; //商品对应的sku_id
+    string snap_code = 3; //快照码
+    string language_code = 4; //语言码
+    string country_code = 5; //国家码
+}
+
+//售后策略结构体
+message AfterSalePledge {
+    uint64 pledge_id = 1; //售后策略id
+    string label = 2; //售后策略标签
+    //    string desc = 3;
+    //    uint32 restrict = 4; //售后时限
+    //    string cover = 5; //图
+}
+
+//到货策略结构体
+message ArrivalPledge {
+    uint64 pledge_id = 1; //到货策略id
+    string label = 2; //到货承诺
+    //    string desc = 3; //描述
+}
+
+//商品规格信息, 多语言信息需单独查询
+message InnerProductAttr {
+    uint64 attr_id = 1;
+    string attr_name = 2;
+    uint64 value_id = 3;
+    string value_name = 4;
+}
+
+//从sku信息
+message SlaveSkuInfo {
+    uint64 master_sku_id = 1; //主sku_id
+    uint64 slave_sku_id = 2; // 组合的sku_id
+    uint64 slave_product_id = 3;
+    string sku_code = 4;
+    //string name = 2; // 组合商品sku对应商品名
+    uint32 delivery_num = 5; // 组合商品中sku对应的数量
+    //string sku_cover = 4; // 组合商品图
+    //string country_code = 5; // 国家码
+    string slave_snap_code = 6; //子sku的快照码, 为当前在库子sku最新的快照码
+    string price = 7; // 划线价
+    string price_vip = 8; // 会员价
+    string active_price = 9; // 建议活动价
+    string specification = 10; //单品规格（长，宽，高，体积）（单位cm）
+    string box_specification = 11; //箱体规格（长，宽，高，体积）（单位cm）
+    uint32 weight = 12; //重量
+    string supplier_sku_code = 13; //供应商skucode
+    string spec_id = 14; //阿里sku标志
+}
+
+message BaseSpuInfo {
+    uint64 product_id = 1; //商品id
+    //商品spu信息
+    string title = 2; //商品名, 商品标题 title
+    string sub_title = 3; //副标题
+    common.enum.ProductEnum.ShelveStatus shelve_status = 4; //商品上下架信息
+    string spu_cover = 5; //商品缩略图
+    string spu_desc = 6; //商品文本描述
+    string price = 7; //划线价
+    string price_vip = 8; //vip价
+    repeated InnerProductAttr param_attr = 9; //参数属性
+    BaseFreightInfo freight = 10; //运费信息
+    BasePledgeInfo pledge = 11; //服务承诺
+    common.enum.ProductEnum.ProductType product_type = 12; //商品类型
+    uint32 cate_id = 13; //所在三级后台类目id
+    uint64 supplier_id = 14; //供应商id
+    string org_id = 15; //原始id
+    common.enum.ProductEnum.ProductSource product_source = 16; //商品来源
+    uint32 gift_id = 17; //gift_id
+    uint32 classification = 18; //业绩分佣
+    uint64 share_id = 19; //分享id
+    uint64 share_user_id = 20; //分享人id
+    string currency = 21; // 币种
+    string nameEn = 22;  // 英文标题
+    string nameCn = 23;   // 中文标题
+    string me_store_commission_rate = 24; //团长分佣比例
+    string superior_commission =25; //上级  0.1=10%
+
+}
+
+//服务承诺
+message BasePledgeInfo {
+    //售后承诺
+    AfterSalePledge after_sale_pledge = 1; //售后策略
+    //到货承诺
+    ArrivalPledge arrival_pledge = 2; //到货承诺
+}
+
+//运费模板信息
+message BaseFreightInfo {
+    uint64 freight_id = 1; //运费模板id
+    common.enum.ProductEnum.FreightType freight_type = 2; //运费类型
+    //common.enum.ProductEnum.FreightType freight_type = 2; //运费类型
+    //string freight_name = 3;//运费模板名称
+}
+
+message BaseSkuInfo {
+    uint64 sku_id = 1; // 商品 sku_id
+    //商品sku信息
+    string sku_code = 2; //商品sku_code
+    string price = 3; //商品原价
+    string price_vip_standard = 16; //针对meone 标准vip价格
+    string price_vip = 4; //商品优惠价
+    string sku_cover = 5; //sku 图
+    //规格属性
+    repeated InnerProductAttr standard_attr = 6;
+    common.enum.ProductEnum.SaleStatus sale_status = 7; //sku 在售信息
+    string commission_rate = 8; //佣金率
+    uint32 weight = 9; //重量, 单位克
+    common.enum.ProductEnum.SaleWay sale_way = 10; //销售方式
+    common.enum.ProductEnum.DeliveryWay delivery_way = 11; // 发货方式
+    string specification = 12; //单品规格（长，宽，高，体积）（单位cm）
+    string box_specification = 13; //箱体规格（长，宽，高，体积）（单位cm）
+    string supplier_sku_code = 14; //供应商skucode
+    string spec_id = 15; //阿里sku标志
+}
+
+message BaseCompositeInfo {
+    uint64 master_sku_id = 1; //主sku_id
+    repeated SlaveSkuInfo slave_sku_info = 2; // 组合商品信息
+}
+
+
+message BaseProductInfo {
+    string snap_code = 1; //当前使用快照码
+    uint64 product_id = 2; //商品id
+    uint64 sku_id = 3; // 商品 sku_id
+    string language_code = 4; //语言码
+    string country_code = 5; //国别码
+    repeated string titleLabels = 10; //标题标签
+    bool is_composite = 6; //是否组合商品
+    BaseSpuInfo base_spu_info = 7; //基本spu信息
+    BaseSkuInfo base_sku_info = 8; //基本sku信息
+    BaseCompositeInfo base_composite_info = 9; //基本组合商品信息
+}
+
+//快照商品基础信息, 涉及多语言的根据传入语言码获取, 不存在则返回英文
+message BaseSnapProductInfo {
+
+    string snap_code = 1; //当前使用快照码
+    uint64 product_id = 2; //商品id
+    uint64 sku_id = 3; // 商品 sku_id
+    string language_code = 4; //语言码
+    string country_code = 5; //国别码
+    bool is_composite = 6; //是否组合商品
+    BaseSpuInfo base_spu_info = 7; //基本spu信息
+    BaseSkuInfo base_sku_info = 8; //基本sku信息
+    BaseCompositeInfo base_composite_info = 9; //基本组合商品信息
+
+    //repeated SlaveSkuInfo slave_sku_info = 15; // 组合商品信息
+}
+
+//快照信息请求体
+message GetSnapProductBaseInfoReq {
+    repeated SnapQueryInfo snap_query_info = 1; //商品 sku 查询信息
+
+}
+//快照信息响应体
+message GetSnapProductBaseInfoResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated BaseSnapProductInfo base_snap_product_info = 2; //返回的商品信息
+}
+
+//查询当前使用商品基本信息
+message QueryInfo {
+    uint64 product_id = 1; //商品id
+    uint64 sku_id = 2; //商品sku_id
+    bool source = 3; //false 平台商品 true 主播商品
+}
+
+//获取商品基础信息请求体
+message GetProductBaseInfoReq {
+    repeated QueryInfo query_info = 1; //商品查询信息
+    string language_code = 3; //语言码
+    string country_code = 4; //国家码
+
+}
+
+//获取商品基础信息响应体
+message GetProductBaseInfoResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated BaseProductInfo base_product_info = 2; //返回的商品信息
+}
+
+//获取商品基础信息请求体
+message GetLiveProductBaseInfoReq {
+    common.base.Pagination page = 1;
+    string name = 2; //商品名
+    string language_code = 3; //语言码
+    string country_code = 4; //国家码\
+}
+
+//获取商品基础信息响应体
+message GetLiveProductBaseInfoResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated LiveSpuInfo liveSpuInfo = 2;
+    int32 size = 3;
+}
+
+message LiveSpuInfo {
+    int64 product_id = 1; //商品id
+    string title = 2; //商品名, 商品标题 title
+    string image = 3; //商品缩略图
+    string vip_price = 6;
+    string retail_price = 7;
+    int32 stock = 8;
+}
+
+//获取商品基础信息请求体
+message GetLiveSkuBaseInfoReq {
+    int64 product_id = 1; //商品id
+    string country_code = 2;
+    string language_code = 3;
+}
+
+message GetLiveSkuBaseInfoResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated LiveSkuInfo live_sku_info = 2;
+}
+
+message LiveSkuInfo {
+    int64 spu_id = 1;
+    int64 sku_id = 2;
+    string sku_code = 3;
+    repeated InnerProductAttr sku_attr = 4;
+    string image = 5;
+    string vip_price = 6;
+    string retail_price = 7;
+    int32 stock = 8;
+}
+
+// 根据不完整的sku code 或 商品名的一部分 匹配当前生效的 sku code 列表
+message QuerySkuCodeByKeywordReq {
+    string keyword = 1; //查询关键词
+}
+
+message QuerySkuCodeByKeywordResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated string snap_code = 2; //查询到的sku code 列表
+}
+
+
+message QuerySkuCodeReq {
+    message QuerySkuCodeInfo {
+        string sku_code = 1; // 商品sku code
+        string country_code = 2; //国家码
+    }
+    repeated QuerySkuCodeInfo query = 1; //查询条件
+}
+
+//根据sku code 查询商品sku级别信息
+message QuerySkuCodeAndSnapReq {
+    message QuerySkuCodeAndSnapInfo {
+        string sku_code = 1; // 商品sku code
+        string snap_code = 2; // 商品 快照码
+        string country_code = 3;
+    }
+    repeated QuerySkuCodeAndSnapInfo query = 1; //查询条件
+}
+
+message QuerySkuInfoBySkuCodeResp {
+    message SkuInfo {
+        string sku_code = 1; // 记录对应 sku_code
+        string snap_code = 2; // 记录对应的快照码
+        string name_cn = 3; //sku中文名称, 实际为spu的title
+        string name_en = 4; //sku英文名称, 实际为spu的title
+        string sku_cover = 5; // sku图片, 默认使用第一个国家的图
+        string org_link = 6; // 商品链接
+        string standard_attr = 7; // 规格属性-CN 例如：[{"颜色":"黑色"},{"大小":"XL"}]
+        string supply_price = 8; // 供货价
+        string currency = 10; // 货币
+        uint32 nature = 11; // 商品性质
+        uint32 weight = 12; //商品重量 单位克
+        common.enum.ProductEnum.ProductType product_type = 13; //商品类型
+        common.enum.ProductEnum.SaleWay sale_way = 14; //销售方式
+        common.enum.ProductEnum.DeliveryWay delivery_way = 15; //发货方式
+        uint64 product_id = 17; //商品id
+        uint64 sku_id = 18; //商品sku_id  sku_id 不填则仅返回spu相关信息
+        uint64 supplier_id = 19;
+        string country_code = 20; //回传国家码, 原样返回
+        string supplier_code = 21; //供应商商品编码
+        string qr_code = 22; //条码
+        string spec_id = 23; //1688sku标志
+        map<string, string> name_map = 24; //名称数据
+        common.enum.ProductEnum.SaleStatus sale_status = 25; // 在售状态 1 在售, 0 停售
+        uint32 cate_id  = 26 ;//商品的后台三级类目id
+        uint32 root_cate_id = 27;// 一级类目ID
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated SkuInfo sku_info = 2; //返回的sku信息
+}
+
+message QuerySkuAndCompositeReq {
+    message QuerySkuCodeInfo {
+        string sku_code = 1; // 商品sku code
+//        string country_code = 2; //国家码
+        string snap_code = 3; // 记录对应的快照码
+    }
+    repeated QuerySkuCodeInfo query = 1; //查询条件
+    string country_code = 2; //国家码
+}
+
+message QuerySkuAndCompositeBySkuCodesResp {
+    message CompositeSkuInfo {
+        string sku_code = 1; //组合商品的skuCode
+        uint32 count = 2; //组合商品的数量
+        string snap_code = 3;// 组合商品的snap_code
+    }
+    message SkuAndCompositeInfo {
+        string sku_code = 1; // 记录对应 sku_code
+        string snap_code = 2; // 记录对应的快照码
+        string name_cn = 3; //sku中文名称, 实际为spu的title
+        string name_en = 4; //sku英文名称, 实际为spu的title
+        string sku_cover = 5; // sku图片, 默认使用第一个国家的图
+        string org_link = 6; // 商品链接
+        string standard_attr = 7; // 规格属性-CN 例如：[{"颜色":"黑色"},{"大小":"XL"}]
+        string supply_price = 8; // 供货价
+        string currency = 10; // 货币
+        uint32 nature = 11; // 商品性质
+        uint32 weight = 12; //商品重量 单位克
+        common.enum.ProductEnum.ProductType product_type = 13; //商品类型
+        common.enum.ProductEnum.SaleWay sale_way = 14; //销售方式
+        common.enum.ProductEnum.DeliveryWay delivery_way = 15; //发货方式
+        repeated CompositeSkuInfo composite_sku_infos = 16;
+        uint64 product_id = 17; //商品id
+        uint64 sku_id = 18; //商品sku_id  sku_id 不填则仅返回spu相关信息
+        uint64 supplier_id = 19; //供应商id
+        string country_code = 20; //回传国家码, 原样返回
+        string spec_id = 21; //1688 sku 标志
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated SkuAndCompositeInfo sku_info = 2; //返回的sku信息
+}
+
+
+message QuerySkuCodeAndLangReq {
+    string sku_code = 1; // 商品sku code
+    string language_code = 2; //语言码
+    string country_code = 3; //国家码
+    string snap_code = 4; // 记录对应的快照码
+}
+
+message QuerySkuCodeAndLangResp {
+    message SkuCodeAndLangInfo {
+        uint64 product_id = 1; //商品id
+        uint64 sku_id = 2; //商品sku_id  sku_id 不填则仅返回spu相关信息
+        string sku_code = 3; // 记录对应 sku_code
+        string name = 4; //sku中文名称, 实际为spu的title
+        string sku_cover = 5; // sku图片
+        string standard_attr = 6; // 规格属性-CN 例如：[{"颜色":"黑色"},{"大小":"XL"}] 
+        string language_code = 7; //语言码
+        string country_code = 8; //国家码
+        uint64 supplier_id = 9;
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    SkuCodeAndLangInfo sku_info = 2; //返回的sku信息
+}
+
+//获取商品的 参数属性, 规格属性
+message GetProductAttrInfoReq {
+    repeated uint64 product_id = 1; //商品id
+    repeated uint64 draft_id = 2; //商品草稿id
+}
+
+message GetProductAttrInfoResp {
+    message AttributeUnit {
+        repeated InnerProductAttr param_attr = 1; // 参数属性
+        repeated InnerProductAttr standard_attr = 2; // 规格属性
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<int64, AttributeUnit> attr_map = 2; //商品的属性信息
+}
+
+//分页获取当前有效spu信息
+message GetProductBaseSpuListReq {
+    common.base.Pagination page = 1; //分页信息
+    repeated uint64 product_id = 2; //指定的商品id列表
+}
+
+message GetProductBaseSpuListResp {
+
+    message SpuInfo {
+        uint64 product_id = 1; //商品id
+        string title = 2; //商品名, 商品标题 title
+        uint32 cate_id = 3; //所在三级后台类目id
+        string spu_cover = 4; //商品缩略图
+        common.enum.ProductEnum.ProductType product_type = 5; //商品类型
+    }
+    message SpuCountryInfo {
+        uint64 product_id = 1; //商品id
+        common.enum.ProductEnum.ShelveStatus shelve_status = 3; //商品上下架信息
+        string country_code = 7; //国家码
+    }
+    message SkuCountryInfo {
+        uint64 product_id = 1; //商品id
+        uint64 sku_id = 2; //sku id
+        string sku_code = 3; //sku code
+        string country_code = 4; //国家码
+        common.enum.ProductEnum.SaleWay sale_way = 5; //发售方式
+        common.enum.ProductEnum.SaleStatus sale_status = 6; //销售状态
+    }
+
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated SpuInfo spu_info = 2; //spu基础信息
+    repeated SpuCountryInfo spu_country_info = 3; //spu国家信息
+    repeated SkuCountryInfo sku_country_info = 4; //sku国家信息
+    uint32 total = 5; //总数
+}
+
+//获取商品spu国家维度简单信息请求
+message GetSimpleSpuCountryInfoReq {
+    repeated uint64 product_id = 1;
+    string country_code = 2;
+    string language_code = 3;
+    uint32 member_level = 4;
+    uint32 brand_level = 5;
+    string state_code = 6; //地址州code, 用来判断是否包邮
+    bool with_cart_count = 7; // 是否需要返回加购数量
+    bool filter_status = 8; // 过滤掉下架SPU
+}
+//获取商品spu国家维度简单信息响应
+message GetSimpleSpuCountryInfoResp {
+    //返回结构体
+    message SimpleSpuCountryInfoUnit {
+        //商品id
+        uint64 product_id = 1;
+        //标题
+        string title = 2;
+        //缩略图
+        string cover = 3;
+        //划线价格
+        string price = 4;
+        //vip价格
+        string price_vip = 5;
+        //上下架状态
+        common.enum.ProductEnum.ShelveStatus shelve_status = 6;
+        //副标题
+        string sub_title = 7;
+        //快照码
+        string snap_code = 8;
+        //商品标签
+        common.enum.ProductEnum.LabelType label = 9;
+        //销量 --> 销量管理的结果
+        uint32 grand_total_sales = 10;
+        //商品类型
+        common.enum.ProductEnum.ProductType product_type = 11;
+        //用于spu展示的佣金
+        string commission = 12;
+        //到货承诺id
+        uint64 arrival_pledge_id = 13;
+        //售后承诺id
+        uint64 after_sale_id = 14;
+        //多标签
+        repeated common.enum.ProductEnum.LabelType labels = 15;
+
+        string org_id = 16; //原始id
+        common.enum.ProductEnum.ProductSource product_source = 17; //商品来源
+
+        //活动价
+        string price_active = 25;
+        //优惠率
+        string discount_rate = 26;
+        //活动佣金率
+        string active_commission = 27;
+
+        //可售库存
+        uint32 stock = 28;
+        uint64 cart_count = 29; // 加购数量
+        //后台三级类目id
+        int32 back_cate_id = 30;
+        //商品名称多语言
+        string name_value = 31;
+        //状态 1: 显示  2: 隐藏
+        int32 status = 32;
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    //    repeated SimpleSpuCountryInfoUnit simple_spu_country_info = 2;
+    map<uint64, SimpleSpuCountryInfoUnit> simple_spu_country_info_map = 3;
+}
+
+message GetBrandInfoByProductIdReq {
+    uint64 product_id = 1; //商品id
+}
+
+message GetBrandInfoByProductIdResp {
+    common.errcode.ErrorCode ret = 1;
+    string brand_id = 2; // 商品品牌id
+    string brand_name = 3; // 品牌名称 （对应充值运营商名称）
+}
+
+//获取商品sku国家维度简单信息
+message GetSimpleSkuCountryInfoReq {
+    repeated QueryInfo query_info = 1; //商品查询信息
+    string language_code = 3; //语言码
+    string country_code = 4; //国家码
+    uint32 member_level = 5; //用户等级
+    uint32 brand_level = 6; //品牌等级
+    bool filter_status = 7; // 过滤掉下架SKU
+}
+
+message GetSimpleSkuCountryInfoResp {
+    message CompositeInfoUnit {
+        uint64 slave_product_id = 1;
+        uint64 master_sku_id = 2;
+        uint64 slave_sku_id = 3;
+        string slave_sku_code = 4;
+        common.enum.ProductEnum.SaleWay slave_sale_way = 5;
+        uint32 slave_delivery_num = 6;
+        string country_code = 7;
+    }
+    message SimpleSkuCountryInfoUnit {
+        //商品id
+        uint64 product_id = 1;
+        //商品 sku id
+        uint64 sku_id = 2;
+        //商品 sku code
+        string sku_code = 3;
+        //国家码
+        string country_code = 4;
+        //标题
+        string title = 5;
+        //副标题
+        string sub_title = 6;
+        //缩略图
+        string cover = 7;
+        //划线价格
+        string price = 8;
+        //vip价格
+        string price_vip = 9;
+        //佣金率
+        string commission_rate = 10;
+        //spu上下架状态
+        common.enum.ProductEnum.ShelveStatus shelve_status = 11;
+        //在售状态
+        common.enum.ProductEnum.SaleStatus sale_status = 12;
+        //快照码
+        string snap_code = 13;
+        //销售方式
+        common.enum.ProductEnum.SaleWay sale_way = 14;
+        // 发货方式
+        common.enum.ProductEnum.DeliveryWay delivery_way = 15;
+        //商品类型
+        common.enum.ProductEnum.ProductType product_type = 16;
+        //用于sku展示的佣金
+        string commission = 17;
+        //sku规格属性
+        repeated InnerProductAttr sku_attr = 18;
+        //建议活动价
+        string active_price = 19;
+        //sku组合信息
+        repeated CompositeInfoUnit compositeInfo = 20;
+        //单品规格（长，宽，高，体积）（单位cm）
+        string specification = 21;
+        //箱体规格（长，宽，高，体积）（单位cm）
+        string box_specification = 22;
+        common.enum.ProductEnum.ProductSource product_source = 23; //商品来源
+        string spec_id = 24; //1688 sku 标志
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<uint64, SimpleSkuCountryInfoUnit> simple_sku_country_info_map = 3;
+}
+
+//获取商品佣金率信息
+message GetProductCommissionInfoReq {
+    repeated uint64 product_id = 1;
+    string country_code = 2;
+    uint32 member_level = 3;
+    uint32 brand_level = 4;
+}
+
+message GetProductCommissionInfoResp {
+    common.errcode.ErrorCode ret = 1;
+    message SkuCommission {
+        uint64 product_id = 1;
+        uint64 sku_id = 2;
+        string commission_rate = 3;
+        //划线价格
+        string price = 4;
+        //vip价格
+        string price_vip = 5;
+        //佣金
+        string commission = 6;
+    }
+    message SpuCommission {
+        //商品id
+        uint64 product_id = 1;
+        //佣金
+        string commission = 7;
+    }
+    repeated SkuCommission sku_commission = 2;
+    repeated SpuCommission spu_commission = 3;
+}
+
+//根据商品名称模糊搜索
+message QueryProductByNameReq {
+    string title_key = 1;
+    //string country_code = 2;
+}
+
+message QueryProductByNameResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated uint64 product_id = 2; //limit 100
+}
+
+//获取礼包商品存在信息及其对应的前台类目信息
+message GetGiftProductAndCateInfoReq {
+    repeated uint64 product_id = 1; //商品id 列表
+    string country_code = 2; //国家码
+}
+
+message GetGiftProductAndCateInfoResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    message GiftProductAndCate{
+        uint64 product_id = 1; //商品id
+        repeated uint32 front_level_two_cate_id = 2; //商品对应的二级类目id
+        bool is_gift_product = 4; //是否礼包商品
+    }
+    map<uint64, GiftProductAndCate> gift_product_and_cate = 4;
+}
+
+message GetProductLanguageInfoReq{
+    repeated uint64 product_id = 1;
+}
+
+message GetProductLanguageInfoResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    message infoUnit{
+        uint64 product_id = 1;
+        repeated common.base.NameAndCode  title = 2;
+    }
+    map<uint64, infoUnit> info = 2;
+}
+
+message QuerySkuByNameReq{
+    string title_key = 1; //商品名模糊匹配
+    uint64 product_id = 2; //商品id 精确匹配
+    string supplier_id = 3; // 供应商ID
+}
+
+// 根据spu查sku简单信息
+message QuerySkuSimpleInfoByProductIdReq{
+    repeated uint64 product_id = 1; //商品id 精确匹配
+    string country_code = 2; //国家码
+}
+// 根据spu查sku简单信息
+message QuerySkuSimpleInfoByProductIdResp{
+    message skuInfo{
+        uint64 product_id = 1;
+        uint64 sku_id = 2;
+        string sku_code = 3;
+    }
+    repeated skuInfo sku_info = 1;
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+message QuerySkuByNameResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated string sku_code = 2; //sku code 列表
+}
+
+message QuerySkuInfoReq{
+    common.base.Pagination page = 1;
+    string supplier_code = 2; //供应商商品编码
+    string qr_code = 3; //商品条形码
+}
+
+message QuerySkuInfoResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated string sku_code = 2; //sku code 列表
+}
+
+message ProductAdvanceSearchReq{
+    message Condition{
+        string name = 1; //字段名称，不同字段不同名称
+        repeated string value = 2;//字段的值，可以多个
+        common.enum.ProductAdvanceSearchEnum.MarkEnum mark =3;//=,<=,>=等等
+        common.enum.ProductAdvanceSearchEnum.OperatorEnum operator = 4;
+        string country_code = 5;//国家
+        string start_value =6;//若使用mark为非单值时使用
+        string end_value=7;//若使用mark为非单值时使用
+    }
+    common.base.Pagination page = 1; //分页信息
+    repeated Condition condition = 2;
+
+}
+
+message ProductAdvanceSearchResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated uint64 product_id = 2;
+    uint64 total =3;
+}
+
+message ProductESSearchReq {
+    repeated int64 spu_id = 1;//商品id集合
+    repeated int32 cate_id = 2;//三级类目id集合
+    int32 type = 3;//1 指定商品，2指定类目，3全品类
+    string country_code = 5;//国家
+    int32 start = 6;//位移量
+    int32 limit = 7;//限制量
+    int32 sort_type = 8;//1：用户推荐，2：销量降序，3：创建时间降序
+    repeated int64 exclude_spu_id = 9;//不包含的SPUID
+}
+
+message ProductESSearchResp {
+    common.base.ErrorMessage ret = 1;//返回值
+    repeated uint64 product_id = 2;
+    uint64 total =3;
+}
+
+//预售相关
+message AdvanceSaleRuleGetReq{
+    repeated uint64 advance_id = 1;
+}
+
+message AdvanceSaleRuleGetResp{
+    message AdvanceRuleUnit{
+        uint64 advance_id = 1; //预售id
+        common.enum.AdvanceSaleEnum.PurchaseConfig purchase_config = 6; // 采购控制 1 自动推单, 2 手动推单
+        uint64 purchase_deadline = 7; //最迟推单时间
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated AdvanceRuleUnit rule_unit = 2;
+}
+
+
+//根据商品信息查询预售信息
+message AdvanceSaleProductQueryReq{
+    message SkuQueryUnit{
+        uint64 product_id = 1;
+        uint64 sku_id = 2;
+    }
+    repeated SkuQueryUnit sku_query = 1;
+    string country_code = 2;
+}
+
+message AdvanceSaleProductQueryResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    message AdvanceQueryResult{
+        uint64 product_id = 1; //商品id
+        uint64 sku_id = 2; //sku_id
+        string sku_code = 3; //sku_code
+        string country_code = 4; //国家码
+        uint64 advance_id = 5; //预售id
+        uint64 start_time = 6; //预售开始时间
+        uint64 end_time = 7; //预售结束时间
+        uint64 delivery_deadline = 8; //最迟发货时间
+        int32 stock = 9; // 
+    }
+    repeated AdvanceQueryResult query_result = 2; //查询结果
+
+}
+
+//根据spu获取预售信息
+message AdvanceSaleSpuQueryReq{
+    repeated uint64 product_id = 1;
+    string country_code = 2;
+}
+
+message AdvanceSaleSpuQueryResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    message AdvanceSpuQueryResult {
+        uint64 product_id = 1; //商品id
+        string country_code = 4; //国家码
+        uint64 advance_id = 5; //预售id
+        uint64 start_time = 6; //预售开始时间
+        uint64 end_time = 7; //预售结束时间
+        uint64 delivery_deadline = 8; //最迟发货时间
+    }
+    repeated AdvanceSpuQueryResult query_result = 2; //查询结果
+}
+
+message CrawlerInsertProductResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    uint64 product_id = 2; //生成的商品id
+}
+
+message CrawlerInsertProductReq {
+
+    //商品spu基本信息
+    // 商品分类
+    string cate_id = 1;
+    // 销售国家
+//    repeated ProductSaleCountry sale_country = 2;
+    // 商品类型
+    common.enum.ProductEnum.ProductType product_type = 3;
+    // 货物性质 ：1普货，2敏感货
+    common.enum.ProductEnum.Nature nature = 4;
+    // 品牌id
+    string brand_id = 5;
+    // 供应商id
+    string supplier_id = 6;
+    //商品标题
+    repeated common.base.NameAndCode title = 7;
+    //宣传文案
+    repeated common.base.NameAndCode sub_title = 8;
+    // 原来的商品链接
+    string org_url = 9;
+    // 原商品id
+    string org_id = 10;
+    //商品参数
+    repeated InnerProductAttr product_params = 11;
+    //商品spu国家信息
+    repeated ProductCountryInfo product_country = 12;
+    //服务承诺
+    repeated PledgeCountryInfo pledge_info = 13;
+    //sku基本信息
+    repeated ProductSku sku = 15;
+    //图片视频区域结构体, 分语言
+    repeated PicAndVideo pic_video = 16;
+
+    common.enum.ProductEnum.ProductSource source = 18; //商品来源
+
+
+}
+
+//图片视频区域结构体
+message PicAndVideo {
+    string languageCode = 1;
+    string cover = 16; //商品主图 rotation 第一张
+    string rotation = 17; //轮播图
+    string video = 18; //商品视频
+    string detail = 19; //商品详情图
+    string form = 20; // 商品列表主图, rotation 第一张
+    string desc = 21; //文本描述
+}
+
+//商品分国家信息
+message ProductCountryInfo {
+    string product_id = 1; //商品id
+    string country_code = 2; //国家码
+    uint32 sales = 3; //商品销量
+    uint32 stock = 4; //虚拟库存
+    common.enum.ProductEnum.FreightType freight_type = 5; //运费（0：卖家承担 1:固定运费 2:运费模版）
+    string freight_id = 6; //运费模板id
+    // string price = 7; //商品原价  sku最低价格  由后端根据sku信息计算
+    // string price_vip = 8; //商品vip价格 sku 最低价格  由后端根据sku信息计算
+    //PledgeCountryInfo pledge_info = 9; //服务承诺信息  由前端操作便利性决定参数位置
+    // repeated string label = 10; //商品标签generateSkuCode json格式 自动计算不需传入
+    string cover = 11; //商品缩略图, 主图第一张
+    repeated common.base.NameAndCode desc = 12; //文本描述
+    repeated common.base.NameAndCode detail = 13; //商品详情
+    string rotation = 14; // 轮播图, 商品主图, 多张以,分隔
+    string video = 15; //商品视频
+    string form = 16; // 商品详情图, 多张以,分隔
+    common.enum.ProductEnum.ShelveStatus shelve_status = 17; //对应国家内的上下架状态
+}
+
+//服务承诺分国家信息
+message PledgeCountryInfo {
+    string country_code = 1; //国家码
+    //售后承诺
+    AfterSalePledge after_sale_pledge = 2; //售后策略
+    //到货承诺
+    ArrivalPledge arrival_pledge = 3; //到货承诺
+}
+
+//sku
+message ProductSku {
+    ProductSkuBase sku_base = 2; //sku基本信息
+    repeated ProductSkuCountry sku_country = 3; //sku 分国家相关信息
+}
+
+//sku 基础信息
+message ProductSkuBase {
+    string sku_id = 1; //sku_id  新增时不填
+    string sku_code = 2; //商品sku_code 新增时不填, 编辑时要填
+    string product_id = 3; //商品id
+    repeated InnerProductAttr sku_attr_value = 5; //sku的属性值组合信息
+    string specification = 6; //单品规格（长，宽，高，体积）（单位cm）
+    string box_specification = 7; //箱体规格（长，宽，高，体积）（单位cm）
+    uint32 weight = 8; //重量（1kg实际存值1000）
+    string cooperation_model = 9; //合作方式
+    string supply_price = 10; // 供货价
+    string currency_code = 11; //供货货币
+    string supplier_code = 12; //供应商商品编码
+    string qr_code = 13; //商品条形码
+    string fingo_sku_code = 14; //fingo商品编码
+    string supplier_sku_id = 15; //供应商商品id
+    string spec_id = 16; //阿里sku标志
+}
+
+//sku 分国家信息
+message ProductSkuCountry {
+    string sku_id = 1; //sku_id  新增时不填
+    string product_id = 2; //商品id 新增时不填
+    string country_code = 3; //sku 国家码
+    string cover = 4; //sku 规格图
+    common.enum.ProductEnum.SaleWay sale_way = 5; //销售方式
+    common.enum.ProductEnum.DeliveryWay delivery_way = 6; // 发货方式
+    uint32 stock = 7; // sku 国家库存 虚拟库存
+    uint32 active_stock = 8; // 活动库存
+    string price = 9; //划线价
+    string price_vip = 10; //vip价格
+    string active_price = 11; //活动价格
+    string commission = 12; //佣金率
+    string warehouse = 13; //所在仓
+    string warehouse_name = 14; //新增编辑时不填
+    common.enum.ProductEnum.SaleStatus sale_status = 15; // 在售状态 1 在售, 0 停售
+
+}
+
+//商品类型信息
+message GetProductTypeInfoReq{
+    repeated uint64 product_id = 1;
+}
+//批量商品ID
+message GetProductInfoReq{
+    repeated uint64 product_id = 1;
+}
+
+message GetProductTypeInfoResp{
+    message ProductTypeInfoUnit{
+        uint64 product_id = 1;
+        common.enum.ProductEnum.ProductType product_type = 2;
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated ProductTypeInfoUnit type_info = 2;
+}
+message GetProductChannelInfoResp{
+    message ProductChannelInfoUnit{
+        uint64 product_id = 1;
+        common.enum.ProductEnum.ProductSource product_channel = 2;
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated ProductChannelInfoUnit channel_info = 2;
+}
+
+message GetSimpleSpuCountryInfoNotActiveReq {
+    repeated uint64 product_id = 1;
+    string country_code = 2;
+    string language_code = 3;
+    uint32 member_level = 4;
+    uint32 brand_level = 5;
+}
+
+message GetSimpleSpuCountryInfoNotActiveResp {
+    message SimpleSpuCountryInfoNotActiveUnit {
+        //商品id
+        uint64 product_id = 1;
+        //标题
+        string title = 2;
+        //缩略图
+        string cover = 3;
+        //划线价格
+        string price = 4;
+        //vip价格
+        string price_vip = 5;
+        //上下架状态
+        common.enum.ProductEnum.ShelveStatus shelve_status = 6;
+        //副标题
+        string sub_title = 7;
+        //快照码
+        string snap_code = 8;
+        //商品标签
+        common.enum.ProductEnum.LabelType label = 9;
+        //销量 --> 销量管理的结果
+        uint32 grand_total_sales = 10;
+        //商品类型
+        common.enum.ProductEnum.ProductType product_type = 11;
+        //用于spu展示的佣金
+        string commission = 12;
+        //到货承诺id
+        uint64 arrival_pledge_id = 13;
+        //售后承诺id
+        uint64 after_sale_id = 14;
+        //多标签
+        repeated common.enum.ProductEnum.LabelType labels = 15;
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    //    repeated SimpleSpuCountryInfoUnit simple_spu_country_info = 2;
+    map<uint64, SimpleSpuCountryInfoNotActiveUnit> simple_spu_country_info_map = 3;
+}
+
+message GetSkuCodeReq{
+    repeated string sku_code = 1; // sku_code
+}
+
+message GetProductChannelBySkuCodeResp{
+    message ProductChannelInfoUnit{
+        string sku_code = 1;
+        common.enum.ProductEnum.ProductSource product_channel = 2;
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated ProductChannelInfoUnit channel_info = 2;
+}
+//活动报名-根据后台类目和商品名称查询商品ID 请求体
+message GetSpuIDFromQueryReq {
+    int32 back_cate_id = 1; //三级后台类目id
+    string title_key = 3;//商品title关键字
+}
+
+//活动报名-根据后台类目和商品名称查询商品ID 响应体
+message GetSpuIDFromQueryResp {
+    repeated uint64 spu_id = 1;
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+// 根据spu查sku简单信息
+message GetSkuInfoByProductIdReq {
+    uint64 product_id = 1;
+    string country_code = 2;
+}
+
+message GetSkuInfoByProductIdResp {
+    common.errcode.ErrorCode ret = 1;
+    message GetSkuInfoByProductIdPb {
+        //商品id
+        uint64 product_id = 1;
+        //商品 sku id
+        uint64 sku_id = 2;
+        //商品 sku code
+        string sku_code = 3;
+        //国家码
+        string country_code = 4;
+        //缩略图
+        string cover = 5;
+        //划线价格
+        string price = 6;
+        //vip价格
+        string price_vip = 7;
+        //佣金率
+        string commission_rate = 8;
+        //在售状态
+        int32 sale_status = 10;
+        //商品类型
+        int32 product_type = 11;
+        //建议活动价
+        string active_price = 12;
+    }
+    repeated GetSkuInfoByProductIdPb sku_info = 2;
+}
+
+//内部获取 品质优选列表参数
+message MarketCategoryReq {
+    common.base.Pagination page = 1;
+    string language_code = 2; //语言码
+    string country_code = 3; //国家码
+    uint32 user_level = 4; //用户等级
+    string user_country = 5; //用户国家码, 用于汇率转换
+    uint32 brand_level = 6; //品牌等级
+}
+
+//内部获取 品质优选列表返回
+message MarketCategoryResp {
+    common.base.ErrorMessage ret = 1;
+    repeated PreferredProductInfo product_infos = 2;
+    int64 total = 3;
+
+    message PreferredProductInfo {
+        string product_id = 1; //商品id
+        string product_img = 2; //商品图片
+        string product_name = 3; //商品名称
+        string price = 4; //商品价格
+        int32 sort = 5; //商品排序
+        string price_vip = 6; //会员价
+        string product_label = 7; //商品标签
+        string sub_title = 8; //副标题
+        string commission = 9; //积分佣金
+        string activity_price = 10; //活动价
+        string is_activity = 11; //是否活动商品,1是,0否
+    }
+}
+
+message CheckProductExistsReq{
+    string org_id = 1; //原始平台商品id
+}
+
+message CheckProductExistsResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    uint64 product_id = 2; //已存在的商品id
+    string org_id = 3; //原始平台商品id
+}
+
+message GetGiftIdByProductIdReq{
+    string country_code = 1;//国家编码
+    repeated uint64 product_id = 2; //商品ID
+}
+message GetGiftIdByProductIdResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<uint64, uint32> gift = 2; //商品ID -> 礼包ID
+}
+
+message QuerySkuAliInfoBySkuCodeAndSnapCodeResp {
+    message SkuAliInfo {
+        string sku_code = 1; // 记录对应 sku_code
+        string snap_code = 2; // 记录对应的快照码
+        uint64 product_id = 3; // 商品spu_id
+        string org_id = 4; // 来源商品id
+        uint64 channel = 5; //渠道类型
+        string spec_id = 6; // 1688确定某个sku的字段
+        uint64 supplier_id = 7; // 供应商id
+        string supplier_sku_id = 8; //1688 sku_id
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated SkuAliInfo sku_info = 2; //返回的sku信息
+}
+message UpdateProductSupplierReq {
+    message ProductSupplierInfo {
+        uint64 product_id = 1; // 商品spu_id
+        uint64 supplier_id = 2; // 供应商id
+    }
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated ProductSupplierInfo product_supplier_info = 2;// spu和供应商的关联关系
+}
+
+message UpdateProductSupplierResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+}
+
+
+message QueryProductBySupplierReq {
+    message QuerySupplierInfo {
+        uint64 supplier_id = 1;
+    }
+    repeated QuerySupplierInfo query_info = 1;
+}
+
+message QueryProductBySupplierResp {
+    message ProductBaseInfo {
+        uint64 supplier_id = 1; //供货商ID
+        uint64 product_id = 2; //商品spu_id
+        uint64 channel = 3; //渠道类型
+        string org_id = 4; //来源商品id
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated ProductBaseInfo base_info = 2; //spu基本信息
+}
+
+message GetSkuCodeBySpecIdReq {
+    message SpecInfo {
+        string spec_id = 1;//阿里sku_id
+        string offer_id = 2;//阿里product_id
+    }
+    repeated SpecInfo spec_info = 1;
+}
+message GetSkuCodeBySpecIdResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    message SkuCodeInfo {
+        string offer_id = 1;
+        string spec_id = 2;
+        repeated string sku_code = 3;
+    }
+    repeated SkuCodeInfo sku_code = 2;
+}
+
+message GetSkuInfoBySkuIdReq {
+    repeated int64 sku_id = 1;
+    string language_code = 2; //语言码
+    string country_code = 3; //国家码
+    bool filter_status = 4; // 过滤掉下架SKU
+    repeated int64 spu_id = 5;
+}
+message GetSkuInfoBySkuIdResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<uint64, GetSimpleSkuCountryInfoResp.SimpleSkuCountryInfoUnit> simple_sku_country_info_map = 3;
+}
+
+
+message SkuAttr {
+    int64 attr_id = 1;
+    map<string, string> attr_name = 2;
+    int64 value_id = 3;
+    map<string, string> value_name = 4;
+}
+message SkuInfoForActive{
+    int64 product_id = 1;
+    int64 sku_id = 2;
+    string sku_code = 3;
+    string country_code = 4;
+    string price = 5;
+    string price_vip = 6;
+    string price_active = 7;
+    string commission_rate = 8;
+    repeated SkuAttr sku_attr = 9;
+    int32 status = 10;
+}
+
+message SpuInfoForActive{
+    int64 product_id = 1;
+    map<string, string> title = 2;
+    int32 product_type = 3;
+    map<string, string> image = 4;
+    string country_code = 5;
+    int32 stock = 6;
+    int32 sale_count = 7;
+    int32 cart_count = 8;
+    repeated string labels = 9;
+    int32 status = 10;
+    string single_title = 11;
+}
+
+message GetSpuInfoForActiveReq {
+    repeated int64 product_ids = 1;
+    string country_code = 2;
+    bool with_cart = 3;
+}
+
+message GetSpuInfoForActiveResp {
+    repeated SpuInfoForActive spu_info = 1;
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+message GetSkuInfoForActiveReq {
+    repeated int64 sku_ids = 1;
+    string country_code = 2;
+}
+
+message GetSkuInfoForActiveResp {
+    repeated SkuInfoForActive sku_info = 1;
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+message GetSpuAndSkuInfoForActiveReq {
+    repeated int64 product_ids = 1;
+    string country_code = 2;
+}
+
+message GetSpuAndSkuInfoForActiveResp {
+    message SpuAndSkuInfoForActive {
+        SpuInfoForActive spu = 1;
+        repeated  SkuInfoForActive sku = 2;
+    }
+    repeated SpuAndSkuInfoForActive spu_and_sku = 1;
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+message SimplifyProductForActiveReq {
+    repeated int64 product_ids = 1;
+    string country_code = 2;
+    bool with_cart = 3;
+    bool with_stock = 4;
+    bool with_label = 5;
+}
+
+message SimplifyProductForActiveResp {
+    message SimplifyProductForActive{
+        int64 product_id = 1;
+        string country_code = 2;
+        int32 sale_count = 3;
+        int32 cart_count = 4;
+        int32 stock = 5;
+        repeated string labels = 6;
+        repeated int64 sku_id = 7;
+        bool add_cart = 8;
+        string title = 9;
+    }
+    repeated SimplifyProductForActive simplifyProduct = 1;
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+//内部商品服务
+service ProductService {
+    //为活动页面搭建提供spu信息
+    rpc GetSimplifyProductForActiveReq (SimplifyProductForActiveReq) returns (SimplifyProductForActiveResp);
+
+    //为活动提供spu基本信息
+    rpc GetSpuInfoForActive (GetSpuInfoForActiveReq) returns (GetSpuInfoForActiveResp);
+
+    //为活动提供sku基本信息
+    rpc GetSkuInfoForActive (GetSkuInfoForActiveReq) returns (GetSkuInfoForActiveResp);
+
+    //为活动提供spu和sku基本信息
+    rpc GetSpuAndSkuInfoForActive (GetSpuAndSkuInfoForActiveReq) returns (GetSpuAndSkuInfoForActiveResp);
+
+    //根据商品id及sku_id 批量获取商品及sku信息
+    rpc GetSnapProductBaseInfo (GetSnapProductBaseInfoReq) returns (GetSnapProductBaseInfoResp);
+
+    //批量获取商品的上下架状态
+    rpc GetProductShelfStatus (GetProductShelfStatusReq) returns (GetProductShelfStatusResp);
+
+    //获取商品基础信息
+    rpc GetProductBaseInfo (GetProductBaseInfoReq) returns (GetProductBaseInfoResp);
+    
+    //获取商品基础信息
+    rpc GetProductBaseInfoByCache (GetProductBaseInfoReq) returns (GetProductBaseInfoResp);
+
+
+    //获取直播商品基础信息
+    rpc GetLiveProductBaseInfo (GetLiveProductBaseInfoReq) returns (GetLiveProductBaseInfoResp);
+
+    //获取直播sku商品基础信息
+    rpc GetLiveSkuBaseInfo (GetLiveSkuBaseInfoReq) returns (GetLiveSkuBaseInfoResp);
+
+    //根据sku code 或者 sku名称(仅中文) 关键词 查询sku code信息, 最多1000条
+    rpc QuerySkuCodeByKeyword (QuerySkuCodeByKeywordReq) returns (QuerySkuCodeByKeywordResp);
+
+    //根据skucode和快照获取sku信息
+    rpc QuerySkuInfoBySkuCodeAndSnapCode (QuerySkuCodeAndSnapReq) returns (QuerySkuInfoBySkuCodeResp);
+
+    //批量仅根据skucode获取sku信息
+    rpc QuerySkuInfoBySkuCodes (QuerySkuCodeReq) returns (QuerySkuInfoBySkuCodeResp);
+
+    //批量仅根据skucode获取sku信息,若是组合商品带上组合商品的内容
+    rpc QuerySkuAndCompositeBySKuCodes (QuerySkuAndCompositeReq) returns (QuerySkuAndCompositeBySkuCodesResp);
+
+    //获取sku语言相关信息
+    rpc QuerySkuCodeAndLang (QuerySkuCodeAndLangReq) returns (QuerySkuCodeAndLangResp);
+
+    //获取商品的 参数属性, 规格属性
+    rpc GetProductAttrInfo (GetProductAttrInfoReq) returns (GetProductAttrInfoResp);
+
+    //获取商品spu基础维度信息
+    rpc GetProductBaseSpuList (GetProductBaseSpuListReq) returns (GetProductBaseSpuListResp);
+
+    //获取商品spu国家维度简单信息
+    rpc GetSimpleSpuCountryInfo (GetSimpleSpuCountryInfoReq) returns (GetSimpleSpuCountryInfoResp);
+
+    //获取商品sku国家维度简单信息
+    rpc GetSimpleSkuCountryInfo (GetSimpleSkuCountryInfoReq) returns (GetSimpleSkuCountryInfoResp);
+
+    // 获取商品的返利信息
+    rpc GetProductCommissionInfo (GetProductCommissionInfoReq) returns (GetProductCommissionInfoResp);
+
+    // 根据商品名搜索商品id 列表
+    rpc QueryProductByName (QueryProductByNameReq) returns (QueryProductByNameResp);
+
+    //获取礼包商品存在信息及其对应的前台类目信息
+    rpc GetGiftProductAndCateInfo (GetGiftProductAndCateInfoReq) returns (GetGiftProductAndCateInfoResp);
+
+    // 根据商品列表获取商品名的多语言信息
+    rpc GetProductLanguageInfo (GetProductLanguageInfoReq) returns (GetProductLanguageInfoResp);
+
+    // 根据商品名搜索sku信息
+    rpc QuerySkuByName (QuerySkuByNameReq) returns (QuerySkuByNameResp);
+
+    //查询预售规则
+    rpc AdvanceSaleRuleGet (AdvanceSaleRuleGetReq) returns (AdvanceSaleRuleGetResp);
+
+    //根据商品信息查询预售信息
+    rpc AdvanceSaleProductQuery (AdvanceSaleProductQueryReq) returns (AdvanceSaleProductQueryResp);
+
+    //获取spu维度的预售信息
+    rpc AdvanceSaleSpuQuery (AdvanceSaleSpuQueryReq) returns (AdvanceSaleSpuQueryResp);
+
+    //根据sku_code和快照获取sku阿里巴巴上面的信息
+    rpc QuerySkuAliInfoBySkuCodeAndSnapCode (QuerySkuCodeAndSnapReq) returns (QuerySkuAliInfoBySkuCodeAndSnapCodeResp);
+
+    //根据product_id更新spu的供应商
+    rpc UpdateProductSupplier (UpdateProductSupplierReq) returns (UpdateProductSupplierResp);
+
+    //获取商品类型信息
+    rpc GetProductTypeInfo (GetProductTypeInfoReq) returns (GetProductTypeInfoResp);
+
+    //根据供货商ID 获取 最新一条商品信息
+    rpc QueryProductBySupplier (QueryProductBySupplierReq) returns (QueryProductBySupplierResp);
+    // 搜索SKU信息 返回SKU_CODE
+    rpc QuerySkuInfo (QuerySkuInfoReq) returns (QuerySkuInfoResp);
+
+    //简单商品查询接口 和GetSimpleSpuCountryInfo区别没有活动价
+    rpc GetSimpleSpuCountryInfoNotActive(GetSimpleSpuCountryInfoNotActiveReq) returns (GetSimpleSpuCountryInfoNotActiveResp);
+    //根据spec_id批量查询sku_code
+    rpc GetSkuCodeBySpecId (GetSkuCodeBySpecIdReq) returns (GetSkuCodeBySpecIdResp);
+
+    //获取商品类型信息
+    rpc GetProductChannelInfo (GetProductInfoReq) returns (GetProductChannelInfoResp);
+
+    //获取商品类型信息
+    rpc GetProductChannelBySkuCode (GetSkuCodeReq) returns (GetProductChannelBySkuCodeResp);
+
+    //获取商品spu国家维度简单信息
+    rpc GetCouponSpuCountryInfo (GetSimpleSpuCountryInfoReq) returns (GetSimpleSpuCountryInfoResp);
+
+    //获取商品品牌信息（虚拟充值查询充值运营商）
+    rpc GetBrandInfoByProductId (GetBrandInfoByProductIdReq) returns (GetBrandInfoByProductIdResp);
+
+    //活动报名-根据spu查sku简单信息
+    rpc QuerySkuSimpleInfoByProductId (QuerySkuSimpleInfoByProductIdReq) returns (QuerySkuSimpleInfoByProductIdResp);
+
+    //活动报名-根据后台类目和商品名称查询商品ID
+    rpc GetSpuIDFromQuery( GetSpuIDFromQueryReq ) returns ( GetSpuIDFromQueryResp );
+
+    //获取商品所有sku（redis缓存60秒）
+    rpc GetSkuInfoByProductId (GetSkuInfoByProductIdReq) returns (GetSkuInfoByProductIdResp);
+
+    // 根据SKU ID获取SKU信息 （支持属性多语言）
+    rpc GetSkuInfoBySkuId (GetSkuInfoBySkuIdReq) returns (GetSkuInfoBySkuIdResp);
+
+}
+
+service PreferredCategoryService {
+    //内部获取 品质优选列表
+    rpc GetMarketProductByQuality (MarketCategoryReq) returns (MarketCategoryResp);
+}
+
+service ProductCrawlerService{
+    //爬虫添加商品
+    rpc CrawlerInsertProduct (CrawlerInsertProductReq) returns (CrawlerInsertProductResp);
+    //检查原始平台商品是否已经上过货
+    rpc CheckProductExists (CheckProductExistsReq) returns (CheckProductExistsResp);
+}
+
+service GiftService {
+    rpc GetGiftIdByProductId (GetGiftIdByProductIdReq) returns (GetGiftIdByProductIdResp);
+}
+
+service ProductAdvanceSearchService{
+    //商品高级搜索
+    rpc ProductAdvanceSearch(ProductAdvanceSearchReq) returns (ProductAdvanceSearchResp);
+
+    //根据优惠券绑定的商品信息进行排序
+    rpc ProductESSearch(ProductESSearchReq) returns (ProductESSearchResp);
+}

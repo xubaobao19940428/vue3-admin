@@ -1,0 +1,368 @@
+syntax = "proto3";
+package inner.promotion;
+import "common/base.proto";
+import "common/errcode.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.promotion";
+option java_outer_classname = "Promotion";
+
+message QueryPromotionReq {
+    message Sku {
+        int64 product_id = 1;
+        int64 sku_id = 2;
+        string price = 3;//商品价格
+        int32 num = 4;//购买数量
+    }
+    repeated Sku sku = 1;
+    string country_code = 2;
+    string state_name = 3;
+}
+
+message QueryPromotionResp {
+    message PromotionDetail {//优惠详情
+        int64 sku_id = 1;
+        string discount = 2;//优惠总金额
+    }
+    message PromotionInfo {
+        int64 promotion_id = 1;//促销ID
+        string label = 2;//展示标签
+        common.enum.PromotionEnum.PromotionType promotion_type = 3;//促销类型
+        int32 level = 4;//用到第几级优惠
+        repeated PromotionDetail detail = 5;
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated PromotionInfo promotion_info = 2;
+}
+
+message BatchGetPromotionLabelReq {
+    repeated int64 promotion_id = 1;
+    string language_code = 3;//语言码
+}
+message BatchGetPromotionLabelResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<int64, string> label = 2;
+}
+
+message BatchGetPromotionReq {
+    repeated int64 spu_id = 1;
+    string language_code = 2; //语言码
+    string country_code = 3; //国家码
+}
+
+message BatchGetPromotionResp {
+    message PromotionInfo {
+        repeated int64 spu_id = 1;
+        uint64 promotion_id = 2; // 营销ID
+        common.enum.PromotionEnum.PromotionType promotion_type = 3; // 营销类型
+        uint64 start_time = 4; //开始时间
+        uint64 end_time = 5; //结束时间
+        string label = 6; //促销标签
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated PromotionInfo promotion_info = 2;
+}
+
+message GetPromotionDiscountReq {
+    message Sku {
+        string product_id = 1;
+        string sku_id = 2;
+        string price = 3; //商品价格
+        int32 num = 4; //购买数量
+    }
+
+    message PromotionSkuInfo {
+        repeated Sku sku = 1; //sku列表
+        string promotion_id = 2; // 营销ID
+//        string state_name = 3;//地区名称
+//        string state_code = 6;//地区code
+//        int32 logistics_mode = 4;//物流模式 0：无意义, 1：普通物流模式，3：经济物流模式
+//        string address_id = 5;//地址ID
+    }
+
+    repeated PromotionSkuInfo promotion_sku_info = 1;
+}
+
+message GetPromotionDiscountResp {
+    message PromotionDiscountInfo {
+        string promotion_id = 1; // 营销ID
+        string discount = 2; //优惠总金额
+        int32 level = 3; //层级 0就代表没有满足
+        string moreDocument = 4; //满足更高级别优惠规则的文案
+        string points = 5;//积分
+        common.enum.PromotionEnum.PromotionType type = 6;//促销类型
+        repeated string max_sale_product_cover = 7;//两个销量最高的商品cover
+        //        string type = 7;//促销类型字符串型
+        string label = 8;//促销标签
+        int32 type_new = 9;//促销类型int
+    }
+
+    repeated PromotionDiscountInfo promotion_discount_info = 1;
+    common.base.ErrorMessage ret = 2; //返回值
+}
+
+message GetFreeShippingReq {
+    message Sku {
+        int64 product_id = 1;
+        int64 sku_id = 2;
+        string price_sum = 3;//商品优惠后总价
+        int32 num = 4;//购买数量
+    }
+    repeated Sku sku = 1;//sku列表
+    string state_name = 2;//地区信息//订单侧传的是state_code,这个字段命名不准确，应该传code
+    string country_code = 3;//国家码
+//    int32 logistics_mode = 4;//物流模式 0：无意义(给非包邮类型的工具使用)，1：普通物流模式，3：经济物流模式
+}
+
+message GetFreeShippingResp {
+    message PromotionInfo {
+        repeated int64 sku_id = 1;
+        int64 promotion_id = 2; // 营销ID
+        common.enum.PromotionEnum.PromotionType promotion_type = 3; // 营销类
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated PromotionInfo promotion_info = 2;
+}
+
+message CheckPromotionReq{
+    message Sku {
+        uint64 product_id = 1;
+        uint64 sku_id = 2;
+        int32 num = 3;
+        string price = 4;
+    }
+    message PromotionGroup {
+        uint64 promotion_id = 1;
+        common.enum.PromotionEnum.PromotionType type = 2;
+        int32 level = 3;//层级
+        string total_discount = 4;
+        repeated Sku sku = 5;
+//        string state_code = 9;//地区code
+//        int32 logistics_mode = 7;//物流模式 0：无意义(给非包邮类型的工具使用)，1：普通物流模式，3：经济物流模式
+//        string address_id = 8;//地址ID
+    }
+    repeated PromotionGroup promotion_group = 1;
+    string country_code = 2; //国家码
+}
+message CheckPromotionResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+}
+
+
+message GetPromotionTypeReq {
+    repeated string promotion_id = 1;
+}
+
+message GetPromotionTypeResp {
+    message PromotionUnit {
+        uint64 promotion_id = 1;
+        int32 type = 2;
+    }
+    repeated PromotionUnit promotion_unit = 1;
+    common.base.ErrorMessage ret = 2;
+}
+
+enum PurchaseLimitRuleType {
+    PURCHASE_LIMIT_RULE_TYPE_NULL = 0;//不使用
+    PURCHASE_LIMIT_RULE_MAX_BUY = 1;//指定人群在限购期间累计最多购买
+    PURCHASE_LIMIT_RULE_MIN_BUY = 2;//指定人群在限购期间每单最小购买
+    PURCHASE_LIMIT_RULE_ONE_ORDER_MAX_BUY = 3;//指定人群在限购期间每单最多购买件数（按SPU计）
+}
+
+
+//获取根据商品id获取商品数量限购信息
+message GetPurchaseLimitQuantityReq {
+    repeated uint64 product_id = 1; //
+    string country_code = 2;//国家码
+}
+
+message GetPurchaseLimitQuantityResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    message LimitInfo{
+        uint64 limit_id = 1;
+        uint64 start_time = 2;//开始时间的时间戳
+        uint64 end_time = 3;//结束时间的时间戳
+        uint32 limit_quantity = 4; //限购规则
+        PurchaseLimitRuleType purchase_limit_rule_type = 8;//限购规则类型
+    }
+    map<uint64, LimitInfo> limit_info = 3; //商品对应的限购规则
+}
+
+//获取商品的限购规则 --> 订单调用
+message QueryBuyLimitReq {
+    message Sku {
+        uint64 product_id = 1; //商品id
+//        uint64 sku_id = 2;
+//        int32 num = 3;//购买数量
+    }
+    repeated Sku sku = 1;
+    string country_code = 2;//国家码
+}
+message QueryBuyLimitResp {
+    message BuyLimitInfo {
+        uint64 limit_id = 1;
+        uint64 product_id = 2;
+//        int64 sku_id = 3;
+//        uint32 num = 4;//购买数量
+        int32 limit = 5;//限购数量
+        PurchaseLimitRuleType purchase_limit_rule_type = 8;//限购规则类型
+        int64 start_time = 6;//开始时间的时间戳
+        int64 end_time = 7;//结束时间的时间戳
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated BuyLimitInfo limit_info = 2;//限购详情
+}
+
+//根据商品id 列表查询直播商品配置
+message GetProductLiveConfigReq {
+    repeated uint64 product_id = 1; //商品id
+    string country_code = 2; //国家码
+    uint64 check_time = 3;//检查时间戳, 不传则以收到时间戳为准
+}
+
+message GetProductLiveConfigResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    message ProductLiveConfig{
+        uint64 product_live_id = 1; //商品直播id
+        uint64 product_id = 2; // 商品id
+        string country_code = 5; //国家码
+        string live_link = 6 ;//直播链接
+        string live_master_commission = 7; //直播主返佣
+        string live_superior_commission = 8; //直播主上级返佣
+        uint64 start_time = 9; //有效期开始时间
+        uint64 end_time = 10; //有效期结束时间
+    }
+    repeated ProductLiveConfig product_live_config = 2; //返回具有直播配置的商品
+}
+//商品直播配置服务
+service ProductLiveService{
+    //根据商品id 列表查询直播商品配置
+    rpc GetProductLiveConfig (GetProductLiveConfigReq) returns (GetProductLiveConfigResp);
+}
+
+service PromotionService {
+    //查询商品促销信息 (废弃)
+//    rpc QueryPromotion (QueryPromotionReq) returns (QueryPromotionResp);
+    //批量查询促销标签
+    rpc BatchGetPromotionLabel (BatchGetPromotionLabelReq) returns (BatchGetPromotionLabelResp);
+    //根据spuId集合批量查询促销信息分组
+    rpc BatchGetPromotion (BatchGetPromotionReq) returns (BatchGetPromotionResp);
+    //根据sku集合和促销活动计算满足的规则
+//    rpc GetPromotionDiscount(GetPromotionDiscountReq) returns (GetPromotionDiscountResp);
+    //根据sku集合查询促销包邮分组
+    rpc GetFreeShipping(GetFreeShippingReq) returns (GetFreeShippingResp);
+    //校验促销商品信息
+    rpc CheckPromotion (CheckPromotionReq) returns (CheckPromotionResp);
+
+    //根据促销ID查询促销类型
+    rpc GetPromotionType (GetPromotionTypeReq) returns (GetPromotionTypeResp);
+
+    //根据sku集合和促销活动计算满足的规则
+    rpc GetPromotionDiscount (GetPromotionDiscountReq) returns (GetPromotionDiscountResp);
+}
+
+service PurchaseLimitService{
+    //获取根据商品id获取商品数量限购信息, 返回-1说明不参加限购(商品详情页和加入购物车时使用)
+    rpc GetPurchaseLimitQuantity (GetPurchaseLimitQuantityReq) returns (GetPurchaseLimitQuantityResp);
+    //查询商品限购(购物车结算和下单的时候使用)
+    rpc QueryBuyLimit (QueryBuyLimitReq) returns (QueryBuyLimitResp);
+}
+
+// 热点关键字 配置获取
+message GetHotWordInnerReq {
+    string hot_word = 1; //热搜词
+}
+
+message GetHotWordInnerResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    string hot_id = 2;
+    string hot_word = 3;
+    string icon = 4; //角标
+    int32 url_type = 5; //热词跳转类型，1为跳转h5，2为应用内，3-普通搜索
+    string url = 6; //热词跳转地址
+}
+
+service HotWordInnerService {
+    // 热点搜索关键词列表
+    rpc GetHotWordConfig (GetHotWordInnerReq) returns (GetHotWordInnerResp);
+}
+
+// 类目banner获取
+message GetCategoryBannerInnerReq {
+    uint64 cate_id = 1; //类目ID
+}
+
+message GetCategoryBannerInnerResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    uint64 cate_id = 2;
+    string cover = 3; //图片
+    string title = 4; //名称
+    int32 url_type = 5; //热词跳转类型，1为跳转h5，2为应用内，3-普通搜索
+    string url = 6; //跳转地址
+    int32 cate_banner_id = 7; //类目bannerID
+}
+
+message GetCategoryBannerBackGroundReq {
+    repeated uint64 cate_id = 1; //一级前台类目id
+}
+
+message GetCategoryBannerBackGroundResp {
+    message CategoryBannerFontColor {
+        uint64 cate_id = 1; //一级前台类目id
+        string category_banner_font_color = 2;//每个类目banner字体的颜色
+    }
+    string category_back_ground = 1; //类目banner的背景图
+    repeated CategoryBannerFontColor category_banner_font_color = 2;
+    common.errcode.ErrorCode ret = 3; //返回值
+}
+
+service CategoryBannerInnerService {
+    // 热点搜索关键词列表
+    rpc GetCategoryBanner (GetCategoryBannerInnerReq) returns (GetCategoryBannerInnerResp);
+    // 根据前台类目id集合获取类目和类目banner的背景图
+    rpc GetCategoryBannerBackGround (GetCategoryBannerBackGroundReq) returns (GetCategoryBannerBackGroundResp);
+}
+message SpeedDialReq {
+}
+
+service SpeedDialService {
+    //获取背景颜色
+    rpc getSpeedDialBgColor (SpeedDialReq) returns (SpeedDialResp);
+}
+
+message SpeedDialResp {
+    common.errcode.ErrorCode ret = 1;
+    string color = 2;
+}
+
+message ModifyOpportunityReq{
+    int64 user_id = 1;
+    int32 type = 2;//1-邀新1、3、6、10人,2-升级PS,3-首单,4-首销
+    string source_id = 3;// 消息来源唯一标志
+    string user_country_code = 4;//用户国家
+    int64 trigger_time = 5;//触发时间
+}
+
+message ModifyOpportunityResp{
+    common.errcode.ErrorCode ret = 1;
+}
+
+service LuckDrawInnerService {
+    // 增加抽奖机会
+    rpc modifyOpportunity (ModifyOpportunityReq) returns (ModifyOpportunityResp);
+}
+
+message GetShortUrlReq{
+	string long_url = 1;
+}
+message GetShortUrlResp{
+	common.errcode.ErrorCode ret = 1;
+	string short_key = 2;
+	string share_domain_url = 3;
+}
+
+service ShortUrlInnerService{
+	//获取短链
+	rpc GetShortUrl (GetShortUrlReq) returns (GetShortUrlResp);
+}

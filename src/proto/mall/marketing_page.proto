@@ -1,0 +1,41 @@
+//DESC APP littlec-marketing
+syntax = "proto3";
+package boss.market;
+
+import "common/base.proto";
+import "common/errcode.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.mall.market";
+option java_outer_classname = "MarketingPage";
+
+message PageReq{
+    string serial_id = 1; //页面序号id
+    string history_serial_id = 2; //页面历史序号id,如果传入此值,则会按历史样式展示
+}
+message PageLayoutPb{
+    string module_id = 1; //模块id
+    string info = 2; //页面详情
+    int32 sort = 3; //排序
+    string name = 4; //模块名称
+    string basic_name = 5;
+}
+message PageResp {
+    common.base.ErrorMessage ret = 1;
+    repeated common.base.NameAndCode title = 2; //标题
+    int32 show_type = 3; //显示方式(1-显示在顶部,2-下滑时显示)
+    string background = 4; //背景
+    string end_time = 5; //失效时间
+    int32 share = 6; //分享状态(1-启用,2-停用)
+    repeated common.base.NameAndCode share_title = 7; //分享标题
+    repeated common.base.NameAndCode share_description = 8; //分享描述
+    repeated common.base.NameAndCode share_img = 9; //分享图片
+    string serial_id = 10; //页面序号id
+    repeated PageLayoutPb pageLayoutPb = 11; //页面布局
+    int32 status = 12; //状态(1->生效中,2->已失效)
+    string country_code = 13; //国家码
+    int32 app_type = 14;
+}
+service MarkeingPageMallService {
+    rpc PageView (PageReq) returns (PageResp);
+}

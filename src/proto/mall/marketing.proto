@@ -1,0 +1,621 @@
+//DESC APP littlec-marketing
+syntax = "proto3";
+package mall.market;
+
+
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.mall.marketing";
+option java_outer_classname = "Marketing";
+
+// 活动：每日特价
+message DayTimeProductPb {
+  // userId
+  string id = 1;
+  // 开始时间
+  string begin_time = 2;
+  // 结束时间
+  string end_time = 3;
+  // 系统时间
+  string system_time = 4;
+  repeated ProductTimePriceDtoPb product_time_price = 5;
+  // 倒计时
+  string remain_time = 7;
+  //活动状态
+  common.enum.MarketingEnum.ActiveStatus active_status = 8;
+}
+
+message ProductTimePriceDtoPb {
+  string id = 1;
+  string product_id = 2; //商品ID
+  string product_name = 3; //商品名称
+  string product_img = 4; // 产品图片
+  string product_desc = 7; // 产品描述
+  string price = 8; // 产品价格
+  string price_vip = 9; // 产品VIP价格
+  int32 price_status = 11; // 限时特卖状态
+  string product_label = 13; // 商品标签
+  string active_price = 16; // 活动价格
+  string start_time = 18; // 开始时间
+  string end_time = 19; //结束时间
+  string active_id = 20; // 活动ID
+  string active_name = 21; // 活动名称
+  string promotion_id = 22; //促销ID
+  string promotion_name = 23; //促销名称
+  string product_corner = 25; //商品角标
+  string promotion_desc = 26; //营销文案
+  string promotion_cover = 27; //营销底图
+  string discount_rate = 28; //折扣率
+  common.enum.MarketingEnum.ActiveStatus active_status = 29; //活动状态
+  bool about_to_sell_out = 30;//是否即将售罄
+  bool sold_out = 31;//是否售罄
+  int32 sale_count = 32;//销量
+  int32 concerned_people = 33;//关注人数，未开始的商品才需要显示
+  repeated common.enum.ProductEnum.LabelType labels = 34;//多标签
+}
+
+message CurrentDailyTimeProductPb {
+  // 限时特价商品对象
+  repeated ProductTimePriceDtoPb product_time_price_vo_list = 1;
+  // 倒计时（毫秒）
+  string countdown = 2;
+  // 系统时间
+  string system_time = 3;
+  //活动是否开始
+  bool flag = 4;
+
+  string background_color = 5; //背景色,取宫格区颜色
+}
+
+message GetDailyTimePriceProductReq {
+}
+
+message GetDailyTimePriceProductResp {
+  common.base.ErrorMessage ret = 1;
+  repeated DayTimeProductPb data = 2;
+  // 当前跳转索引
+  int32 index = 3;
+}
+
+message GetCurrentTimePriceProductListReq {
+}
+
+message GetCurrentTimePriceProductListResp {
+  common.base.ErrorMessage ret = 1;
+  CurrentDailyTimeProductPb data = 2;
+}
+
+message HotSaleList {
+  string product_id = 2; //商品ID
+  string product_name = 3; //商品名称
+  string product_img = 4; // 产品图片
+  string product_desc = 5; // 产品描述
+  string price = 6; // 产品价格
+  string price_vip = 7; // 产品VIP价格
+  string product_label = 9; // 商品标签
+  string active_price = 12; // 活动价格
+  string start_time = 14; // 开始时间
+  string end_time = 15; //结束时间
+  string active_id = 16; // 活动ID
+  string active_name = 17; // 活动名称
+  string promotion_id = 18; //促销ID
+  string promotion_name = 19; //促销名称
+  string product_corner = 21; //商品角标
+  string promotion_desc = 22; //营销文案
+  string promotion_cover = 23; //营销底图
+  // 系统时间
+  string system_time = 24;
+  //倒计时时间
+  string countdown_time = 25;
+  int32 hot_sale_status = 26; //0-即将到来，1-正在进行，2-已结束
+  int32 sale_count = 27;
+  repeated string head_img = 28; //用户头像，最多30个
+}
+
+message HotSaleListReq {
+}
+
+message HotSaleListResp {
+  common.base.ErrorMessage ret = 1;
+  repeated HotSaleList hot_sale = 2;
+}
+
+message MarketingProductList {
+  string product_id = 2; //商品ID
+  string product_name = 3; //商品名称
+  string price = 6; // 产品价格
+  string price_vip = 7; // 产品VIP价格
+  string product_label = 9; // 商品标签
+  string product_cover = 10; //商品图片
+  string active_price = 12; // 活动价格
+  // 副标题  --> sub title
+  string sub_name = 13;
+  // 自购节省 - 国家
+  string commission_self = 14;
+  // 分享返利
+  string commission = 15;
+  string product_corner = 16; //商品角标
+  string promotion_desc = 17; //营销文案
+  string active_id = 18; //活动ID
+  string start_time = 19; //开始时间
+  string end_time = 20; //结束时间
+  common.enum.MarketingEnum.ActiveStatus active_status = 21; //活动状态
+  string preheat_time = 22; //预热时间
+  string active_commission = 23;// 分享返利
+  string active_commission_self = 24;// 自购节省
+  int32 sale_count = 25;// 销量
+  int32 cart_count = 26;// 加购量
+}
+
+message GetActiveReq {
+  string active_id = 1; //活动id
+}
+
+
+message GetActiveResp {
+  common.base.ErrorMessage ret = 1;
+  repeated MarketingInfoList marketing_info = 2;
+}
+
+message MarketingInfoList {
+  string active_cover = 1; //活动主图
+  string active_id = 3; //活动id
+  repeated MarketingProductList marketing_product = 2;
+}
+
+message QueryAllMarketingReq {
+}
+
+message QueryAllMarketingResp {
+  common.base.ErrorMessage ret = 1;
+  repeated MarketingInfoList marketing_info = 2;
+}
+
+message MarketingProductLabelList {
+  string group_label = 1; // 分组标签
+  repeated MarketingProductList marketing_product = 2;
+  int32 group_label_id = 3; // 分组标签ID
+}
+
+message GetMarketingProductReq {
+  string active_id = 1; // 活动ID
+}
+
+message GetMarketingProductResp {
+  common.base.ErrorMessage ret = 1;
+  repeated MarketingProductLabelList label = 2;
+  string active_cover = 3; // 活动主图
+}
+
+message GetActiveProductReq {
+  string active_id = 1; // 活动ID
+  int32 display_level = 2; // 显示级别,1-显示未开始的活动和活动商品，2-只显示正在进行中的活动和活动商品信息
+}
+
+message GetActiveProductResp {
+  common.base.ErrorMessage ret = 1;
+  repeated MarketingProductLabelList label = 2;
+  string active_cover = 3; // 活动主图
+}
+
+message GetActiveByIdOrLabelIdReq {
+  string active_id = 1; // 活动ID
+  repeated int32 group_label_id = 2; // 分组标签ID
+  int32 type = 3; //1-通过活动ID请求，2-通过分组标签请求
+  repeated int32 product_status = 4; // 1-未开始，2-进行中，3-已结束，有几个状态就传几个值
+  string page_country_code = 5; //页面搭建所属国家，为空时默认使用header中的
+  int32 sort_type = 6;//1-销量排序 3-加购排序 4-活动默认排序
+  bool with_cart_count = 7;//是否展示加购量
+}
+
+message GetActiveByIdOrLabelIdResp {
+  common.base.ErrorMessage ret = 1;
+  repeated MarketingProductLabelList label = 2;
+  string active_cover = 3; // 活动主图
+}
+
+message MallGetActiveProductByProductIdReq {
+  repeated string product_id = 1; // 商品ID
+  repeated int32 product_status = 2; // 1-未开始，2-进行中，3-已结束，有几个状态就传几个值
+  string page_country_code = 3; //页面搭建所属国家，为空时默认使用header中的
+  int32 sort_type = 4;//1-销量排序 3-加购排序 4-活动默认排序
+  bool with_cart_count = 7;//是否展示加购量
+}
+
+message MallGetActiveProductByProductIdResp {
+  common.base.ErrorMessage ret = 1;
+  repeated MarketingProductList marketing_product_info = 2; //活动商品信息
+}
+message GetNewUserProductsReq{
+  string active_id = 1; // 活动ID
+}
+
+
+message GetNewUserProductsResp{
+  common.base.ErrorMessage ret = 1;
+  repeated MarketingProductList marketing_product_info = 2; //活动商品信息
+}
+
+//惊喜购列表返回结果
+message GetNewUserSkuRandomResp{
+  message NewUserSkuInfo{
+    string product_id = 1; //商品ID
+    string product_cover = 2; //商品图片
+    string product_title = 3; //商品标题
+    string sku_code = 4;//skuCode
+    string sku_id = 5;//skuId
+    string price = 6;//划线价格
+    string price_vip = 7; //vip价格
+    string active_price = 8; //活动价格
+    string discount = 9;//折扣，100 -（活动价/划线价格）
+  }
+  common.base.ErrorMessage ret = 1;
+  repeated NewUserSkuInfo newUserActiveList = 2;//新人专享活动
+  repeated NewUserSkuInfo zeroActiveList = 3; // 0元购活动
+  repeated NewUserSkuInfo topActiveList = 4; //排行榜数据
+}
+
+message GetNewUserProductsRandomResp{
+  message NewUserProduct{
+    string product_id = 1; //商品ID
+    string product_cover = 2; //商品图片
+    string product_off = 3; //商品折扣信息
+  }
+  common.base.ErrorMessage ret = 1;
+  repeated NewUserProduct newUserProductList = 2; //活动商品信息
+}
+
+message GetZeroSaleProductsReq{
+  common.base.Pagination page = 1; //分页信息
+}
+message GetZeroSaleProductsResp{
+  common.base.ErrorMessage ret = 1;
+  uint32 total = 2; //商品结果总数
+  repeated MarketingProductList marketing_product_info = 3; //活动商品信息
+}
+
+message ZeroSaleProductOnHomePageInfo{
+  //商品图片
+  string product_cover = 1;
+  //商品活动价格
+  string active_price = 2;
+}
+message NewUserSpecifiedProductOnHomePageInfo{
+  //商品图片
+  string product_cover = 1;
+  //折扣率
+  string discount_rate = 28;
+}
+message GetZeroSaleProductsOnHomePageReq{
+
+}
+message GetZeroSaleProductsOnHomePageResp{
+  common.base.ErrorMessage ret = 1;
+  //App首页0元购商品信息
+  repeated ZeroSaleProductOnHomePageInfo zero_sale_product_on_home_page_info = 2;
+  //App首页新用户专享价商品信息
+  repeated NewUserSpecifiedProductOnHomePageInfo new_user_specified_product_on_home_page_info = 3;
+}
+
+message FlashSaleRemindReq{
+  string active_id = 1; // 活动ID
+  string product_id = 2; // 商品ID
+}
+
+message FlashSaleRemindResp{
+  common.base.ErrorMessage ret = 1;
+}
+
+// 每日特价
+service DailyTimePriceService {
+  // app获取每日限时产品
+  rpc GetDailyTimePriceProduct (GetDailyTimePriceProductReq) returns (GetDailyTimePriceProductResp);
+  // 获取当前时间限时特价商品
+  rpc GetCurrentTimePriceProductList (GetCurrentTimePriceProductListReq) returns (GetCurrentTimePriceProductListResp);
+  //限时抢购提前提醒
+  rpc FlashSaleRemind (FlashSaleRemindReq) returns (FlashSaleRemindResp);
+}
+
+// 爆款好物
+service HotSaleService {
+  // app获取爆款好物
+  rpc GetHotSaleList (HotSaleListReq) returns (HotSaleListResp);
+}
+
+
+// 活动会场
+service MarketingProductService {
+  // app获取所有活动会场
+  rpc QueryAllMarketing (QueryAllMarketingReq) returns (QueryAllMarketingResp);
+  // app获取活动会场内商品
+  rpc GetMarketingProduct (GetMarketingProductReq) returns (GetMarketingProductResp);
+  //app获取 品质优选列表
+  rpc GetMarketingProductByQuality (ProductQueryParam) returns (ProductQueryResp);
+  // 获取活动内商品
+  rpc GetActiveProduct (GetActiveProductReq) returns (GetActiveProductResp);
+  // 获取所有活动
+  rpc GetActiveById (GetActiveReq) returns (GetActiveResp);
+  // 根据活动ID和活动标签获取活动商品
+  rpc GetActiveByIdOrLabelId (GetActiveByIdOrLabelIdReq) returns (GetActiveByIdOrLabelIdResp);
+  // 根据活动ID和活动标签获取活动商品
+  rpc MallGetActiveProductByProductId (MallGetActiveProductByProductIdReq) returns (MallGetActiveProductByProductIdResp);
+  //查询新人专享商品
+  rpc GetNewUserProducts(GetNewUserProductsReq) returns(GetNewUserProductsResp);
+  //首页随机获取新人专享图片
+  rpc GetNewUserProductsRandom(GetNewUserProductsReq) returns (GetNewUserProductsRandomResp);
+  //惊喜活动，获取sku列表
+  rpc GetNewUserSkuRandom(GetNewUserSkuRandomReq) returns (GetNewUserSkuRandomResp);
+  //查询0元购商品
+  rpc GetZeroSaleProducts(GetZeroSaleProductsReq) returns(GetZeroSaleProductsResp);
+
+  //App首页获取0元购商品 老用户不展示
+  rpc GetZeroSaleProductsOnHomePage(GetZeroSaleProductsOnHomePageReq) returns(GetZeroSaleProductsOnHomePageResp);
+
+}
+
+
+message GetNewUserSkuRandomReq{
+  int32 type =1; //1.惊喜购列表，2。购物车
+}
+
+//------------品质优选开始-----------------
+//查询营销商品参数
+message ProductQueryParam {
+  common.base.Pagination page = 1;
+}
+message ProductInfo {
+  string product_id = 1; //商品id
+  string product_img = 2; //商品图片
+  string product_name = 3; //商品名称
+  string price = 4; //商品价格
+  int32 sort = 5; //商品排序
+  string price_vip = 6; //会员价
+  string product_label = 7; //商品标签
+  string sub_title = 8; //副标题
+  string commission = 9; //积分佣金
+  string activity_price = 10; //活动价
+  string is_activity = 11; //是否活动商品,1是,0否
+}
+//营销商品查询返回
+message ProductQueryResp {
+  common.base.ErrorMessage ret = 1;
+  repeated ProductInfo product_infos = 2;
+  int64 total = 3;
+}
+//------------品质优选结束-----------------
+
+
+//-------------拆红包开始--------------------
+//拆红包配置
+message OpenRedbagParamReq {
+  string open_redbag_serial_id = 1; //拆红包序号id
+}
+message OpenRedbagResp {
+  int32 success = 1;
+  common.base.ErrorMessage ret = 2;
+  string msg = 3;
+  string amount = 4; //已拆金额
+  string own_head_img = 5; //自己的头像
+  string own_nick_name = 6; //自己的昵称
+  string nick_name = 7; //红包主的昵称
+  string head_img = 8; //红包主的头像
+  string serial_id = 9; //红包序号
+  string currency_symbol = 10; //国家货币符号
+}
+
+message OpenRedbagCheckResp {
+  int32 success = 1;
+  common.base.ErrorMessage ret = 2;
+  string msg = 3;
+  int32 status = 4; //状态:1->未开始,2->进行中,3->已失效,4->已完成
+  string nick_name = 5; //昵称
+  string head_img = 6; //头像
+  bool can_open = 7; //是否可以拆开,true是,false否
+  string serial_id = 8; //红包序号
+  bool is_owner = 9; //红包主:true->是,false->否
+}
+message GetOpenRedbagDetailResp {
+  int32 success = 1;
+  common.base.ErrorMessage ret = 2;
+  string msg = 3;
+  string nick_name = 4; //昵称
+  string head_img = 5; //头像
+  string serial_id = 6; //红包序号
+  bool is_owner = 7; //红包主:true->是,false->否
+  string success_amount = 8; //拆成功金额
+  string currency_symbol = 9; //国家货币符号
+}
+message OpenRedbagListReq {
+  string user_id = 1; //用户id
+}
+message UserInfo {
+  string nick_name = 1; //用户昵称
+  string head_img = 2; //用户头像
+  string time = 3; //时间
+  string amount = 4; //获得金额
+  int32 owner = 5; //是否本人,1是,2否
+  string coupon_amount = 6; //优惠券金额
+  string currency_symbol = 7; //国家货币符号
+  bool is_new_user = 8; //是否新用户
+  int32 type = 9; //类型(0->开红包,1->拆红包,2->分享)
+}
+message OpenRedbagListResp {
+  int32 count = 1; //今日已领
+  repeated UserInfo userInfo = 2; //用户领取列表
+  common.base.ErrorMessage ret = 3;
+}
+message OpenRedbagHistoryByOwnResp {
+  string amount = 1; //已拆金额
+  string success_amount = 2; // 成功金额
+  string surplus_amount = 3; //剩余金额
+  string serial_id = 4; //拆红包序号id
+  string end_time = 5; //结束时间
+  common.base.ErrorMessage ret = 6;
+  string currency_symbol = 7; //国家货币符号
+  int32 status = 8; //状态:0->没有拆红包历史,1->未开始,2->进行中,3->已失效,4->已完成
+}
+message OpenRedbagHistoryByTargetResp {
+  string amount = 1; //已拆金额
+  string serial_id = 2; //拆红包序号id
+  string head_img = 3; //当前头像
+  string nick_name_target = 4; //红包主昵称
+  common.base.ErrorMessage ret = 5;
+  string currency_symbol = 6; //国家货币符号
+}
+message SaveShareHistoryReq {
+  string serial_id = 1; //序号id
+}
+message OpenRedbagTopDataReq{
+  string serial_id = 1; //序号id
+}
+message OpenRedbagTopDataResp{
+  int32 withdraw_num = 1; //累计提现人数
+  string amount = 2;//累计提现金额
+  common.base.ErrorMessage ret = 3;
+}
+message MallSuccessResp {
+  int32 success = 1;
+  common.base.ErrorMessage ret = 2;
+  string msg = 3;
+}
+message GetOpenRedbagShareAmountResp{
+  string amount = 1; //分享可获得金额
+  string currency_symbol = 2; //国家货币符号
+  common.base.ErrorMessage ret = 3;
+}
+service OpenRedbagMallService {
+  //拆红包接口
+  rpc OpenRedbag (OpenRedbagParamReq) returns (OpenRedbagResp);
+  //拆红包校验
+  rpc OpenRedbagCheck (OpenRedbagParamReq) returns (OpenRedbagCheckResp);
+  //查询红包详情
+  rpc GetOpenRedbagDetail (OpenRedbagParamReq) returns (GetOpenRedbagDetailResp);
+  //今日已领列表
+  rpc OpenRedbagList (OpenRedbagListReq) returns (OpenRedbagListResp);
+  //自己拆红包历史
+  rpc OpenRedbagHistoryByOwn (OpenRedbagParamReq) returns (OpenRedbagHistoryByOwnResp);
+  //帮拆红包历史
+  rpc OpenRedbagHistoryByTarget (OpenRedbagParamReq) returns (OpenRedbagHistoryByTargetResp);
+  //根据serialId查询好友帮拆红包记录
+  rpc OpenRedbagHistoryBySerialId (OpenRedbagParamReq) returns (OpenRedbagListResp);
+  //获取拆红包顶部数据
+  rpc OpenRedbagTopData(OpenRedbagTopDataReq) returns(OpenRedbagTopDataResp);
+  //获取分享可获得的金额
+  rpc GetOpenRedbagShareAmount(OpenRedbagParamReq) returns(GetOpenRedbagShareAmountResp);
+}
+service OpenRedbagShareMallService {
+  //保存分享历史
+  rpc SaveShareHistory (SaveShareHistoryReq) returns (MallSuccessResp);
+}
+//-------------拆红包结束--------------------
+
+message ActiveFloatingReq {
+}
+
+message ActiveFloatingResp {
+  string url = 1; //浮窗链接
+  int32 switch_status = 2; //浮窗开关状态 1-开启，2-关闭
+  string cover = 3; //浮窗图标
+  string country_code = 4; //国家码
+  string start_time = 5; //开始时间
+  string end_time = 6; //结束时间
+  common.base.ErrorMessage ret = 7;
+  string id = 8;//浮窗id
+}
+
+
+service ActiveFloatingMallService {
+  //获取活动浮窗
+  rpc GetActiveFloating (ActiveFloatingReq) returns (ActiveFloatingResp);
+}
+
+message GiveDetailReq{
+  int32 id = 1;
+}
+
+message  GiveProductDetail {
+  //skuId
+  string skuId = 1;
+  //icon
+  string icon = 2;
+  //名称
+  string name = 3;
+  //数量
+  int32 stock = 4;
+  //商品总库存
+  int32  totalStock = 5;
+  //价格
+  string price = 6;
+  //规格
+  string attrs = 7;
+  //实际价格 0
+  string priceVip = 8;
+  //spuId
+  string spuId = 9;
+}
+
+message GiveDetailResp{
+  //赠品sku列表
+  repeated GiveProductDetail giveProductDetail = 1;
+  //spuId列表
+  string  spuIds = 2;
+  //活动名称
+  string name = 3;
+  //国家码
+  string countryCode = 4;
+  //app活动展示标签
+  string label = 5;
+  //类型
+  int32 ruleType = 6;
+  //规则值
+  string ruleContent = 7;
+  //规则说明
+  string note = 8;
+  //开始时间
+  int64 startTime = 9;
+  //结束时间
+  int64 endTime = 10;
+  //id
+  int32  id = 11;
+  //状态
+  int32 status = 12;
+  //返回信息
+  common.base.ErrorMessage ret = 13;
+}
+
+message QueryActiveSkuReq {
+  message SkuInfoDetail{
+    //买赠活动ID
+    int32 giveId = 1;
+    //当前giveId中的sku数量
+    int32 totalNum= 2;
+    //当前giveId中的总价
+    string totalPrice = 3;
+  }
+  repeated SkuInfoDetail skuInfoDetail = 1;
+}
+
+message QueryActiveSkuList{
+
+  //买赠sku列表
+  repeated GiveProductDetail giveProductDetail = 1;
+}
+
+message QueryActiveSkuResp{
+
+  map<int32, QueryActiveSkuList> activeSku = 1;
+  //返回信息
+  common.base.ErrorMessage ret = 2;
+}
+
+service GiveMallService{
+
+  //查询活动详情
+  rpc QueryDetail (GiveDetailReq) returns (GiveDetailResp);
+
+  //查询赠品列表
+  rpc QueryActiveSku (QueryActiveSkuReq) returns (QueryActiveSkuResp);
+}
+

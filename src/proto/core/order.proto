@@ -1,0 +1,1154 @@
+//DESC APP littlec-order
+syntax = "proto3";
+package core.order;
+
+import "common/errcode.proto";
+import "common/enum.proto";
+import "common/base.proto";
+import "common/trade.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.order";
+option java_outer_classname = "Order";
+
+enum ConponRule {
+    NO_THRESHOLD = 0; //无门槛
+    OVER_OFF = 1; //满减
+    OVER_DISCOUNT = 2; //满折扣
+}
+
+message BankInfo {
+    string bank_name = 1; //银行名称
+    string bank_id = 2; //卡号
+    string cardholder = 3; //持卡人姓名
+}
+
+message Conpon {
+    string conpon_id = 1;
+    string name = 2;
+    string desc = 3;
+    ConponRule rule = 4;
+    string discount = 5; //优惠金额
+}
+
+//订单商品快照
+message OrderItemProduct {
+    string order_id = 1;
+    string product_id = 2;
+    string price = 3; //商品售价
+    string sku_id = 4;
+    int32 count = 5; //购买数量
+    string name = 6; //名称
+    repeated OrderProductAttr attr = 7; //描述
+    string commission_rate = 8; //返佣比例
+    string cover = 9; //缩略图
+    string actual_price = 10; //实际支付价格
+    int32 allow_after_sale = 11; //商品能否售后 0:不允许 1:允许
+    int32 after_sale_status = 12; //订单售后展示状态 1:售后中 2:退款成功
+    string refund_id = 13; //售后单ID
+    int32 give_id = 14; // 赠品活动id
+    int32 product_tag = 15; // 商品标记 0: 正常商品 1: 0元购 2: 赠品
+}
+message OrderItem {
+    //订单基本信息
+    message OrderItemBase {
+        string order_id = 1; //订单号YYYYmmddHHMMss
+        string total_price = 2; //订单总金额
+        common.enum.OrderEnum.OrderStatus status = 3; //订单状态
+        common.enum.OrderEnum.SubStatus sub_status = 4; //订单子状态 1为支付中,2为部分发货
+        string create_time = 5; //创建时间
+        string pay_time = 6; //支付时间
+        string modify_time = 7; //修改时间
+        string receive_time = 8; //收货时间
+        string cancel_time = 9; //取消时间
+        int32 item_count = 10; //商品数量
+        string disccount_amount = 11; //优惠金额
+        string total_freight = 12; //总运费
+        string points = 13; //积分
+        common.enum.OrderEnum.OrderType order_type = 14; //订单类型
+        string country_code = 15; //国家
+        common.enum.PolyPayEnum.PayWay pay_way=16;//支付方式
+        bool is_view_logic = 17;//是否展示物流按钮 ，目前只用于待发货状态下订单按钮
+    }
+    //订单物流信息
+    message OrderItemShip {
+        string address = 1; //收货地址
+        string receiver_name = 2; //收货人姓名
+        string predict_receive_time = 3; //预计收货时间
+    }
+    //    message OrderItemAfterSale {
+    //        string refund_amount = 2; //退款金额
+    //    }
+    //    message OrderItemPay {
+    //        string pay_time = 1; //支付时间
+    //        string pay_amount = 2; //支付金额
+    //        int32 pay_remain_time = 3; //支付剩余时间
+    //    }
+    string order_id = 1; //订单ID
+    OrderItemBase base_info = 2; //基本信息
+    OrderItemShip ship_info = 3; //物流信息
+    //    OrderItemAfterSale after_sale_info = 4; //售后信息
+    //    common.enum.OrderEnum.GiftType gift_type = 5; //礼包类型
+    string inviter_id = 6; //分享人
+    repeated OrderItemProduct product = 7; //订单商品快照
+    int32 in_after_time = 8; //可否申请售后状态 0:不在售后时间范围 1:在售后时间范围内
+    //子单号（若此订单只有一个子单信息，则赋值给该字段，用户解决只有一个子单时，前端直接跳转到物流页 还没有实现）
+    string sub_order_id = 9;
+}
+
+message ViewOrderListRequest {
+    string order_id = 1;
+    repeated common.enum.OrderEnum.OrderStatus status = 2; //订单状态
+    common.base.Pagination page = 3;
+}
+message ViewOrderListResponse {
+    common.base.ErrorMessage ret = 1;
+    repeated OrderItem item = 2; //订单item
+    int32 total = 3;
+}
+
+message GetOrderCountRequest {
+}
+message GetOrderCountResponse {
+    //    message StatusCount{
+    //        common.enum.OrderEnum.OrderStatus status = 1; //订单状态
+    //        int32 count=2;
+    //    }
+    common.base.ErrorMessage ret = 1;
+    //    repeated StatusCount status_count=2;
+    string wait_for_pay_count = 2; //待支付数量
+    string wait_for_shipping_count = 3; //待发货数量
+    string wait_for_receiving_count = 4; //待收货数量
+}
+
+
+message OrderProductAttr {
+    uint64 attr_id = 1;
+    string attr_name = 2;
+    uint64 value_id = 3;
+    string value_name = 4;
+}
+message OrderDetail {
+    message OrderDetailBase {
+        string order_no = 1; //订单号YYYYmmddHHMMss
+        string create_time = 2; //创建时间timestamp
+        string update_time = 3; //修改时间timestamp
+        string total_price = 4; //订单总金额
+        common.enum.OrderEnum.OrderStatus status = 5; //订单状态
+        common.enum.OrderEnum.SubStatus sub_status = 6; //订单子状态 1为支付中,2为部分发货
+        string pay_time = 7; //支付时间
+        string receive_time = 8; //收货时间
+        string cancel_time = 9; //取消时间
+        string remark = 10; //备注
+        int32 item_count = 11; //商品数量
+        string coupon_amount = 12; //优惠券优惠金额
+        string promotion_amount = 13; //促销优惠金额
+        string receiver_name = 14; //收货人名字
+        string receiver_phone = 15; //收货人手机号
+        string receiver_address = 16; //收货人地址
+        string freight = 17; //运费
+        string points = 18; //获得积分
+        common.enum.OrderEnum.OrderType order_type = 19; //订单类型
+        string predict_receive_time = 20; //预计收货时间
+        string ship_time = 21; //发货时间，只记录第一次
+        string country_code = 22; //国家
+        string use_points = 23; //积分抵扣
+        string paied_amount = 24; //实际支付金额
+        string pay_country_code = 25; //实际支付国家
+        string product_total_price = 26; //订单商品总金额
+        int32 logic_type =27;//1、普通物流 3、经济物流
+        common.enum.PolyPayEnum.PayWay pay_way=28;//支付方式
+        string service_charge =29;//手续费
+        bool is_view_logic = 30;//是否展示物流按钮 ，目前只用于待发货状态下订单按钮
+        string charge_account_no = 31;//充值账号
+    }
+    message OrderDetailProduct {
+        string product_id = 1;
+        string price = 2; //下单时价格,有活动时为活动价格
+        string price_vip = 3; //vip价格
+        string sku_id = 4;
+        int32 count = 5; //购买数量
+        string name = 6; //名称
+        repeated OrderProductAttr attr = 7; //描述
+        string commission_rate = 8; //返佣比例
+        string cover = 9; //缩略图
+        string actual_price = 10; //实际支付价格
+        string sku_code = 11; //skucode
+        common.enum.OrderEnum.ProductStatus product_status = 12; //商品能否售后
+        string delivery_deadline = 13; //最迟发货时间
+        string refund_id = 14; //售后单号
+        int32 give_id = 15; // 赠品活动id
+        int32 product_tag = 16; // 商品标记 0: 正常商品 1: 0元购 2: 赠品
+        repeated string titleLabels = 17; //标题标签
+    }
+    message OrderItemAfterSale {
+        int32 in_after_time = 1; //可否申请售后状态 0:不在售后范围 1:在售后范围内
+        int32 is_after = 2; //是否为售后订单 1为售后订单
+        common.enum.OrderEnum.AfterStatus after_status = 3; //整单售后状态
+    }
+    OrderDetailBase base_info = 1; //基本信息
+    repeated OrderDetailProduct product = 2;
+    int64 remain_time = 3; //剩余支付或收货时间
+    OrderItemAfterSale after_sale_info = 4; //整单售后信息
+    //子单号（若此订单只有一个子单信息，则赋值给该字段，用户解决只有一个子单时，前端直接跳转到物流页 还没有实现）
+    string sub_order_id = 5;
+    int32 batch_after_sale = 6; //是否能批量售后 0:否 1:是
+    int32 exist_type = 7; //是否存在某种活动类型  8 -存在0元购或赠品
+}
+
+message ViewOrderDetailRequest {
+    string order_id = 1;
+    string pay_way = 2; //支付方式，cod确认提交时传值，其他情况可以不传值
+}
+message ViewOrderDetailResponse {
+    common.base.ErrorMessage ret = 1;
+    OrderDetail detail = 2; //订单详情
+}
+
+//商品价格与优惠计算结果
+message OrderCalcResult {
+    message ActivityDetail {
+        string activity_id = 1;
+        string activity_price = 2; //活动单价
+        string icon = 3; //活动的图标
+        string commission_rate = 4; //活动佣金率
+    }
+    message PromotionDetail {
+        string promotion_id = 1;
+        common.enum.PromotionEnum.PromotionType promotion_type = 2; //促销类型
+        string promotion_discount = 3; //促销优惠总金额
+        string label = 4; //促销的title
+    }
+    message AfterPledgeInfo {
+        string pledge_id = 1;
+        string label = 2;
+    }
+    message ArrivalPledgeInfo {
+        string pledge_id = 1;
+        string label = 2;
+    }
+    message ProductAttr {
+        string attr_name = 1;
+        string value_name = 2;
+    }
+    message CouponInfo {
+        string coupon_id = 1;
+        string disccount_amount = 2; //优惠总金额
+    }
+    message ProductItem {
+        string product_id = 1;
+        string sku_id = 2;
+        string sku_cover = 3;
+        string product_name = 4;
+        int32 num = 5; //购买件数
+        int32 weight = 6; //重量
+        string freight_id = 7; //运费模板ID
+        string org_price = 8; //划线价
+        string vip_price = 9; //优惠前单价
+        string real_price = 10; //实际价格
+        string commission_rate = 11;
+        repeated ProductAttr attr = 12;
+        AfterPledgeInfo after_pledge = 13; //到货承诺
+        ArrivalPledgeInfo arrival_pledge = 14; //售后承诺
+        ActivityDetail activity_detail = 15; //活动优惠信息
+        CouponInfo coupon_info = 16; //优惠劵优惠信息
+        repeated PromotionDetail promotion_detail = 17; //促销优惠信息
+    }
+    repeated ProductItem item = 1;
+    string order_amount = 2; //订单总计
+    string product_amount = 3; //商品总价
+    string predict_return = 4; //预计返积分
+    string freight = 5; //运费
+    string predict_receive_time = 6; //预计收货时间
+    string use_points = 7; //使用积分
+}
+
+
+message CancelOrderRequest {
+    string order_id = 1;
+    string reason = 2;
+}
+message CancelOrderResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message SubOrderAckRequest {
+    string sub_order_id = 1;
+}
+message SubOrderAckResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message OrderAckRequest {
+    string order_id = 1;
+}
+message OrderAckResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message ApplyForRefundRequest {
+    string order_id = 1;
+    string reason = 2;
+    string refund_amount = 3;
+    string bank_id = 4;
+    common.enum.OrderEnum.RefundType refund_type = 5; //退款类型,后期作废
+    string country_code = 6; //退款国家
+}
+message ApplyForRefundResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message ApplyForRefundProduct {
+    string sku_id = 1; //申请的skuId
+    int32 apply_num = 2; //申请的数量
+}
+
+message RefundGiveProductCheckReq {
+    string order_id = 1;
+    repeated ApplyForRefundProduct product = 2; //售后商品 （）
+}
+
+message RefundGiveProductCheckResp {
+    common.base.ErrorMessage ret = 1;
+    bool need_refund_give_product = 2; // 需要退赠品吗？ false 不需要  true 需要
+    repeated string give_product_sku_id = 3; //赠品skuId
+}
+
+
+message ApplyForRefundV1Request {
+    string order_id = 1;
+    string reason = 2; //售后原因
+    string refund_amount = 3;
+    string bank_id = 4;
+    int32 refund_type = 5; //作为新的退款方式（ 0-退到银行卡 1-退到积分）
+    string country_code = 6; //退款国家 可以不传
+    int32 after_type = 7; //售后类型 （ 1 - 退货退款 7-仅退款）
+    repeated ApplyForRefundProduct product = 8; //售后商品
+    string remark = 9; //退款备注
+    repeated string pic = 10; //图片列表
+    string reason_code = 11; //售后原因的code
+    string refund_currency = 12; //币种
+
+}
+message ApplyForRefundV1Response {
+    common.base.ErrorMessage ret = 1;
+    string refund_id = 2;
+}
+
+message ApplyForAfterRequest {
+    message ProductItem {
+        string sku_id = 1;
+        string product_id = 2;
+        int32 num = 3;
+    }
+    string order_id = 1;
+    common.enum.OrderEnum.AfterSaleType type = 2;
+    bool is_received = 3; //是否收到货
+    string reason = 4; //售后理由
+    repeated string picture = 5; //照片证明
+    string express_name = 6; //快递名称
+    string express_no = 7; //快递单号
+    common.enum.OrderEnum.RefundType refund_type = 8; //退款方式
+    string remark = 9; //售后详细说明
+    string bank_id = 10;
+    repeated ProductItem product_item = 11; //商品信息
+    string country_code = 12; //退款国家编码
+    string amount = 13; //申请退款金额
+}
+message ApplyForAfterResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetRefundBankInfoRequest {
+    string order_id = 1;
+}
+message GetRefundBankInfoResponse {
+    common.base.ErrorMessage ret = 1;
+    BankInfo bank_info = 2;
+}
+
+message ViewAfterListRequest {
+    common.base.Pagination page = 1;
+}
+message ViewAfterListResponse {
+    //售后单
+    message AfterBill {
+        string after_id = 1; //售后单号
+        string order_id = 2;
+        string apply_refund = 3; //申请退款金额
+        string final_refund = 4; //预计(实际)退款金额
+        string refund_country_code = 5; //退款国家码(用来确定币种)
+        string country_code = 6; //订单
+        string create_time = 7;
+        string modify_time = 8;
+        BankInfo bank_info = 9;
+        common.enum.OrderEnum.AfterSaleType after_type = 10; //售后类型
+        common.enum.OrderEnum.AfterStatus after_status = 11;
+        string reason = 12; //售后原因
+        repeated string picture = 13; //照片证明
+        common.enum.OrderEnum.RefundType refund_type = 14; //退款类型
+        common.base.Pagination page = 15; //分页
+        repeated OrderItemProduct product_item = 16; //商品信息
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated AfterBill after_bill = 2;
+    int32 total = 3;
+}
+
+message ReApplyForAfterRequest {
+    string after_id = 1;
+    string reason = 2; //售后理由
+    string desc = 3; //售后详细说明
+    repeated string picture = 4; //照片证明
+    string express_name = 5; //快递名称
+    string express_no = 6; //快递单号
+    string bank_id = 7;
+}
+
+message ReApplyForAfterResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message CancelAfterRequest {
+    string after_id = 1;
+}
+message CancelAfterResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+
+message GetGroupOrderDetailRequest {
+    string group_id = 1;
+}
+message GetGroupOrderDetailResponse {
+    message ProductInfo {
+        string product_id = 1;
+        string sku_id = 2;
+        string sku_cover = 3;
+        string title = 4; //商品标题
+        string price = 5; //团购价格
+        string original_price = 6; //原始价格
+        string price_vip = 7; //vip价
+    }
+    message GroupMember {
+        string user_id = 1;
+        string head_url = 2;
+        string name = 3;
+        bool is_paied = 4;
+        bool is_leader = 5;
+        string discount_rate = 6;
+        string price = 7; //应付实付价格
+        string order_id = 8;
+        ProductInfo product_info = 9;
+        bool is_wined = 10; //是否中奖0-不管 1、不中 2 、中奖
+        string currency = 11; //货币
+        bool is_new_user = 12; //是否为新人
+    }
+
+    common.base.ErrorMessage ret = 1;
+    int32 group_size = 2;
+    int32 member_size = 3; //成员数量
+    string save_price = 4; //省多少钱
+    string group_end_time = 5; //拼团截止时间
+    string pay_end_time = 6; //支付截止时间
+    repeated GroupMember member_info = 7;
+    string user_id = 8; //当前用户id
+    string country_code = 9; //国家
+    common.enum.OrderEnum.GroupStatus status = 10;
+    string subjectName = 11; //专题名称
+    string group_success_time = 12; //拼团成功时间
+    common.enum.MarketingEnum.GroupActivityType group_type = 13; //拼团活动类型
+    common.enum.MarketingEnum.GroupActivityByItemType group_activity_item_type = 14; //拼团类型，普通团和抽奖团
+    int32 need_new_user_num = 15; //需要新人数
+    int32 winners_num = 16; //中奖人数（抽奖团）
+}
+
+//下单过程的传输对象
+message OrderConfirmDTO {
+    message ItemLabel {
+        common.enum.CartEnum.ItemLabelType label_type = 1; //购物车标签类型
+        string content = 2; //内容
+    }
+    message ProductItem {
+        string product_id = 1;
+        string sku_id = 2;
+        int32 count = 3;
+        common.enum.ProductEnum.ProductType type = 4; //商品类型
+        string commission_rate = 5; //佣金率
+        int32 weight = 6; //重量
+        string freight_id = 7; //运费模板ID
+        string price = 8; //商品售价
+        string activity_id = 9; //活动ID
+        string activity_price = 10; //活动价格
+        string activity_commission_rate = 11; //活动佣金率
+        string product_name = 12; //商品名称
+        string attribute = 13; //属性
+        string cover = 14; //sku 封面缩略图
+        repeated ItemLabel item_label = 15; //购物车项标签
+        string advance_id = 16; //是否是预售商品，
+        string arrival_id = 17; //到货承诺id
+        common.enum.ProductEnum.FreightType freight_type = 18; //商品运费类型
+        string delivery_deadline = 19; //预计最迟发货时间
+        string shop_id = 20; //店铺id
+        int32 give_id = 21; // 赠品活动id
+        int32 product_tag = 22; // 商品标记 0: 正常商品 1: 0元购 2: 赠品
+        repeated string titleLabels = 23; //标题标签
+    }
+    message PromotionGroup {
+        string promotion_id = 1; //促销ID
+        common.enum.PromotionEnum.PromotionType type = 2; //促销类型
+        int32 level = 3; //促销到达层级
+        string total_discount = 4; //促销优惠总金额
+        repeated ProductItem product_item = 5; //商品列表
+    }
+    repeated PromotionGroup promotion_group = 1; //促销分组
+    repeated ProductItem item = 2; //未参加促销的商品
+    common.enum.OrderEnum.OrderType order_type = 3; //订单类型(非必填)
+    string group_id = 4; //拼团ID(非必填)
+    int32 user_level = 5; //用户等级
+//    repeated ProductItem give_item = 6; //赠品 不传了，放未参加促销的商品那里
+}
+//弹出窗口类型
+enum PopUpWindowType {
+    NO_POP_UP = 0; //不弹
+    ADDRESS_NOT_SUPPORT = 1; //地址不支持配送
+    BUY_LIMIT = 2; //限购
+    OUT_OF_STOCK = 3; //缺货
+    NOT_ON_SELL = 4; //不在售
+    MIN_BUY_LIMIT = 5; //最低限购
+    MIX_ORDER = 6; //混合下单
+}
+message PopUpContent {
+    string product_id = 1;
+    string sku_id = 2;
+    string sku_cover = 3; //主图
+    string product_name = 4; //商品名称
+    string attribute = 5; //sku属性
+    int32 can_buy = 6; //还可以购买几件
+}
+message PopUpMixOrderContent {
+    message MixOrderInfo {
+        common.enum.ProductEnum.ProductType product_type = 1;
+        repeated PopUpContent mix_order_content = 2;
+    }
+    repeated MixOrderInfo mix_order_info = 1;
+}
+message ConfirmOrderRequest {
+    OrderConfirmDTO confirm_dto = 1;
+    string coupon_code = 2; //优惠劵ID
+    string address_id = 3; //地址
+    string use_points = 4; //使用积分
+    string version = 5; //接口的版本号
+    common.enum.FreightEnum.ShippingType shipping_type = 6; //物流模型
+    string charge_account_no = 7;//充值账号
+}
+message ConfirmOrderResponse {
+    common.base.ErrorMessage ret = 1;
+    string order_amount = 2; //订单总金额
+    string payable_amount = 3; //应付金额
+    string commission = 4; //可返积分
+    string freight = 5; //运费
+    string promotion_discount = 6; //促销优惠总金额
+    string coupon_discount = 7; //优惠劵优惠总金额
+    string predict_receive_time = 8; //预计收货时间
+    map<string, string> sku_final_price = 9; //每个sku最终的总价
+    PopUpWindowType pop_type = 10; //弹窗类型
+    PopUpContent pop_content = 11; //弹窗内容
+    common.enum.PolyPayEnum.BnsTypeEnum bns_type = 12;
+    PopUpMixOrderContent mix_pop_content = 13;
+    Announcement announcement = 14; //公告信息，可能为null
+}
+
+message Announcement {
+    string msg = 1; //公告文案
+    string url = 2; //公告跳转链接
+}
+
+message SubmitOrderRequest {
+    OrderConfirmDTO confirm_dto = 1;
+    string address_id = 2;
+    string remark = 3;
+    string coupon_code = 4;
+    string sharer_code = 5;
+    string use_points = 7; //使用积分
+    string version = 8; //接口的版本号
+    common.enum.FreightEnum.ShippingType shipping_type = 9; //物流模型
+    string charge_account_no = 10;//充值账号
+}
+message SubmitOrderResponse {
+    common.base.ErrorMessage ret = 1;
+    string order_id = 2;
+    string order_amount = 3; //实付金额
+    common.enum.OrderEnum.OrderType order_type = 4; //订单类型
+    bool need_pay = 5; //是否需要支付
+    int64 remain_time = 6; //剩余支付时间(毫秒)
+    bool jump_back = 7; //商品信息有变，请返回重新下单
+    PopUpWindowType pop_type = 10; //弹窗类型
+    PopUpContent pop_content = 11; //弹窗内容
+    common.enum.PolyPayEnum.BnsTypeEnum bns_type = 12;
+    PopUpMixOrderContent mix_pop_content = 13;
+}
+
+message GetGroupOrderCountRequest {
+}
+message GetGroupOrderCountResponse {
+    common.base.ErrorMessage ret = 1;
+    string wait_for_pay_count = 2; //待支付数量
+    string groupping_count = 3; //拼团中数量
+    string group_success_count = 4; //拼团成功数量
+    string group_fail_count = 5; //拼团失败数量
+}
+
+message GroupItem {
+    //订单基本信息
+    message GroupItemBase {
+        string group_id = 1;
+        string order_id = 2;
+        string total_price = 3; //订单总金额
+        common.enum.OrderEnum.OrderStatus orderStatus = 4; //订单状态
+        common.enum.OrderEnum.SubStatus sub_status = 5; //订单子状态 1为支付中
+        common.enum.OrderEnum.GroupStatus groupStatus = 6; //拼团状态
+        common.enum.OrderEnum.GroupMemberRole role = 7; //角色 0为团长
+        string points = 8; //积分
+        string country_code = 9; //国家
+        string predict_receive_time = 10; //预计收货时间
+        int32 group_size = 11; //拼团大小
+    }
+    message GroupItemProduct {
+        string order_id = 1;
+        string product_id = 2;
+        string price = 3; //商品售价
+        string sku_id = 4;
+        int32 count = 5; //购买数量
+        string name = 6; //名称
+        repeated OrderProductAttr attr = 7; //描述
+        string commission_rate = 8; //返佣比例
+        string cover = 9; //缩略图
+    }
+    GroupItemBase base_info = 1; //基本信息
+    GroupItemProduct product = 2; //订单商品快照
+    string end_time = 3; //截止时间
+    repeated string head_url = 4; //拼团成员头像
+    common.enum.MarketingEnum.GroupActivityType group_type = 5; //拼团类型
+}
+
+message GetGroupOrderListRequest {
+    enum OrderStatus {
+        WAIT_FOR_PAY = 0; //待支付
+        GROUPPING = 1; //拼团中
+        GROUP_SUCCESS = 2; //拼团成功
+        GROUP_CLOSED = 3; //拼团关闭
+    }
+    repeated OrderStatus group_list_status = 1; //列表订单状态,查全部不传
+    common.base.Pagination page = 2;
+}
+
+
+message GetGroupOrderListResponse {
+    common.base.ErrorMessage ret = 1;
+    repeated GroupItem item = 2; //拼团item
+    int32 total = 3;
+}
+
+message ViewGroupOrderDetailRequest {
+    string group_id = 1;
+}
+message GroupDetail {
+    message GroupDetailBase {
+        string order_id = 1; //订单号YYYYmmddHHMMss
+        string join_time = 2; //加入时间
+        string pay_time = 3; //支付时间
+        string total_price = 4; //订单总金额
+        common.enum.OrderEnum.OrderStatus order_status = 5; //订单状态
+        common.enum.OrderEnum.SubStatus sub_status = 6; //订单子状态 1为支付中
+        string remark = 10; //备注
+        string receiver_name = 14; //收货人名字
+        string receiver_phone = 15; //收货人手机号
+        string receiver_address = 16; //收货人地址
+        string freight = 17; //运费
+        string points = 18; //获得积分
+        string country_code = 22; //国家
+        string use_points = 23; //积分抵扣
+        string paied_amount = 24; //实际支付金额
+        string pay_country_code = 25; //实际支付国家
+        string coupon_amount = 26; //优惠券优惠金额
+    }
+    message GroupDetailProduct {
+        string product_id = 1;
+        string price = 2; //原价
+        string price_activite = 3; //活动价格
+        string sku_id = 4;
+        int32 count = 5; //购买数量
+        string name = 6; //名称
+        repeated OrderProductAttr attr = 7; //描述
+        string commission_rate = 8; //返佣比例
+        string cover = 9; //缩略图
+        string sku_code = 11; //skucode
+    }
+
+    GroupDetailBase base_info = 1; //基本信息
+    GroupDetailProduct product = 2;
+    int64 remain_time = 3; //剩余支付时间
+}
+
+
+message ViewGroupOrderDetailResponse {
+    common.base.ErrorMessage ret = 1;
+    GroupDetail detail = 2; //订单详情
+}
+message GroupProduct {
+    string group_product_id = 1; //拼团商品序号id
+    string product_id = 2; //商品id
+    string sku_id = 3; //skuId
+    int32 count = 4; //数量
+    string country_code = 5; //商品国家
+    string commission_rate = 6; //佣金率
+    int32 weight = 7; //重量
+    string freight_id = 8; //运费模板ID
+    common.enum.ProductEnum.FreightType freight_type = 9; //运费类型
+    string price = 10; //商品拼团价格
+    string cover = 11; //sku 封面缩略图
+    string product_type = 12; //商品类型
+}
+message SubmitGroupOrderRequest {
+    string group_id = 1; //团长创建团不用传
+    string address_id = 2;
+    string sharer_id = 3;
+    string remark = 4;
+    string use_points = 5; //使用积分
+    common.enum.FreightEnum.ShippingType shipping_type = 6; //物流模型
+    GroupProduct product = 7;
+    string coupon_code = 8; //优惠劵ID
+}
+message SubmitGroupOrderResponse {
+    common.base.ErrorMessage ret = 1;
+    string order_id = 2;
+    string order_amount = 3; //实付金额
+    bool need_pay = 4; //是否需要支付
+    int64 remain_time = 5; //剩余支付时间(毫秒)
+    bool jump_back = 6; //商品信息有变，请返回重新下单
+    string bns_type = 7; //业务类型 ORDER:订单，GROUP_ORDER:拼团
+}
+
+message ConfirmGroupOrderRequest {
+    string group_id = 1; //团长创建团不用传
+    string address_id = 2; //地址
+    string use_points = 3; //使用积分
+    common.enum.FreightEnum.ShippingType shipping_type = 4; //物流模型
+    GroupProduct product = 5;
+    string coupon_code = 6; //优惠劵ID
+}
+message ConfirmGroupOrderResponse {
+    common.base.ErrorMessage ret = 1;
+    string order_amount = 2; //订单总金额
+    string payable_amount = 3; //应付金额
+    string commission = 4; //可返积分
+    string freight = 5; //运费
+    string predict_receive_time = 6; //预计收货时间
+    string coupon_discount = 7; //优惠劵优惠总金额
+}
+message CancelGroupOrderRequest {
+    string order_id = 1;
+    string reason = 2; //订单备注,就传用户取消吧
+}
+message CancelGroupOrderResponse {
+    common.base.ErrorMessage ret = 1;
+}
+message GetInviteGroupOrderRequest {
+    string invite_code = 1; //邀请码
+    string group_id = 2;
+}
+message GetInviteGroupOrderResponse {
+    common.base.ErrorMessage ret = 1;
+    string end_time = 2; //截止时间
+    string head_url = 3; //邀请人头像
+    string invite_id = 4; //邀请人id
+}
+
+message GetGroupMarqueeRequest {
+}
+message GetGroupMarqueeResponse {
+    message Marquee {
+        string head_img = 1; //头像
+        string nick_name = 2; //名称
+        string save_price = 3; //省多少钱
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated Marquee marquee = 2;
+}
+
+message GroupSwitchPayCountryRes {
+    string order_id = 1; //订单ID
+    string country_code = 2; //目标国家
+    int32 pay_way = 3; //支付方式
+}
+message GroupSwitchPayCountryResp {
+    common.base.ErrorMessage ret = 1;
+    string amount = 2; //金额
+    int32 remain_time = 3; //支付剩余时间
+}
+message GroupPopUpWindowsRequest {
+    string group_id = 1;
+}
+message GroupPopUpWindowsResponse {
+    enum GroupPopUpWindows {
+        NO_POP_UP = 0; //不弹
+        NEW_USER_FILL = 1; //新用户已满
+        OLD_USER_FILL = 2; //老用户已满
+        GROUP_FILL = 3; //拼团人数已满
+        JOIN_GROUP_FILL = 4; //用户今日参团数已满
+    }
+
+    common.base.ErrorMessage ret = 1;
+    GroupPopUpWindows pop_up_windows = 2;
+}
+message QueryOrderPaiedReq {
+    message Sku {
+        string sku_id = 1;
+        int32 num = 2;
+    }
+    string order_id = 1;
+    repeated Sku sku = 2;
+}
+message QueryOrderPaiedResp {
+    common.base.ErrorMessage ret = 1;
+    string country_code = 2; //实付币种国家
+    string order_amount = 3; //实付总价
+}
+
+message SwitchPayCountryRes {
+    string order_id = 1; //订单ID
+    string country_code = 2; //目标国家
+    // 支付渠道
+    string channel_code = 3; //支付渠道码
+}
+message SwitchPayCountryResp {
+    common.base.ErrorMessage ret = 1;
+    string amount = 2; //金额
+    int32 remain_time = 3; //支付剩余时间
+}
+message GetLogisticsListReq {
+    string order_id = 1;
+}
+enum LogisticStatus {
+    NO_LOGISTIC_INFO = 0; //暂无物流信息
+    IN_TRANSIT = 1; //运输中
+    DELIVERING = 2; //派送中
+}
+message GetLogisticsListResp {
+    message LogisticItem {
+        string suborder_id = 1; //子订单号
+        string express_no = 2; //物流单号
+        string express_code = 3; //物流公司代码
+        string express_name = 4; //物流公司名称
+        LogisticStatus status = 5; //物流状态
+        repeated string sku_cover = 6; //sku主图
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated LogisticItem item = 2;
+}
+message GetLogisticsInfoReq {
+    string suborder_id = 1;
+    string express_no = 2;
+}
+message GetLogisticsInfoResp {
+    message LogisticsInfo {
+        string time = 1; //时间点
+        string detail = 2; //详情
+    }
+    common.base.ErrorMessage ret = 1;
+    LogisticStatus status = 2;
+    string express_name = 3; //快递公司
+    string express_no = 4;
+    bool jump = 5; //是否跳页面
+    string url = 6; //跳转地址
+    repeated LogisticsInfo logi_info = 7;
+}
+message GetSubOrderListReq {
+    string order_id = 1; //订单号
+}
+message GetSubOrderListResp {
+    message OrderProduct {
+        string product_id = 1;
+        string sku_id = 2;
+        string price = 3; //商品售价
+        string name = 5; //名称
+        string cover = 7; //缩略图
+        int32 count = 8; //购买数量
+        int32 after_succ_count = 9; //售后的数量
+        int32 all_after = 10; //是否全部售后 1、全部售后
+    }
+    message SubOrderInfo {
+        string sub_order_id = 1; //子单号
+        common.enum.OrderEnum.OrderStatus sub_status = 2; //子单状态
+        repeated OrderProduct product = 3; //订单商品快照
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated SubOrderInfo sub_order_info = 2; //子单信息
+}
+
+
+message GetLogicReq {
+    string suborder_no = 1;
+}
+
+message GetLogicResp {
+    message ProductItem {
+        string sku_code = 1;
+        int32 num = 2; //购买件数
+        string snap_code = 3; //快照码
+        int64 supplier_id = 4; //供应商ID
+        string sku_cover = 5; //缩略图
+    }
+    message LogicItem {
+        string logi_code = 1; //物流单号
+        string logi_company = 2; // 物流公司代码
+        string query_url = 3; // 查询url
+        repeated ProductItem product = 4; //商品信息
+        repeated LogicPB logi = 5; // 物流详情
+        int32 packageing = 6; //待打包 1-已打包 2-待打包
+        string language_code = 7; //语言码
+    }
+    message LogicPB {
+        string time = 1; // 当前操作时间 | 时间戳,毫秒
+        string type = 2; // 操作类型
+        string desc = 3; // 类型描述
+        int32 need_i18n = 4; //是否需要i18，1-需要 其它不需要
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated LogicItem logic_item = 2; //物流信息
+}
+
+message GetGroupJoinInfoListReq {
+    //拼团商品id
+    string group_product_id = 1;
+}
+message GetGroupJoinInfoListResp {
+    message GroupUser {
+        string head_img = 1; //头像
+        string nick_name = 2; //昵称
+        int32 surplus_num = 3; //剩余人数
+        string surplus_time = 4; //剩余时间
+        string group_id = 5; //拼团id
+    }
+    int32 group_in_num = 1; //拼团中人数
+    repeated GroupUser group_user = 2;
+    common.base.ErrorMessage ret = 3;
+}
+
+message GetAfterSalePageRequest {
+    common.base.Pagination page = 1;
+    int32 queryType = 2; //查询类型 0:全部 1:售后中
+}
+message AfterSaleProduct {
+    string picture = 1; //商品图片
+    string title = 2; //商品标题
+    string price = 3; //商品价格
+    int32 num = 4; //商品数量
+    repeated OrderProductAttr attr = 5; //商品规格
+    string currency = 6; //币种
+}
+message GetAfterSalePageResponse {
+    message AfterSale {
+        AfterSaleProduct after_sale_product = 1;
+        string refund_amount = 2; //退款金额
+        int32 after_sale_status = 3; //售后状态 1:待审核 2:审核中 3:待退款 4:已退款 5:已取消 6:已驳回
+        int64 count_down = 4; //倒计时 毫秒
+        string refund_id = 5; //售后子单号
+        int32 refund_type = 6; //退款类型 （ 0-退到银行卡 1-退到积分）
+        string refund_currency = 7; //币种
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated AfterSale afterSale = 2;
+    int32 show_old = 3; //是否展示历史售后 0否 1是
+}
+message GetAfterSaleDetailRequest {
+    string refund_id = 1;
+}
+message GetAfterSaleDetailResponse {
+    string refund_amount = 1; //退款金额
+    int32 refund_type = 2; //退款方式 （ 0-退到银行卡 1-退到积分）
+    string refund_card_no = 3; //银行卡号
+    string refund_card_holder = 4; //持卡人姓名
+    string refund_bank_name = 5; //银行名
+    string refund_tel = 6; //手机号
+    string refund_mail = 7; //邮箱
+    string order_id = 8; //订单号
+    string apply_time = 9; //申请时间
+    string reason = 10; //退款原因
+    int32 after_sale_status = 11; //售后状态 1:待审核 2:审核中 3:待退款 4:已退款 5:已取消 6:已驳回
+    string count_down = 14; //倒计时
+    AfterSaleProduct after_sale_product = 13;
+    common.base.ErrorMessage ret = 15;
+    string refund_currency = 16; //币种
+    bool is_view_cancel_return = 17; //是否展示取消售后按钮
+
+
+}
+message GetAfterSaleHistoryRequest {
+    string refund_id = 1;
+}
+message GetAfterSaleHistoryResponse {
+    common.base.ErrorMessage ret = 1;
+    repeated HistoryItem historyItem = 2;
+}
+message HistoryItem {
+    string title = 1;
+    string operateTime = 2;
+    string subtitle = 3;
+    repeated string history_entry = 4;
+    repeated string picture = 5;
+}
+message AfterSaleJudgeRequest {
+    string order_id = 1;
+}
+message AfterSaleJudgeResponse {
+    common.base.ErrorMessage ret = 1;
+    int32 need_select = 2;
+}
+message CancelAfterSaleRequest {
+    string refund_id = 1;
+}
+message CancelAfterSaleResponse {
+    common.base.ErrorMessage ret = 1;
+}
+message SelectRefundProductRequest {
+    string order_id = 1;
+}
+message SelectRefundProductResponse {
+    message AfterSaleProduct {
+        string picture = 1; //商品图片
+        string title = 2; //商品标题
+        int32 select = 3; //是否选中
+        int32 num = 4; //商品数量
+        repeated OrderProductAttr attr = 5; //商品规格
+        int32 gift = 6; //是否0元购 0否 1是
+        string sku_id = 7;
+        int32 product_tag = 8; //商品标签 0 正常商品 1 0元购商品 2 赠品
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated AfterSaleProduct after_sale_product = 2;
+}
+message AfterSaleApplyInfoRequest {
+    string order_id = 1;
+    repeated ApplyForRefundProduct product = 2; //售后商品
+}
+message EnumEntry {
+    int32 code = 1;
+    string value = 2;
+}
+message AfterSaleApplyInfoResponse {
+    common.base.ErrorMessage ret = 1;
+    repeated EnumEntry after_Type = 2; //售后类型 （ 1 - 退货退款 7-仅退款）
+    repeated EnumEntry refund_reason = 3; //退款原因 1规格不符 2商品有问题 3少件/漏件 4商品有瑕疵 5协商退款
+    string refund_amount = 4; //退款金额
+    repeated AfterSaleProduct after_sale_product = 5;
+    string refund_currency = 6; //金额币种
+}
+message UserFirstOrderRequest {
+    string user_id = 1; //用户ID
+}
+message UserFirstOrderResponse {
+    common.base.ErrorMessage ret = 1;
+    bool is_first = 2; //是否是首单
+}
+service OrderService {
+    //分页查看订单列表
+    rpc ViewOrderList (ViewOrderListRequest) returns (ViewOrderListResponse);
+    //订单数量
+    rpc GetOrderCount (GetOrderCountRequest) returns (GetOrderCountResponse);
+    //订单详情
+    rpc ViewOrderDetail (ViewOrderDetailRequest) returns (ViewOrderDetailResponse);
+    //取消订单(未付款)
+    rpc CancelOrder (CancelOrderRequest) returns (CancelOrderResponse);
+    //子订单确认收货
+    rpc SubOrderAck (SubOrderAckRequest) returns (SubOrderAckResponse);
+    //订单确认收货
+    rpc OrderAck (OrderAckRequest) returns (OrderAckResponse);
+    //确认订单
+    rpc ConfirmOrder (ConfirmOrderRequest) returns (ConfirmOrderResponse);
+    //提交订单(以前叫createOrder)
+    rpc SubmitOrder (SubmitOrderRequest) returns (SubmitOrderResponse);
+    //查询订单实付金额
+    rpc QueryOrderPaied (QueryOrderPaiedReq) returns (QueryOrderPaiedResp);
+    //支付币种换算
+    rpc SwitchPayCountry (SwitchPayCountryRes) returns (SwitchPayCountryResp);
+    //查看物流列表
+    rpc GetLogisticsList (GetLogisticsListReq) returns (GetLogisticsListResp);
+    //查看物流信息
+    rpc GetLogisticsInfo (GetLogisticsInfoReq) returns (GetLogisticsInfoResp);
+    //获取子单列表
+    rpc GetSubOrderList (GetSubOrderListReq) returns (GetSubOrderListResp);
+    // 获得物流信息
+    rpc GetLogic (GetLogicReq) returns (GetLogicResp);
+
+}
+
+service AfterSaleService {
+    //申请退款(付款后次日8:00AM之前可以申请)（废弃）
+    rpc ApplyForRefund (ApplyForRefundRequest) returns (ApplyForRefundResponse);
+
+    //申请退款(付款后次日8:00AM之前可以申请,交易成功七日内) 新接口
+    rpc ApplyForRefundV1 (ApplyForRefundV1Request) returns (ApplyForRefundV1Response);
+
+    //是否需要退赠品校验
+    rpc RefundGiveProductCheck (RefundGiveProductCheckReq) returns (RefundGiveProductCheckResp);
+
+    //申请售后(确认收货之后)
+    rpc ApplyForAfter (ApplyForAfterRequest) returns (ApplyForAfterResponse);
+    //查询订单退款银行卡信息
+    rpc GetRefundBankInfo (GetRefundBankInfoRequest) returns (GetRefundBankInfoResponse);
+    //售后订单列表
+    rpc ViewAfterList (ViewAfterListRequest) returns (ViewAfterListResponse);
+    //再次发起售后(多是因为信息填的有问题, 被打回了)
+    rpc ReApplyForAfter (ReApplyForAfterRequest) returns (ReApplyForAfterResponse);
+    //取消售后
+    rpc CancelAfter (CancelAfterRequest) returns (CancelAfterResponse);
+
+    //查询售后列表
+    rpc GetAfterSalePage (GetAfterSalePageRequest) returns (GetAfterSalePageResponse);
+    //查询售后详情
+    rpc GetAfterSaleDetail (GetAfterSaleDetailRequest) returns (GetAfterSaleDetailResponse);
+    //查询协商历史
+    rpc GetAfterSaleHistory (GetAfterSaleHistoryRequest) returns (GetAfterSaleHistoryResponse);
+    //取消售后
+    rpc CancelAfterSale (CancelAfterSaleRequest) returns (CancelAfterSaleResponse);
+    //选择售后商品
+    rpc SelectRefundProduct (SelectRefundProductRequest) returns (SelectRefundProductResponse);
+    //售后发起页
+    rpc AfterSaleApplyInfo (AfterSaleApplyInfoRequest) returns (AfterSaleApplyInfoResponse);
+}
+
+service GroupOrderService {
+    //订单数量
+    rpc GetGroupOrderCount (GetGroupOrderCountRequest) returns (GetGroupOrderCountResponse);
+    //订单列表
+    rpc GetGroupOrderList (GetGroupOrderListRequest) returns (GetGroupOrderListResponse);
+    //订单详情
+    rpc ViewGroupOrderDetail (ViewGroupOrderDetailRequest) returns (ViewGroupOrderDetailResponse);
+    //确认订单
+    rpc ConfirmGroupOrder (ConfirmGroupOrderRequest) returns (ConfirmGroupOrderResponse);
+    //提交订单
+    rpc SubmitGroupOrder (SubmitGroupOrderRequest) returns (SubmitGroupOrderResponse);
+    //查询拼团详情
+    rpc GetGroupOrderDetail (GetGroupOrderDetailRequest) returns (GetGroupOrderDetailResponse);
+    //取消订单(未付款)
+    rpc CancelGroupOrder (CancelGroupOrderRequest) returns (CancelGroupOrderResponse);
+    //获取邀请人拼团信息
+    rpc GetInviteGroupOrder (GetInviteGroupOrderRequest) returns (GetInviteGroupOrderResponse);
+    //跑马灯
+    rpc GetGroupMarquee (GetGroupMarqueeRequest) returns (GetGroupMarqueeResponse);
+    //支付币种换算
+    rpc GroupSwitchPayCountry (GroupSwitchPayCountryRes) returns (GroupSwitchPayCountryResp);
+    //拼团弹窗
+    rpc GroupPopUpWindows (GroupPopUpWindowsRequest) returns (GroupPopUpWindowsResponse);
+
+}
+service GroupActivityService {
+    //拼团开团/参团列表(详情页)
+    rpc GetGroupJoinInfoList (GetGroupJoinInfoListReq) returns (GetGroupJoinInfoListResp);
+}
+service UserOrderService {
+    //是否是首单
+    rpc IsUserFirstOrder (UserFirstOrderRequest) returns (UserFirstOrderResponse);
+}

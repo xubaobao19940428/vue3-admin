@@ -1,0 +1,298 @@
+//DESC APP littlec-marketing
+syntax = "proto3";
+package boss.market;
+
+import "common/base.proto";
+import "common/errcode.proto";
+import "common/enum.proto";
+
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.mall.market";
+option java_outer_classname = "MarketingSuperLuckyMall";
+
+message GetLuckyProductListReq {
+    common.base.Pagination page = 1;
+    string subject_serial_id = 2; //专题序号id,可为空
+}
+message GetLuckyProductListResp {
+    message LuckeyProductListInfo {
+        //商品图片
+        string product_img = 1;
+        //商品名称
+        string product_name = 2;
+        //原价格
+        string price = 3;
+        //活动价
+        string activity_price = 4;
+        //幸运购活动商品序号
+        string product_activity_serial_id = 5;
+        //所需要code数
+        int32 code_number = 6;
+        //当前code数
+        int32 current_code_number = 7;
+        //商品id
+        string product_id = 8;
+    }
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2; //商品结果总数
+    repeated LuckeyProductListInfo luckeyProductListInfo = 3;
+}
+message GetLuckyProductInfoSku{
+    string sku_id= 1;
+    string sku_code = 2;
+    string activity_price = 3; //商品活动价
+    string price = 4; //商品价格
+}
+message GetLuckyProductInfo {
+    //商品图片
+    string product_img = 1;
+    //商品名称
+    string product_name = 2;
+    //原价格
+    string price = 3;
+    //活动价
+    string activity_price = 4;
+    //幸运购活动商品序号
+    string product_activity_serial_id = 5;
+    //所需要code数
+    int32 code_number = 6;
+    //当前code数
+    int32 current_code_number = 7;
+    //期数
+    string period = 8;
+    //参与总人数
+    int32 total_user = 9;
+    //商品Id
+    string product_id = 10;
+    //状态
+    common.enum.MarketingEnum.SuperLuckyProductActivityStatus status = 11;
+    //开始时间
+    string start_time = 12;
+    //库存
+    int32 stock = 13;
+    //skuList
+    repeated GetLuckyProductInfoSku getLuckyProductInfoSku = 14;
+    //邀请老用户可获得码数
+    int32 codeByOldUser = 15;
+    //邀请新用户可获得码数
+    int32 codeByNewUser = 16;
+}
+message GetLuckyProductInfoReq {
+    string product_activity_serial_id = 1;
+}
+message GetLuckyProductInfoResp {
+    common.base.ErrorMessage ret = 1;
+    GetLuckyProductInfo getLuckyProductInfo = 2;
+    //是否已参加
+    bool is_joined = 3;
+    //订单id
+    string order_id = 4;
+}
+message SubmitOrderReq {
+    //地址
+    string address_id = 1;
+    //一元夺宝活动商品序号
+    string product_activity_serial_id = 2;
+    //备注
+    string remark = 3;
+    //上级订单id,从url中获取
+    string parent_order_id = 4;
+    //商品skuId
+    string sku_id = 5;
+}
+message SubmitOrderResp {
+    common.base.ErrorMessage ret = 1;
+    string order_id = 2;
+    string order_amount = 3; //实付金额
+    common.enum.OrderEnum.OrderType order_type = 4; //订单类型
+    bool need_pay = 5; //是否需要支付
+    int64 remain_time = 6; //剩余支付时间(毫秒)
+    bool jump_back = 7; //商品信息有变，请返回重新下单
+    common.enum.PolyPayEnum.BnsTypeEnum bns_type = 8;
+    string bns_type_name = 9;
+}
+message OrderListReq {
+    common.base.Pagination page = 1;
+}
+message SlOrderInfo {
+    GetLuckyProductInfo getLuckyProductInfo = 1;
+    //订单id
+    string order_id = 2;
+    //我的中奖码
+    string my_code = 3;
+    //中奖码
+    string win_code = 4;
+    //中奖人头像
+    string win_head_img = 5;
+    //国家码
+    string country_code = 6;
+    //抽奖状态,1->待邀请,2->等待开奖
+    int32 lucky_status = 7;
+}
+message OrderListResp {
+    repeated SlOrderInfo slOrderInfo = 1;
+    common.base.ErrorMessage ret = 2;
+    int32 total = 3;
+}
+
+message CodeNumber {
+    //中奖码类型
+    common.enum.MarketingEnum.SuperLuckyNumberType numberType = 1;
+    //中奖码
+    string code_number = 2;
+    //昵称
+    string nick_name = 3;
+    //头像
+    string head_img = 4;
+    //时间
+    string create_time = 5;
+}
+
+message OrderInfoReq {
+    //订单id
+    string order_id = 1;
+}
+message OrderInfoResp {
+    //本期中奖码
+    string win_code = 1;
+    //商品图片
+    string product_img = 2;
+    //商品名称
+    string product_name = 3;
+    //原价格
+    string price = 4;
+    //活动价
+    string activity_price = 5;
+    //订单id
+    string order_id = 6;
+    //我的抽奖码
+    string my_code_number = 7;
+    //邀请好友获得的抽奖码
+    repeated CodeNumber codeNumber = 8;
+    //是否中奖
+    bool is_lucky = 9;
+    //期数
+    string period = 10;
+    //剩余中奖码
+    int32 surplus_code_number = 11;
+    //状态
+    common.enum.MarketingEnum.SuperLuckyProductActivityStatus status = 12;
+    //活动商品序号id
+    string product_activity_serial_id = 13;
+    common.base.ErrorMessage ret = 14;
+    //订单状态
+    common.enum.MarketingEnum.SuperLuckyOrderStatus order_status = 15;
+    //商品id
+    string product_id = 16;
+    //中奖人头像
+    string win_head_img=17;
+    //国家码
+    string country_code = 18;
+    //可分享的结束时间(订单创建时间+5小时)
+    string share_time = 19;
+    //所需要code数
+    int32 product_code_number = 20;
+    //当前code数
+    int32 product_current_code_number = 21;
+    //参与人类型,1->自己发起的,2->被邀请进来的新人
+    int32 join_user_type = 22;
+}
+message GetLuckyHistoryListReq {
+    string product_activity_serial_id = 1;
+    common.base.Pagination page = 2;
+}
+message GetLuckyHistoryListResp {
+    message HistoryInfo {
+        //昵称
+        string nick_name = 1;
+        //中奖码类型
+        common.enum.MarketingEnum.SuperLuckyNumberType numberType = 2;
+        //中奖码数
+        int32 lucky_number = 3;
+        //头像
+        string head_img = 4;
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated HistoryInfo historyInfo = 2;
+    int32 total = 3;
+}
+message GetMyLuckyCodeNumberListReq {
+    string product_activity_serial_id = 1;
+}
+message SuperLuckyProduct{
+    string product_activity_serial_id=1;//活动商品序号id
+    string product_id = 2;//商品id
+    string sku_id = 3;//skuId
+    int32 count = 4;//数量
+    string country_code=5;//商品国家
+    string commission_rate = 6;//佣金率
+    int32 weight = 7;//重量
+    string freight_id = 8;//运费模板ID
+    common.enum.ProductEnum.FreightType freight_type = 9; //运费类型
+    string price = 10;//商品价格
+    string cover = 11;//sku 封面缩略图
+}
+message ConfirmSuperLuckyOrderRequest {
+    string address_id = 1;//地址
+    string use_points = 2;//使用积分
+    common.enum.FreightEnum.ShippingType shipping_type = 3;//物流模型
+    SuperLuckyProduct product=4;
+}
+message ConfirmSuperLuckyOrderResponse {
+    common.base.ErrorMessage ret = 1;
+    string order_amount = 2; //订单总金额
+    string payable_amount = 3; //应付金额
+    string commission = 4; //可返积分
+    string freight = 5; //运费
+    string predict_receive_time = 6; //预计收货时间
+}
+
+message SwitchSuperLuckyPayCountryReq {
+    string order_id = 1; //订单ID
+    string country_code = 2; //目标国家
+    // 支付渠道
+    string channel_code  = 3;//支付渠道码
+}
+message SwitchSuperLuckyPayCountryResp {
+    common.base.ErrorMessage ret = 1;
+    string amount = 2; //金额
+    int32 remain_time = 3; //支付剩余时间
+}
+message CheckStatusReq{
+    string product_activity_serial_id = 1;
+    string parent_order_id = 2; //上级订单id,可为空
+}
+message CheckStatusResp{
+//    int32 user_type = 1; //用户类型,1->邀请人,2->受邀人
+    int32 new_user = 1; //新用户,1->新用户,2->老用户
+    bool is_new_user_join = 2; //是否有新人参与
+//    bool is_join = 4; //是否本人参与
+    common.base.ErrorMessage ret = 3;
+}
+service SuperLuckyMallService {
+    //查询幸运购商品列表
+    rpc GetLuckyProductList (GetLuckyProductListReq) returns (GetLuckyProductListResp);
+    //一元夺宝详情
+    rpc GetLuckyProductInfo (GetLuckyProductInfoReq) returns (GetLuckyProductInfoResp);
+    //详情页跑马灯记录
+    rpc GetLuckyHistoryList (GetLuckyHistoryListReq) returns (GetLuckyHistoryListResp);
+    //校验用户状态
+    rpc CheckStatus(CheckStatusReq) returns (CheckStatusResp);
+    //根据一元夺宝商品活动id查询中奖吗
+    //    rpc GetMyLuckyCodeNumberList(GetMyLuckyCodeNumberListReq) returns(GetMyLuckyCodeNumberListResp);
+}
+service SuperLuckyOrderMallService {
+    //支付币种换算
+    rpc SwitchSuperLuckyPayCountry (SwitchSuperLuckyPayCountryReq) returns (SwitchSuperLuckyPayCountryResp);
+    //确认订单
+    rpc ConfirmSuperLuckyOrder (ConfirmSuperLuckyOrderRequest) returns (ConfirmSuperLuckyOrderResponse);
+    //订单提交
+    rpc SubmitOrder (SubmitOrderReq) returns (SubmitOrderResp);
+    //已参与(订单列表)
+    rpc OrderList (OrderListReq) returns (OrderListResp);
+    //已参与并开奖的记录
+    rpc OrderBySuccessList (OrderListReq) returns (OrderListResp);
+    //订单详情
+    rpc OrderInfo (OrderInfoReq) returns (OrderInfoResp);
+}

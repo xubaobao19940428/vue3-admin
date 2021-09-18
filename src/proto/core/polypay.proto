@@ -1,0 +1,969 @@
+syntax = "proto3";
+package core.polypay;
+
+
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.polypay";
+option java_outer_classname = "Polypay";
+
+message PolypayDefaultReq {
+}
+
+message PolypayBooleanResp {
+  common.base.ErrorMessage ret = 1;
+  bool success = 2;
+}
+
+// 用户账户信息
+message UserAccountAmountResp {
+  common.base.ErrorMessage ret = 1;
+  string amount = 2; // 积分金额
+  string country_code = 3; // 积分国家
+  bool has_payment_password = 4; // 是否有支付密码
+  bool has_frozen = 5; // 账户被冻结（后台人工干预，或者没签协议）
+  string my_amount = 6; // 积分转化成马来西亚林吉特的金额 仅印尼站
+}
+
+message UserAccountDetailsReq {
+  // 类型 收入:income 支出:expense
+  string detail_type = 1;
+  // 订单号
+  string source_id = 2;
+  // 收益类型
+  int32 source_type = 3;
+  // 用户id
+  string user_id = 4;
+  // 筛选创建时间的开始时间
+  string start_time = 5;
+  // 筛选创建时间的结束时间
+  string end_time = 6;
+  common.base.Pagination page = 7;
+}
+
+message AccountDetailPb {
+  string account_id = 1;
+  // 用户id
+  string user_id = 2;
+  // 账户详情流水号
+  string account_detail_no = 3;
+  // 金额
+  string amount = 4;
+  // 流水类型 收入/支出 income/expense
+  string detail_type = 5;
+  // 来源类型
+  string source_type = 6;
+  // 来源id
+  string source_id = 7;
+  // 创建日期
+  string create_time = 8;
+  // 是否删除 (0：失效 1：有效)
+  int32 is_delete = 9;
+  // 备注
+  string memo = 10;
+  // 来源描述
+  string source_desc = 11;
+}
+
+message UserAccountDetailsResp {
+  common.base.ErrorMessage ret = 1;
+  int32 total = 2;
+  repeated AccountDetailPb data = 3;
+}
+
+//>>>>>>>>>message_end>>>>>>>>>>>>UserAccountService>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+message WithdrawApplyPb {
+  // 主键自增长,record的id
+  string id = 1;
+  // 用户提现编号
+  string cash_out_code = 2;
+  // 用户名称
+  string user_name = 3;
+  // 银行卡号
+  string bank_no = 4;
+  // 银行名称
+  string bank_name = 5;
+  // 邮箱
+  string email = 6;
+  // 用户id
+  string user_id = 7;
+  // 手机号
+  string tel_no = 8;
+  // 提现金额
+  string cash_amount = 9;
+  // 手续费
+  string fee = 10;
+  // 到账金额
+  string cash_account_amount = 11;
+  // 提现状态
+  int32 cash_status = 12;
+  // 状态0废弃1可用
+  int32 status = 13;
+  // 备注
+  string remark = 14;
+  // 创建时间
+  string create_time = 15;
+  // 更新时间
+  string update_time = 16;
+  // 银行编号
+  string bank_code = 17;
+  // 国家编码
+  string country_code = 18;
+}
+
+message WithdrawRecordByPageReq {
+  common.base.Pagination page = 1;
+}
+
+message WithdrawRecordByPageResp {
+  common.base.ErrorMessage ret = 1;
+  int32 total = 2;
+  repeated WithdrawApplyPb data = 3;
+}
+
+//message ApplyCashOutReq {
+//    string user_id = 1;
+//    string bank_name = 2;
+//    string bank_no = 3;
+//    string id = 4;
+//    string account_name = 5;
+//    string tel_no = 6;
+//    string authcode = 7;
+//    string cash_amount = 8;
+//}
+
+message WithdrawApplyReq {
+  string user_bank_id = 1;
+  string cash_amount = 2;
+  string user_id = 3;
+  string user_name = 4;
+  string sms_code = 5; // 手机验证码
+}
+
+//message GetUserBankListResp {
+//    common.base.ErrorMessage ret = 1;
+//    repeated BankInfoPb data = 2;
+//}
+//
+//// 银行的信息
+//message BankInfoPb {
+//    // 用户名称
+//    string user_name = 1;
+//    // 银行卡号
+//    string bank_no = 2;
+//    // 银行名称
+//    string bank_name = 3;
+//    // 邮箱
+//    string authcode = 4;
+//    // 手机号
+//    string tel_no = 5;
+//}
+
+message CanYouWithdrawCashResp {
+  common.base.ErrorMessage ret = 1;
+  // 验证客户是否可以提现返回0不允许1允许
+  int32 data = 2;
+}
+
+message CheckPreDoneReq {
+}
+
+//>>>>>>>>>message_end>>>>>>>>>>>>WithdrawService>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+message UserBankAccountPb {
+  // 主键，银行账户的主键
+  string id = 1;
+  // 用户id
+  string user_id = 2;
+  // 账户姓名
+  string account_name = 3;
+  // 账户号码
+  string account_no = 4;
+  // 手机号
+  string mobile = 5;
+  // 邮箱
+  string email = 6;
+  // 银行id
+  string bank_id = 7;
+  // 银行名称
+  string bank_name = 8;
+  // 状态（0：正常；1:锁定)
+  int32 status = 9;
+  // 是否默认（0：否；1:是)
+  int32 is_default = 10;
+  // 是否删除（0：否；1:是)
+  int32 is_delete = 11;
+  //  银行编号
+  string bank_code = 12;
+  // 国家简码
+  string country_code = 14;
+}
+
+message GetUserBankListResp {
+  common.base.ErrorMessage ret = 1;
+  repeated UserBankAccountPb data = 2;
+}
+
+message GetUserBankDetailResp {
+  common.base.ErrorMessage ret = 1;
+  UserBankAccountPb data = 2;
+}
+
+message GetUserBankDetailReq {
+  // 银行账户account的id
+  string user_bank_id = 1;
+}
+
+message DeleteUserBankReq {
+  // 银行账户account的id
+  string user_bank_id = 1;
+}
+
+message AddUserBankReq {
+  // 账户姓名
+  // 账户姓名不能为空
+  string account_name = 2;
+  // 账户号码
+  // 账户号码不能为空
+  string account_no = 3;
+  // 手机号
+  // 手机号不能为空
+  string mobile = 4;
+  // 邮箱
+  // 邮箱不能为空
+  string email = 5;
+  // 银行名称
+  // 银行名称不能为空
+  string bank_name = 6;
+  // 用户id
+  string user_id = 7;
+  // 用户名称", hidden = true
+  string user_name = 8;
+  // 银行编号
+  // 银行编号不能为空
+  string bank_code = 9;
+  // 管理员id
+  int32 manager_id = 10;
+}
+
+
+message ModifyUserBankReq {
+  // 主键修改时须传
+  string user_bank_id = 1;
+  // 账户姓名
+  // 账户姓名不能为空
+  string account_name = 2;
+  // 账户号码
+  // 账户号码不能为空
+  string account_no = 3;
+  // 手机号
+  // 手机号不能为空
+  string mobile = 4;
+  // 邮箱
+  // 邮箱不能为空
+  string email = 5;
+  // 银行名称
+  // 银行名称不能为空
+  string bank_name = 6;
+  // 用户id
+  string user_id = 7;
+  // 用户名称", hidden = true
+  string user_name = 8;
+  // 银行编号
+  // 银行编号不能为空
+  string bank_code = 9;
+}
+
+message SetDefaultUserBankReq {
+  // user_bank主键
+  string user_bank_id = 1;
+}
+
+//>>>>>>>>>message_end>>>>>>>>>>>>UserBankAccountService>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+// 用户账户信息汇总
+message UserAccountSummaryResp {
+  common.base.ErrorMessage ret = 1;
+  // 总收入
+  string total_income = 2;
+  // 账户可用余额（可提现，可消费）
+  string balance = 3;
+  // 今日收益
+  string today_income = 4;
+  // 预期收益
+  string forecast_amount = 5;
+  // 冻结的佣金
+  string frozen_amount = 6;
+  // 账户可用余额 + 冻结余额
+  string total_balance = 7;
+  string my_exchange_rate = 8; // 马来西亚林吉特汇率 仅印尼站
+}
+
+message CommissionGroupReportReq {
+  string user_id = 1;
+  // 时间类型(本月:month 本周:week)
+  string type = 2;
+}
+
+message CommissionGroupDtoPb {
+  string name = 3;
+  // AccountDetail中的来源类型
+  int32 type = 4;
+  string amount = 5;
+}
+
+message CommissionGroupResp {
+  common.base.ErrorMessage ret = 1;
+  string sum_income = 2;
+  repeated CommissionGroupDtoPb commission_group = 3;
+}
+
+message GetUserAnnualIncomeReq {
+  int32 year = 1; // 年份 2019 2020
+}
+
+message GetUserAnnualIncomeResp {
+  common.base.ErrorMessage ret = 1;
+  string country_code = 2; //国家码
+  string total_amount = 3; //总金额
+}
+
+message GetUserTaxByUserIdReq {
+  int32 year = 1; // 年份 2019 2020
+}
+
+message UserTaxPb {
+  //用户id
+  int64 userId = 1;
+  //国家码
+  string country_code = 2;
+  //年份
+  int32 year = 3;
+  //年度总收入
+  string total_amount = 4;
+  //真实姓名
+  string real_name = 5;
+  //身份证号
+  string id_card = 6;
+  //税号
+  string tax_no = 7;
+  //洲名
+  string state_name = 8;
+  //市名
+  string city_name = 9;
+  //详细地址
+  string address_detail = 10;
+  //pdf文件服务器路径（需要拼前缀https://file.fingo.shop）
+  string pdf_url = 11;
+  // 是否是马来 默认是 1 不是 2
+  int32 is_malaysia = 12;
+}
+
+message GetUserTaxByUserIdResp {
+  common.base.ErrorMessage ret = 1;
+  repeated UserTaxPb user_tax = 2;
+}
+
+message InsertOrUpdateUserTaxReq {
+  int32 type = 1; // 1 新增 2 编辑
+  //国家码
+  string country_code = 2;
+  //年份
+  int32 year = 3;
+  //年度总收入
+  string total_amount = 4;
+  //真实姓名
+  string real_name = 5;
+  //身份证号
+  string id_card = 6;
+  //税号
+  string tax_no = 7;
+  //洲名
+  string state_name = 8;
+  //市名
+  string city_name = 9;
+  //详细地址
+  string address_detail = 10;
+  // 是否是马来 默认是 1 不是 2
+  int32 is_malaysia = 11;
+}
+
+message InsertOrUpdateUserTaxResp {
+  common.base.ErrorMessage ret = 1;
+  UserTaxPb user_tax = 2;
+}
+
+message SendIncomeTaxPDFToMailboxReq {
+  string email = 1; //要发送的邮箱地址
+  string pdf_url = 2; //pdf服务器路径
+
+}
+
+message SendIncomeTaxPDFToMailboxResp {
+  common.base.ErrorMessage ret = 1;
+}
+
+message ResetPaymentPasswordReq {
+  string mobile = 1; // 手机号
+  int32 country_area_code = 2; // 手机号区号
+  string sms_code = 3; // 手机验证码
+  string payment_password = 4; // 支付密码
+
+}
+
+message ResetPaymentPasswordResp {
+  common.base.ErrorMessage ret = 1;
+}
+
+message VerifyPaymentPasswordReq {
+  string payment_password = 1; // 支付密码
+}
+
+message VerifyPaymentPasswordResp {
+  common.base.ErrorMessage ret = 1;
+  int32 number_of_failures = 2; // 密码错误次数
+}
+//>>>>>>>>>message_end>>>>>>>>>>>>UserAccountService>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+message CreditPayCheckReq {
+  //订单编号
+  string order_no = 1;
+  //银行卡号
+  string card_number = 2;
+  //持卡人名称
+  string cardholder_name = 3;
+  //有效期年
+  string expiry_year = 4;
+  //有效期月
+  string expiry_month = 5;
+  //支付国家
+  string country_code = 6;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 7;
+  // 信用卡跳转链接
+  string url = 8;
+}
+
+message CreditPayCheckResp {
+  common.base.ErrorMessage ret = 1;
+  //卡号是否可用
+  bool available = 2;
+  //身份验证的唯一识别码
+  string secure_id = 3;
+  //html字符串
+  string html_str = 4;
+}
+
+message CreditEndPayReq {
+  //支付流水号
+  string trans_no = 1;
+  //信用卡校验号
+  string security_code = 2;
+  //回调地址
+  string return_url = 3;
+}
+
+message CreditEndPayResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付结果
+  PayResultPb pay_result_pb = 2;
+}
+
+message PayResultPb {
+  // 订单编号
+  string order_no = 1;
+  // 支付金额
+  string amount = 2;
+  // 支付状态 0:成功 1:失败 2:支付中 3:待支付
+  int32 pay_status = 3;
+  // 是否是礼包订单 1:是  0:不是
+  int32 gift_order = 4;
+  // 订单类型
+  int32 order_type = 5;
+  //拼团编号
+  string group_no = 6;
+  //国家码
+  string country_code = 7;
+}
+
+message CreditPayResultReq {
+  //支付流水号
+  string trans_no = 1;
+}
+
+message CreditPayResultResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付结果
+  PayResultPb pay_result_pb = 2;
+}
+
+//>>>>>>>>>message_end>>>>>>>>>>>>CreditPayService>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+message PayBankListReq {
+  //国家编码
+  string country_code = 1;
+}
+
+message BankInfoPb {
+  //银行编码
+  string bank_code = 1;
+  //银行名称
+  string bank_name = 2;
+}
+
+message PayBankListResp {
+  common.base.ErrorMessage ret = 1;
+  // 银行列表
+  repeated BankInfoPb bank_info_pb = 2;
+}
+
+message MallPointsPayReq {
+  //订单号
+  string order_no = 1;
+
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 2;
+}
+
+message MallPointsPayResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付结果
+  PayResultPb pay_result_pb = 2;
+}
+
+message MallCodPayReq {
+  //订单号
+  string order_no = 1;
+
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 2;
+}
+
+message MallCodResp {
+  common.base.ErrorMessage ret = 1;
+  // 手机号验证结果
+  bool mobile_valid_result = 2;
+  //若手机号验证结果为false ，则返回手机号；否则，不返回
+  string mobile = 3;
+  string mobile_area = 4; //手机号所属区
+
+}
+
+message MolpayWebPayReq {
+  // 订单号
+  string order_no = 1;
+  // return_url
+  string return_url = 2;
+  // 支付渠道
+  string channel_type = 3;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 4;
+}
+
+message MolpayWebPayResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付链接
+  string pay_url = 2;
+  // 支付流水号
+  string payment_id = 3;
+}
+message AlipayWebPayReq {
+  // 订单号
+  string order_no = 1;
+  // return_url
+  string return_url = 2;
+  // 支付渠道
+  string channel_type = 3;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 4;
+  // 跳转媒体类型
+  string terminal_type = 5;
+  // ios类型
+  string ios_type = 6;
+}
+
+message AlipayWebPayResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付链接
+  string pay_url = 2;
+  // 支付流水号
+  string payment_id = 3;
+}
+message PayResultReq {
+  // 支付id
+  string payment_id = 1;
+}
+//BillplzPay 支付请求
+message BillplzPayReq{
+  // 订单号
+  string order_no = 1;
+  // return_url
+  string return_url = 2;
+  // 支付渠道,暂未使用
+  string channel_type = 3;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 4;
+}
+//BillplzPay 支付请求返回
+message BillplzPayResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付链接
+  string pay_url = 2;
+  // 支付流水号
+  string payment_id = 3;
+}
+
+message PayResultResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付详情
+  PayResultPb pay_result_pb = 2;
+}
+
+message BillplzUiCallbackReq{
+  string id=1;
+  string paid=2;
+  string paid_at=3;
+  string x_signature=4;
+}
+message BillplzUiCallbackResp {
+  common.base.ErrorMessage ret = 1;
+}
+
+message GetPayChannelReq {
+  // 订单号
+  string order_no = 1;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 2;
+  int32 charge_flag = 3; // 充值标识 0否 1是
+}
+
+message GetPayChannelResp {
+  common.base.ErrorMessage ret = 1;
+    message CustomerPayChannel {
+    // 唯一标示 前端用
+    string id = 1;
+    // 货币符号
+    repeated string currency_code = 2;
+    // 银行名称
+    string account_name = 3;
+    // 银行账号
+    string account_no = 4;
+  }
+
+  // 支付渠道列表
+  repeated CountryPayChannel countryPayChannels = 2;
+
+  // 自定义支付方式
+  repeated CustomerPayChannel customerPayChannels = 3;
+
+
+  message CountryPayChannel {
+    //国家编号
+    string country_code = 1;
+    //支付渠道
+    repeated PayChannel payChannel = 2;
+  }
+  message PayChannel {
+    //渠道 EnetsD/Singpost/AXS/FPX/SevenEleven/CreditCard/OmisePay
+    string channel_code = 1;
+    //渠道图片
+    string channel_pic = 2;
+    //预留字段
+    bool choose = 3;
+    //服务费(币种+服务金额)
+    string service_charge = 4;
+
+    bool available = 5; //是否可用
+    //是否支持组合支付
+    bool is_composite_pay_permit = 6;
+    message PayChannelLabel {
+      // 标签名
+      string name = 1 ;
+      // 图标
+      string pic = 2 ;
+      // 跳转链接
+      string jump_url = 3 ;
+      // 是否展示 默认不展示
+      bool is_show = 4 ;
+    }
+    PayChannelLabel pay_channel_label = 7;
+    //区别于channel_code 用于多语言显示
+    string channel_code_multilingual=8;
+  }
+}
+
+message OmisePayReq {
+  // 订单号
+  string order_no = 1;
+  // return_url
+  string return_url = 2;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 3;
+  //支付国家
+  string country_code = 4;
+}
+
+message OmisePayResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付链接
+  string pay_url = 2;
+  // 支付流水号
+  string payment_id = 3;
+}
+
+message OmisePayResultReq {
+  // 支付id
+  string payment_id = 1;
+}
+
+message OmisePayResultResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付结果
+  PayResultPb pay_result_pb = 2;
+}
+
+message OnlineBankingPayReq {
+  // 订单号
+  string order_no = 1;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 3;
+  //支付国家
+  string country_code = 4;
+}
+
+message OnlineBankingPayResp {
+  common.base.ErrorMessage ret = 1;
+  // 订单号
+  string bns_order_no = 2;
+  // 支付金额
+  string amount = 3;
+  // 支付流水号
+  string trans_order_no = 4;
+  // 支付国家
+  string country_code = 5;
+  // 发起支付时间 时间戳
+  string pay_initiate_time = 6;
+}
+
+message SupplementPayInfoReq {
+  // 订单号
+  string bns_order_no = 1;
+  // 支付流水号
+  string trans_order_no = 2;
+  // 支付凭证图片
+  string payment_voucher_picture = 3;
+}
+
+message SupplementPayInfoResp {
+  common.base.ErrorMessage ret = 1;
+}
+
+message CustomerOnlineBankingPayReq {
+  // 订单号
+  string order_no = 1;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 3;
+  //支付国家
+  string country_code = 4;
+  // 支付凭证图片
+  string payment_voucher_picture = 5;
+}
+
+message CustomerOnlineBankingPayResp {
+  common.base.ErrorMessage ret = 1;
+}
+
+
+message GetThailandTaxReq {
+}
+
+message GetThailandTaxResp {
+  common.base.ErrorMessage ret = 1;
+  ThailandTaxInfo taxInfo = 2;
+}
+message UpdateThailandTaxReq {
+  ThailandTaxInfo taxInfo = 1;
+}
+message UpdateThailandTaxResp {
+  common.base.ErrorMessage ret = 1;
+}
+message ThailandTaxInfo {
+  int64 id = 1; // 新增不用传
+  int64 userId = 2; // 不用传
+  string name = 3; // 姓名
+  string mobile = 4; // 手机号
+  string detailAddress = 5; // 详细地址
+  string cityName = 6; // 市名
+  string stateName = 7; // 省名
+  string postcode = 15; // 邮编
+  string idCard = 8; // 身份证号
+  string accountNo = 9; //银行账号
+  string bankName = 10; // 银行名
+  string bankCode = 11; //银行编码
+  string swiftCode = 12; //SWIFT编码
+  string idImage = 13; // 身份证照片
+  string bankImage = 14; // 银行卡照片
+}
+
+//>>>>>>>>>message_end>>>>>>>>>>>>PayService>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+service WithdrawService {
+  // 查询我的提现明细
+  rpc WithdrawRecordByPage (WithdrawRecordByPageReq) returns (WithdrawRecordByPageResp);
+  // 申请提现
+  rpc WithdrawApply (WithdrawApplyReq) returns (PolypayBooleanResp);
+  // 验证客户是否可以提现返回0不允许1允许
+  rpc CanYouWithdrawCash (PolypayDefaultReq) returns (CanYouWithdrawCashResp);
+  // 获取税单信息(泰国)
+  rpc GetThailandTax (GetThailandTaxReq) returns (GetThailandTaxResp);
+  // 提交税单更新(泰国)
+  rpc UpdateThailandTax (UpdateThailandTaxReq) returns (UpdateThailandTaxResp);
+
+}
+
+service UserBankService {
+  // 获取用户银行账户-列表，一个用户有多个银行账户
+  rpc GetUserBankList (PolypayDefaultReq) returns (GetUserBankListResp);
+  // 银行账户详情,某个账户的详情
+  rpc GetUserBankDetail (GetUserBankDetailReq) returns (GetUserBankDetailResp);
+  // 添加银行账户
+  rpc AddUserBank (AddUserBankReq) returns (PolypayBooleanResp);
+  // 银行账户修改
+  rpc ModifyUserBank (ModifyUserBankReq) returns (PolypayBooleanResp);
+  // 银行账户删除
+  rpc DeleteUserBank (DeleteUserBankReq) returns (PolypayBooleanResp);
+  // 银行账户设为默认
+  rpc SetDefaultUserBank (SetDefaultUserBankReq) returns (PolypayBooleanResp);
+}
+
+service UserAccountService {
+  // 用户账余额
+  rpc UserAccountAmount (PolypayDefaultReq) returns (UserAccountAmountResp);
+  // 用户账户收支流水
+  rpc UserAccountDetails (UserAccountDetailsReq) returns (UserAccountDetailsResp);
+  // 用户账户汇总信息，返回用户的总收入、账户余额、今日收益、预期收益
+  rpc UserAccountSummary (PolypayDefaultReq) returns (UserAccountSummaryResp);
+  // 收益结构汇总分析（环形收益图表数据）
+  rpc CommissionGroupReport (CommissionGroupReportReq) returns (CommissionGroupResp);
+  // 获取用户年收入
+  rpc GetUserAnnualIncome (GetUserAnnualIncomeReq) returns (GetUserAnnualIncomeResp);
+  // 获取用户个税（目前只支持马来用户）
+  rpc GetUserTaxByUserId (GetUserTaxByUserIdReq) returns (GetUserTaxByUserIdResp);
+  // 新增或修改个税
+  rpc InsertOrUpdateUserTax (InsertOrUpdateUserTaxReq) returns (InsertOrUpdateUserTaxResp);
+  // 发送至个税pdf至邮箱
+  rpc SendIncomeTaxPDFToMailbox (SendIncomeTaxPDFToMailboxReq) returns (SendIncomeTaxPDFToMailboxResp);
+  // 重置支付密码
+  rpc ResetPaymentPassword (ResetPaymentPasswordReq) returns (ResetPaymentPasswordResp);
+  // 校验支付密码是否正确
+  rpc VerifyPaymentPassword (VerifyPaymentPasswordReq) returns (VerifyPaymentPasswordResp);
+}
+
+
+service CreditPayService {
+  // 信用卡支付校验
+  rpc CreditPayCheck (CreditPayCheckReq) returns (CreditPayCheckResp);
+  // 信用卡支付
+  rpc CreditEndPay (CreditEndPayReq) returns (CreditEndPayResp);
+  // 信用卡支付结果查询
+  rpc CreditPayResult (CreditPayResultReq) returns (CreditPayResultResp);
+}
+message CompositePayReq {
+  // 订单号
+  string order_no = 1;
+  // return_url
+  string return_url = 2;
+  // 支付渠道
+  string channel_type = 3;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 4;
+  //支付的积分数量
+  string pay_point = 5;
+}
+message CompositePayResp {
+  common.base.ErrorMessage ret = 1;
+  // 支付链接
+  string pay_url = 2;
+  // 支付流水号
+  string payment_id = 3;
+}
+message CompositePayPermitReq {
+  //国家码,内部用
+  string country_code = 1;
+  int32 order_type = 2;
+}
+message CompositePayPermitResp {
+  common.base.ErrorMessage ret = 1;
+  bool is_permit = 2;
+}
+service PayService {
+  // 支付银行列表
+  rpc PayBankList (PayBankListReq) returns (PayBankListResp);
+  // 积分支付
+  rpc MallPointsPay (MallPointsPayReq) returns (MallPointsPayResp);
+  // Molpay支付跳转
+  rpc MolpayWebPay (MolpayWebPayReq) returns (MolpayWebPayResp);
+  //cod支付确认
+  rpc MallCodPay (MallCodPayReq) returns (MallCodResp);
+  // 查支付结果
+  rpc PayResult (PayResultReq) returns (PayResultResp);
+  // 查询支付渠道
+  rpc GetPayChannel (GetPayChannelReq) returns (GetPayChannelResp);
+  // Omise支付
+  rpc OmisePay (OmisePayReq) returns (OmisePayResp);
+  // 线下支付
+  rpc OnlineBankingPay (OnlineBankingPayReq) returns (OnlineBankingPayResp);
+  // 补充支付信息
+  rpc SupplementPayInfo (SupplementPayInfoReq) returns (SupplementPayInfoResp);
+  // 组合支付跳转
+  rpc CompositePay (CompositePayReq) returns (CompositePayResp);
+  // 是否支持组合支付
+  rpc JudgeCompositePayPermit (CompositePayPermitReq) returns (CompositePayPermitResp);
+  // Alipay支付跳转
+  rpc AlipayWebPay (AlipayWebPayReq) returns (AlipayWebPayResp);
+  // 自定义线下支付
+  rpc CustomerOnlineBankingPay (CustomerOnlineBankingPayReq) returns (CustomerOnlineBankingPayResp);
+  //billplz支付
+  rpc BillplzPay (BillplzPayReq) returns (BillplzPayResp);
+  //billplz支付 ui返回
+  rpc BillplzPayUICallBack (BillplzUiCallbackReq) returns (BillplzUiCallbackResp);
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>> MeOne START >>>>>>>>>>>>>>>>>>>>>>>>
+message ListWithDrawReq {
+  common.base.Pagination page = 1;
+  int32 status = 2; // 状态 0已申请 1已成功 2已失败
+}
+message ListWithDrawResp {
+  message WithDrawInfo {
+    string serial_no = 1; // 流水号
+    string amount = 2; // 积分
+    int32 status = 3; // 状态 0已申请 1已成功 2已失败
+    string create_time = 4; // 发放时间
+  }
+  common.base.ErrorMessage ret = 1;
+  repeated WithDrawInfo withdraw = 2; // 提现记录列表
+  int32 status_apply_count = 3; // 已申请数量
+  int32 status_fail_count = 4; // 已失败数量
+  int32 total = 5;
+}
+message GetWithdrawInfoReq {
+}
+message GetWithdrawInfoResp {
+  common.base.ErrorMessage ret = 1;
+  string available_withdraw_amount = 2; // 可提现
+  string to_issued_amount = 3; // 待发放
+  string grand_total_withdraw_amount = 4; // 累计提现
+}
+service WithdrawCenterService {
+  // 提现记录列表
+  rpc ListWithdraw (ListWithDrawReq) returns (ListWithDrawResp);
+  // 提现信息汇总
+  rpc GetWithdrawInfo (GetWithdrawInfoReq) returns (GetWithdrawInfoResp);
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>> MeOne END >>>>>>>>>>>>>>>>>>>>>>>>>>

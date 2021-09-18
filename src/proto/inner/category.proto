@@ -1,0 +1,143 @@
+syntax = "proto3";
+package inner.category;
+
+import "common/errcode.proto";
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.category";
+option java_outer_classname = "Category";
+
+//功能放在 product 服务中, 需请求product 服务
+
+
+message GetCategoryNameAndIdListReq{
+    string language_code = 1;
+    repeated uint32 cate_id = 2;
+}
+
+
+message GetCategoryNameAndIdListResp{
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated common.base.IdAndName id_name= 2;//id 名称列表
+}
+
+
+message GetCategoryBySpuIdReq {
+    repeated int64 spu_id = 1;//spuId 集合
+}
+
+message GetCategoryBySpuIdResp {
+    message SpuCategoryUnit {
+        int64 spu_id = 1;//spuId
+        int32 first_cate_id = 2;//该spu所属的一级后台类目id
+        int32 second_cate_id = 3;//该spu所属的二级后台类目id
+        int32 third_cate_id = 4;//该spu所属的三级后台类目id
+//        string first_cate_name = 5;
+//        string second_cate_name = 6;
+        string third_cate_name = 7;
+    }
+    repeated SpuCategoryUnit spu_category_unit = 1;//spu类目集合
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+message GetCategoryLevelByCateIdReq {
+    repeated int32 cate_id = 1;//后台id集合
+}
+
+message GetCategoryLevelByCateIdResp {
+    message CategoryLevelUnit {
+        int32 cate_id = 1;//后台id
+        int32 level = 2;//后台级别 1:一级后台类目，2:二级后台类目，3:三级后台类目
+    }
+    repeated CategoryLevelUnit category_level_unit = 1;//后台类目级别集合
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+message GetThirdBackCateIdFromSecondFontCateIdReq {
+    repeated int32 second_cate_id = 1;//前台二级类目id
+    string country_code = 2;//国家码
+}
+
+message GetThirdBackCateIdFromSecondFontCateIdResp {
+    message SecondToThirdUnit {//前台二级类目id映射三级类目id结构体
+        int32 second_cate_id = 1;
+        int32 third_cate_id = 2;
+    }
+    repeated SecondToThirdUnit second_to_third = 1;
+    repeated int32 third_cate_id = 2;//后台三级类目id集合
+    common.base.ErrorMessage ret = 3; //返回值
+}
+
+message GetFontCatedIdReq {
+    string spuId = 1;
+}
+
+message GetFontCatedIdResp {
+    repeated int32 font_second_cate_id = 1;//前台二级类目id
+    common.base.ErrorMessage ret = 3; //返回值
+}
+
+message GetSpuTotalSortReq {
+    repeated string include_spu_id = 1;//需要的spuID数组，空数组代表全品类
+    repeated string exclude_spu_id = 2;//排除的spuID数组
+    repeated uint32 font_second_cate_id = 3;//前台二级类目id
+    common.base.Pagination page = 4;
+    string country_code = 5;//国家码
+}
+
+message GetSpuTotalSortResp {
+    repeated string spu_id = 1;//总排序分降序排序
+    uint32 total = 3; //总数
+    common.base.ErrorMessage ret = 2; //返回值
+}
+
+message GetCatePathByCateIdReq {
+    repeated int32 cate_id = 1;
+}
+message GetCatePathByCateIdResp {
+    message CatePath {
+        int32 root_cate_id = 1; // 一级类目ID
+        string root_cate_name = 2; // 一级类目名称
+        int32 second_cate_id = 3; // 二级类目ID
+        string second_cate_name = 4; // 二级类目名称
+        int32 third_cate_id = 5; // 三级类目ID
+        string third_cate_name = 6; // 三级类目名称
+    }
+    repeated CatePath cate_path = 1;
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+message GetCateIdListByCateIdReq{
+    repeated int32 cateId =1;
+}
+message GetCateIdListByCateIdResp{
+    common.errcode.ErrorCode ret = 2; //返回值
+    repeated int32 cateId =1;
+}
+service CategoryService {
+
+    //获取类目id 名称 列表
+    rpc GetCategoryNameAndIdList (GetCategoryNameAndIdListReq) returns (GetCategoryNameAndIdListResp);
+
+    //根据spuId集合获取 其后台id集合
+    rpc GetCategoryBySpuId(GetCategoryBySpuIdReq) returns (GetCategoryBySpuIdResp);
+
+    //根据后台id获取该后台id的级别
+    rpc GetCategoryLevelByCateId (GetCategoryLevelByCateIdReq) returns (GetCategoryLevelByCateIdResp);
+
+    //根据前台二级类目id集合获取后台三级类目id集合
+    rpc GetThirdBackCateIdFromSecondFontCateId(GetThirdBackCateIdFromSecondFontCateIdReq) returns (GetThirdBackCateIdFromSecondFontCateIdResp);
+
+    //根据SPUID获取相关联的前台二级类目ID
+    rpc GetFontCatedId (GetFontCatedIdReq) returns (GetFontCatedIdResp);
+
+    //查询商品分类排序降序排序
+    rpc GetSpuTotalSort (GetSpuTotalSortReq) returns (GetSpuTotalSortResp);
+
+    // 根据后台三级类目ID 获取类目路径
+    rpc GetCatePathByCateId(GetCatePathByCateIdReq) returns (GetCatePathByCateIdResp);
+    //根据分类id 获取该类目id下所有三级类目ID
+    rpc GetCateIdListByCateId (GetCateIdListByCateIdReq) returns (GetCateIdListByCateIdResp);
+}
+

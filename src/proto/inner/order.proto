@@ -1,0 +1,893 @@
+syntax = "proto3";
+package inner.order;
+
+import "common/errcode.proto";
+import "common/enum.proto";
+import "common/base.proto";
+import "common/trade.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.order";
+option java_outer_classname = "Order";
+
+//根据商品id 获取 一段时间内 商品下sku 在 各国家的销量
+message GetProductSalesReq {
+    repeated uint64 product_id = 1; //商品id
+    uint64 start_time = 2; //开始时间
+    uint64 end_time = 3; //结束时间
+}
+
+message GetProductSalesResp {
+    message Sales {
+        uint64 product_id = 1; //商品id
+        uint64 sku_id = 2; //商品sku id
+        string country_code = 3; //国家码
+        uint32 count = 4; //数量
+    }
+    common.errcode.ErrorCode ret = 1;
+    repeated Sales sales = 2; //sku在各国家销量
+}
+
+//根据订单号获取用户订单收货地址信息
+message GetOrderAddressReq {
+    repeated string order_no = 1; //订单号
+}
+
+message OrderAddress {
+    string order_no = 1; // 订单编号
+    string country = 2; // 收件国家
+    string name = 3; // 收件人姓名
+    string mobile = 4; // 手机号
+    string province = 5; // 省
+    string city = 6; // 市
+    string area = 7; // 区
+    string postcode = 8; //邮编
+    string address = 9; // 地址
+    common.enum.ErpEnum.LogiType logi_type = 10; //是否流经物流
+    common.enum.OrderEnum.OrderAddressType type=11;//地址类型
+}
+
+message GetOrderAddressResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated OrderAddress address = 2;
+}
+
+message OrderTimeInfo {
+    uint64 start_time = 1; //开始时间
+    uint64 end_time = 2; //结束时间
+}
+
+
+message SubOrderInfo {
+    message ProductItem {
+        string sku_code = 1;
+        int32 num = 2; //购买件数
+        string snap_code = 3; //快照码
+        int64 supplier_id = 4; //供应商id
+    }
+    string order_no = 1;
+    string country_code = 2;
+    string language = 3;
+    int64 suborder_id = 4;
+    string warehouse_no = 5; //仓库ID
+    string split_type = 6; //拆单类型
+    repeated ProductItem products = 7; //子单商品信息
+}
+
+message NeedPurchaseOrderTimeReq {
+    OrderTimeInfo order_time = 1;
+}
+
+
+message NeedPurchaseOrderTimeResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated SubOrderInfo sub_order_infos = 2;
+}
+
+message NeedPurchaseOrderReq {
+    repeated string order_no = 1;
+}
+
+message NeedPurchaseOrderResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated SubOrderInfo sub_order_infos = 2;
+}
+
+message NeedShipOrderTimeReq {
+    OrderTimeInfo order_time = 1;
+}
+
+
+message NeedShipOrderTimeResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated SubOrderInfo sub_order_infos = 2;
+}
+
+message NeedShipOrderReq {
+    repeated string order_no = 1;
+}
+
+message NeedShipOrderResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated SubOrderInfo sub_order_infos = 2;
+}
+
+message GetOrderByOrderNoReq {
+    int64 order_no = 1;
+}
+
+message GetOrderByOrderNoResp {
+    message OrderDetail {
+        string country_code = 1;
+        int64 order_no = 2;
+        int64 user_id = 3;
+        string total_price = 4;
+        common.enum.OrderEnum.OrderStatus status = 5;
+        common.enum.OrderEnum.OrderType order_type = 6;
+        string pay_time = 7;
+        int64 live_user_id = 8;
+        int32 pay_way = 9; //支付方式
+        int64 me_store_user_id=10;//团长id
+    }
+    common.errcode.ErrorCode ret = 1;
+    OrderDetail order_detail = 2;
+}
+
+message OrderProductReq {
+    int64 order_no = 1;
+}
+
+message OrderProductResp {
+    //订单详情，暂时提供给支付用，字段待定
+    message OrderProduct {
+        string order_no = 1;
+        int64 spu_id = 2; //spuId
+        int64 sku_id = 3;
+        string sku_code = 4;
+        int32 first_cate_id = 5; //该spu所属的一级后台类目id
+        int32 second_cate_id = 6; //该spu所属的二级后台类目id
+        int32 third_cate_id = 7; //该spu所属的三级后台类目id
+        int32 canComb = 8; //是否是组合商品
+    }
+    common.errcode.ErrorCode ret = 1;
+    repeated OrderProduct order_product = 2;
+}
+
+message SubOrdersReq {
+    int64 order_no = 1;
+}
+
+message SubOrdersResp {
+    message SubOrder {
+        int64 order_no = 1;
+        int64 spu_id = 2; //spuId
+        int64 sku_id = 3;
+        int64 subOrderId = 4;
+        string snapCode = 5;
+        int32 num = 6;
+        int32 status = 7;
+        string splitType = 8;
+    }
+    common.errcode.ErrorCode ret = 1;
+    repeated SubOrder sub_order = 2;
+}
+
+message GetGroupOrderByOrderNoReq {
+    int64 order_no = 1;
+}
+
+message GetGroupOrderByOrderNoResp {
+    //订单详情，暂时提供给支付用，字段待定
+    message GroupOrderDetail {
+        string country_code = 1;
+        int64 order_no = 2;
+        int64 group_no = 3;
+        int64 user_id = 4;
+        string total_price = 5;
+        common.enum.OrderEnum.GroupMemberStatus status = 6;
+        common.enum.OrderEnum.OrderType order_type = 7;
+    }
+    common.errcode.ErrorCode ret = 1;
+    GroupOrderDetail order_detail = 2;
+}
+
+message GetTradeDTOReq {
+    int64 order_no = 1;
+}
+message GetTradeDTOResp {
+    common.errcode.ErrorCode ret = 1;
+    common.trade.TradeDTOPb trade_dto = 2;
+}
+
+message PayCallBackReq {
+    int64 order_no = 1;
+    //业务类型 ORDER:订单，GROUP_ORDER:拼团
+    string bns_type = 2;
+
+    //1、积分支付
+    common.enum.OrderEnum.PointPayEnum pointPay = 3;
+    //使用积分额
+    string point_amount = 4;
+    //支付方式
+    common.enum.PolyPayEnum.PayWay pay_way = 5;
+}
+message PayCallBackResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+//查询用户购买的商品订单数与商品数量, 目前用于限购判断
+message GetUserProductQuantityReq {
+    uint64 user_id = 1;
+    repeated uint64 product_id = 2; //商品id 列表
+    uint64 start_time = 3; //开始时间
+    uint64 end_time = 4; //结束时间
+}
+
+//查询用户购买的商品订单数与商品数量 响应
+message GetUserProductQuantityResp {
+    common.errcode.ErrorCode ret = 1;
+    uint64 user_id = 2; //回传用户id
+    message UserProductQuantityUnit {
+        uint64 product_id = 1;
+        uint32 order_quantity = 2; //订单数量
+        uint32 item_quantity = 3; //商品数量
+    }
+    repeated UserProductQuantityUnit user_product_quantity = 3; //用户已购商品数量
+}
+
+message GetTeamOrdersMapReq {
+    repeated uint64 order_id = 1;
+    string language = 2;
+}
+
+message GetTeamOrdersMapResp {
+    common.errcode.ErrorCode ret = 1;
+    // map<orderId,TeamOrderDtoPb>
+    map<int64, common.trade.TeamOrderDtoPb> team_order = 2;
+}
+
+message ShipOrderRequest {
+    message SkuInfo {
+        string sku_code = 1;
+        string snap_code = 2;
+        int32 num = 3;
+    }
+    uint64 order_id = 1;
+    uint64 suborder_id = 2;
+    string express_no = 3;
+    string expredd_code = 4;
+    repeated SkuInfo sku_info = 5;
+    string out_no = 6;
+}
+message ShipOrderResponse {
+    common.errcode.ErrorCode ret = 1;
+}
+message GiftOrderCompensateReq {
+    repeated uint64 order_id = 1;
+}
+message GiftOrderCompensateResp {
+    common.errcode.ErrorCode ret = 1;
+}
+message GroupOrderTimeResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message GetGroupMemberCountReq {
+    repeated int64 group_product_id = 1;
+}
+message GetGroupMemberCountResp {
+    common.errcode.ErrorCode ret = 1;
+    map<int64, int32> member_count = 2;
+}
+
+message StatUserOrderCountReq {
+    string user_id = 1; //用户id
+}
+message StatUserOrderCountResp {
+    common.errcode.ErrorCode ret = 1;
+    message StatProductResult {
+        common.enum.OrderEnum.OrderType order_type = 1; //订单类型
+        uint32 count = 2;
+    }
+    repeated StatProductResult stat_result = 2; //统计结果
+}
+
+message ListOrderProductInfoByOrderIdsReq {
+    repeated uint64 order_id = 1;
+}
+
+message ListOrderProductInfoByOrderIdsResp {
+    common.errcode.ErrorCode ret = 1;
+    message ProductInfo {
+        uint64 order_id = 1;
+        string image_url = 2;
+        string spec = 3; //规格
+        int32 num = 4;
+        uint64 order_time = 5; //创建时间
+        uint64 pay_time = 6; //支付时间
+        common.enum.OrderEnum.OrderStatus status = 7;
+        common.enum.OrderEnum.AfterStatus after_status = 8; //整单售后状态
+        string sku_code = 9;
+        uint64 remain_time = 10; //支付时间
+    }
+    repeated ProductInfo prodcut_info = 2;
+}
+
+message PurOutStockPushReq {
+    message PurOutStockEvent {
+        uint64 order_id = 1; //订单号
+        uint64 outstock_time = 2; //缺货时间戳
+        //        uint64 suborder_id =3;//子单号
+        string sku_code = 4;
+        string snap_code = 5;
+        string pon = 6; //采购单
+        int32 cancel_num = 7; //取消数量
+        uint64 pur_user_id = 8; //采购员id
+        string pur_user_name = 9; //采购员名称
+        int32 pur_num = 10; //订购数量
+        int32 outstock_num = 11; //缺口数量
+    }
+    PurOutStockEvent event = 1; //通知缺货事件
+}
+
+message PurOutStockPushResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message CancelOutOrderCallBackReq {
+    message CancelOutOrderEvent {
+        int64 order_id = 1;
+        repeated string sku_code = 2;
+        int32 status = 4; //取消出库单结果 1、成功 2、失败
+        string reason = 5; //失败原因，可以不传；若有，可以传
+    }
+    CancelOutOrderEvent event = 1;
+}
+message CancelOutOrderCallBackResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message StatUserOrderNumReq {
+    repeated int64 user_id = 1; //用户id
+    common.enum.OrderEnum.OrderType order_type = 2; //订单类型
+    int64 payStartTime = 3;
+    int64 payEndTime = 4;
+}
+message StatUserOrderNumResp {
+    message UserOrderResult {
+        int64 user_id = 1;
+        uint32 count = 2;
+    }
+    common.errcode.ErrorCode ret = 1;
+    repeated UserOrderResult stat_result = 2; //统计结果
+}
+
+message CalculatExpressAmountReq {
+    message SkuInfo {
+        string sku_code = 1;
+        string snap_code = 2;
+        int32 num = 3; //数量
+    }
+    int64 order_id = 1;
+    int64 suborder_id = 2; //子单id
+    string outNo = 3;
+    repeated SkuInfo sku_info = 4;
+}
+
+message CalculatExpressAmountResp {
+    common.errcode.ErrorCode ret = 1;
+    string pay_amout = 2;
+    string currency = 3;
+}
+
+message VerityCodOrderLimitReq {
+    string mobile = 1;
+}
+
+message VerityCodOrderLimitResp {
+    common.errcode.ErrorCode ret = 1;
+    bool valid_result = 2;
+}
+
+message JudgeSubOrderSkuAfterReq {
+    message SuborderSkuInfo {
+        string order_id = 1;
+        string sku_code = 2;
+        string snap_code = 3;
+    }
+    repeated SuborderSkuInfo suborder_sku_info = 1;
+    common.enum.OrderEnum.JudgeSubOrderSkuAfterEnum type = 2;
+
+}
+message JudgeSubOrderSkuAfterResp {
+    message SuborderSkuResult {
+        string order_id = 1;
+        string sku_code = 2;
+        string snap_code = 3;
+        bool is_after = 4; //非必穿
+    }
+    common.errcode.ErrorCode ret = 1;
+    repeated SuborderSkuResult suborder_sku_result = 2;
+    common.enum.OrderEnum.JudgeSubOrderSkuAfterEnum type = 3;
+}
+//弹出窗口类型
+enum PopUpWindowType {
+    NO_POP_UP = 0; //不弹
+    ADDRESS_NOT_SUPPORT = 1; //地址不支持配送
+    BUY_LIMIT = 2; //限购
+    OUT_OF_STOCK = 3; //缺货
+    NOT_ON_SELL = 4; //不在售
+    MIN_BUY_LIMIT = 5; //最低限购
+    MIX_ORDER = 6; //混合下单
+}
+message PopUpContent {
+    string product_id = 1;
+    string sku_id = 2;
+    string sku_cover = 3; //主图
+    string product_name = 4; //商品名称
+    string attribute = 5; //sku属性
+    int32 can_buy = 6; //还可以购买几件
+}
+//下单过程的传输对象
+message OrderConfirmDTO {
+    message ItemLabel {
+        common.enum.CartEnum.ItemLabelType label_type = 1; //购物车标签类型
+        string content = 2; //内容
+    }
+    message ProductItem {
+        string product_id = 1;
+        string sku_id = 2;
+        int32 count = 3;
+        common.enum.ProductEnum.ProductType type = 4; //商品类型
+        string commission_rate = 5; //佣金率
+        int32 weight = 6; //重量
+        string freight_id = 7; //运费模板ID
+        string price = 8; //商品售价
+        string activity_id = 9; //活动ID
+        string activity_price = 10; //活动价格
+        string activity_commission_rate = 11; //活动佣金率
+        string product_name = 12; //商品名称
+        string attribute = 13; //属性
+        string cover = 14; //sku 封面缩略图
+        repeated ItemLabel item_label = 15; //购物车项标签
+        string advance_id = 16; //是否是预售商品，
+        string arrival_id = 17; //到货承诺id
+        common.enum.ProductEnum.FreightType freight_type = 18; //商品运费类型
+        string delivery_deadline = 19; //预计最迟发货时间
+        string shop_id = 20; //店铺id
+    }
+    message PromotionGroup {
+        string promotion_id = 1; //促销ID
+        common.enum.PromotionEnum.PromotionType type = 2; //促销类型
+        int32 level = 3; //促销到达层级
+        string total_discount = 4; //促销优惠总金额
+        repeated ProductItem product_item = 5; //商品列表
+    }
+    repeated PromotionGroup promotion_group = 1; //促销分组
+    repeated ProductItem item = 2; //未参加促销的商品
+    common.enum.OrderEnum.OrderType order_type = 3; //订单类型(非必填)
+    string group_id = 4; //拼团ID(非必填)
+    int32 user_level = 5; //用户等级
+}
+message PopUpMixOrderContent {
+    message MixOrderInfo {
+        common.enum.ProductEnum.ProductType product_type = 1;
+        repeated PopUpContent mix_order_content = 2;
+    }
+    repeated MixOrderInfo mix_order_info = 1;
+}
+//message SubmitOrderRequest {
+//    OrderConfirmDTO confirm_dto = 1;
+//    string address_id = 2;
+//    string remark = 3;
+//    string coupon_code = 4;
+//    string sharer_code = 5;
+//    string use_points = 7; //使用积分
+//    string version = 8; //接口的版本号
+//    common.enum.FreightEnum.ShippingType shipping_type = 9;//物流模型
+//}
+//message SubmitOrderResponse {
+//    common.base.ErrorMessage ret = 1;
+//    string order_id = 2;
+//    string order_amount = 3; //实付金额
+//    common.enum.OrderEnum.OrderType order_type = 4; //订单类型
+//    bool need_pay = 5; //是否需要支付
+//    int64 remain_time = 6; //剩余支付时间(毫秒)
+//    bool jump_back = 7; //商品信息有变，请返回重新下单
+//    PopUpWindowType pop_type = 10; //弹窗类型
+//    PopUpContent pop_content = 11; //弹窗内容
+//    common.enum.PolyPayEnum.BnsTypeEnum bns_type =12;
+//    PopUpMixOrderContent mix_pop_content =13;
+//}
+
+
+message SubmitOneOrderReq {
+    message OneOrderInfo {
+        string total_amount = 2; //订单金额
+        string payable_amount = 3; //支付金额
+        string use_points = 4; //使用积分 没有传0
+        string freight = 5; //运费
+        string country_code = 6; //国家码
+        string pay_time = 7; //支付时间，毫秒的时间戳
+        string language = 8; //语言
+        int32 order_type = 9; //订单类型
+        int32 pay_way = 10; //支付方式-
+    }
+
+    message OneUserInfo {
+        int32 user_level = 2; //订单用户等级
+        string parent_id = 3; //上级用户id
+        int32 parent_level = 4; //上级等级
+        string path = 5; //用户链路
+        string sharer_id = 6; //分享者id
+        int32 sharer_level = 7; //分享者等级
+    }
+
+    message OneAddressInfo {
+        string address_id = 1; //地址id
+        string receiver_name = 2; //收货人名称
+        string receiver_phone = 3; //收货人手机号
+        string country_code = 4; //国家码
+        string city_code = 5; //市对应的编码
+        string city_name = 6; //市名
+        string state_name = 7; //州名称
+        string state_code = 8; //州编码
+        string postcode = 9; //邮编
+        string receiver_address = 10; //收货人 地址
+    }
+
+    message OneActivityInfo {
+        string product_id = 1; //spuId
+        string sku_id = 2; //skuId
+        string activity_id = 3; //活动id
+        string price = 4; //价格
+        string commission_rate = 5; //活动佣金比
+        int32 limit_num = 6; //限购数量
+        int32 activity_type = 7; //活动类型
+        string start_time = 8; //开始时间
+        string end_time = 9; //结束时间
+    }
+
+    message OnePromotionInfo {
+        string product_id = 1; //spuId
+        string sku_id = 2; //skuId
+        string promotion_id = 3; //促销id
+        int32 promotion_type = 4; //活动类型
+        string amount = 5; //金额
+        int32 level = 6; //等级
+    }
+
+    message OneOrderProductInfo {
+        string product_id = 1; //spuId
+        string sku_id = 2; //skuId
+        string sku_code = 3;
+        int32 product_type = 4;
+        string snap_code = 5;
+        string price = 6;
+        int32 num = 7;
+        string total_discount = 8;
+        string commission_rate = 9;
+        int32 logi_min = 10; //物流时效的最小
+        int32 logi_max = 11; //物流时效的最大
+        bool slow = 12; //是否慢必赔1 需要 0 不需要
+        string product_name = 13; //商品
+        bool freeShipping = 14; //是否包邮
+
+    }
+    OneOrderInfo order_info = 1;
+    OneUserInfo user_info = 2; //需要支付回调时的等级为准
+    OneAddressInfo address_info = 3;
+    repeated OneActivityInfo activity_info = 4;
+    repeated OnePromotionInfo promotion_info = 5;
+    repeated OneOrderProductInfo orderProduct_info = 6;
+    string user_id = 7; //用户id
+    string order_id = 8; //订单号
+}
+
+message SubmitOneOrderResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+
+message GetOrderSubProductInfoReq {
+    int64 order_no = 1; //订单号
+
+}
+message OrderSubProductInfo {
+    int64 product_id = 1;
+    int64 sku_id = 2;
+    string sku_code = 3;
+    string snap_code = 4;
+    int32 num = 5;
+}
+
+message GetOrderSubProductInfoResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated OrderSubProductInfo product_info = 2;
+    string country_code = 3;
+}
+message UserFirstOrderRequest {
+    string user_id = 1; //用户ID
+    repeated string order_type = 2; //查询的订单类型
+}
+message UserFirstOrderDetailResponse {
+    message FirstOrderProductDetail {
+        int64 product_id = 1;
+        int32 num = 2;
+    }
+    common.base.ErrorMessage ret = 1;
+    int64 order_id = 2; //订单ID
+    repeated FirstOrderProductDetail product_detail = 3; //商品列表
+}
+
+message GetPaidOrderNoReq {
+    string start_time = 1; //开始时间
+    string end_time = 2; //结束时间
+}
+
+message GetPaidOrderNoResp {
+    repeated int64 order_no = 1; //订单编号集合
+    string error_msg = 2; //调用失败信息
+    common.errcode.ErrorCode ret = 3;//返回码
+}
+
+message SkuKeyInfo {
+    string sku_key = 1;
+    int32 count = 2;
+}
+
+message GetPaidJitSkuCountReq {
+    repeated string orderIdList = 1; //orderId列表
+
+}
+
+message GetPaidJitSkuCountResp {
+    repeated SkuKeyInfo skukeyInfo = 1;//sku对应的信息
+    string error_msg = 2; //调用失败信息
+    common.errcode.ErrorCode ret = 3;//返回码
+}
+
+message OrderIdListReq {
+    repeated string orderIdList = 1; //orderId列表
+
+}
+
+message GetOrderAfterInfoResp {
+
+    message OrderAfterInfo{
+        string order_id = 1;
+        repeated ProductAfterInfo product_info_list = 2;//订单详情列表
+    }
+    message ProductAfterInfo{
+        string product_id = 1;
+        string sku_id = 2;
+        int32 refund_count = 3;//退款数量
+        string refund_amount = 4;//实际退款金额
+        int32 status = 5;//售后状态
+
+    }
+    repeated OrderAfterInfo order_after_info_list = 1; //订单售后详情
+    string error_msg = 2; //调用失败信息
+    common.errcode.ErrorCode ret = 3;//返回码
+}
+    message GetSkuOrderCountReq{
+      repeated uint64 sku_id = 1;
+      uint32 status = 2;
+    }
+    message GetSkuOrderCountResp{
+       message SkuOrderCount{
+           uint64 sku_id = 1;
+           uint32 num = 2;
+       }
+      common.errcode.ErrorCode ret = 1;//返回码
+      repeated SkuOrderCount sku_order_count_list = 2;//sku订单数量
+    }
+
+service OrderService {
+
+    //一元夺宝下单
+    rpc SubmitOneOrder (SubmitOneOrderReq) returns (SubmitOneOrderResp);
+
+    //提交订单(以前叫createOrder) 作废
+    //    rpc SubmitOrder (SubmitOrderRequest) returns (SubmitOrderResponse);
+
+    //根据商品spu 查询实际销量
+    rpc GetProductSales (GetProductSalesReq) returns (GetProductSalesResp);
+
+    // 获取订单收货地址信息
+    rpc GetOrderAddress (GetOrderAddressReq) returns (GetOrderAddressResp);
+
+    //根据时间获取需要采购的订单列表
+    rpc needPurchaseByTime (NeedPurchaseOrderTimeReq) returns (NeedPurchaseOrderTimeResp);
+
+    //根据订单号列表获取采购的订单列表
+    rpc needPurchaseByOrderNos (NeedPurchaseOrderReq) returns (NeedPurchaseOrderResp);
+
+    //根据时间获取需要生成出库单的订单列表
+    rpc needShipByTime (NeedShipOrderTimeReq) returns (NeedShipOrderTimeResp);
+
+    //根据订单号列表获取需要生成出库单的订单列表
+    rpc needShipByOrderNos (NeedShipOrderReq) returns (NeedShipOrderResp);
+
+    //根据订单号获取订单商品相关信息
+    rpc ListOrderProduct (OrderProductReq) returns (OrderProductResp);
+
+    //获取子单信息
+    rpc SubOrders (SubOrdersReq) returns (SubOrdersResp);
+
+    //根据订单号获取订单，提供给支付的
+    rpc GetOrderByOrderNo (GetOrderByOrderNoReq) returns (GetOrderByOrderNoResp);
+
+    //根据订单号获取拼团订单，提供给支付的
+    rpc GetGroupOrderByOrderNo (GetGroupOrderByOrderNoReq) returns (GetGroupOrderByOrderNoResp);
+
+    //查询TradeDTOPb (member用的)
+    rpc GetTradeDTO (GetTradeDTOReq) returns (GetTradeDTOResp);
+
+    //支付回调接口
+    rpc PayCallBack (PayCallBackReq) returns (PayCallBackResp);
+
+    //查询用户购买的商品订单数与商品数量, 目前用于限购判断
+    rpc GetUserProductQuantity (GetUserProductQuantityReq) returns (GetUserProductQuantityResp);
+
+    // 团队订单列表
+    rpc GetTeamOrdersMap (GetTeamOrdersMapReq) returns (GetTeamOrdersMapResp);
+    //发货
+    rpc ShipOrder (ShipOrderRequest) returns (ShipOrderResponse);
+    //礼包分佣补偿接口
+    rpc GiftOrderCompensate (GiftOrderCompensateReq) returns (GiftOrderCompensateResp);
+
+    //查询拼团人数
+    rpc GetGroupMemberCount (GetGroupMemberCountReq) returns (GetGroupMemberCountResp);
+
+    //统计用户订单叔数量服务
+    rpc StatUserOrderCount (StatUserOrderCountReq) returns (StatUserOrderCountResp);
+
+    //根据订单号获取商品（组合商品转化为子商品）信息列表
+    rpc ListOrderProductInfoByOrderIds (ListOrderProductInfoByOrderIdsReq) returns (ListOrderProductInfoByOrderIdsResp);
+    //采购缺货事件通知
+    rpc PurOutStockPush (PurOutStockPushReq) returns (PurOutStockPushResp);
+    //统计用户订单数
+    rpc StatUserOrderNum (StatUserOrderNumReq) returns (StatUserOrderNumResp);
+
+    //取消库存回调接口-用户处理意外情况的售后
+    rpc CancelOutOrderCallBack (CancelOutOrderCallBackReq) returns (CancelOutOrderCallBackResp);
+
+    //计算cod物流单所需金额
+    rpc CalculatExpressAmount (CalculatExpressAmountReq) returns (CalculatExpressAmountResp);
+
+    //计算调试cod物流单所需金额
+    rpc CalculatExpressAmountPrint (CalculatExpressAmountReq) returns (CalculatExpressAmountResp);
+
+    //验证结果cod订单是否达到某个限制
+    rpc VerityCodOrderLimit (VerityCodOrderLimitReq) returns (VerityCodOrderLimitResp);
+
+    //通过子单和sku判断是否有售后信息
+    rpc JudgeSubOrderSkuAfter (JudgeSubOrderSkuAfterReq) returns (JudgeSubOrderSkuAfterResp);
+
+    //系统：订单系统
+    //描述：根据订单号获取对应的所有商品（若是组合商品，拆分为子商品）
+    rpc GetOrderSubProductInfo (GetOrderSubProductInfoReq) returns (GetOrderSubProductInfoResp);
+
+    //系统：订单系统
+    //描述：查找指定时间范围内已支付的订单编号
+    rpc GetPaidOrderNo (GetPaidOrderNoReq) returns (GetPaidOrderNoResp);
+
+    //系统：订单系统
+    //描述：根据订单号查询订单下各个sku的count
+    rpc GetPaidJitSkuCount (GetPaidJitSkuCountReq) returns (GetPaidJitSkuCountResp);
+
+    //系统：订单系统
+    //调用方：品牌馆业绩校验
+    //描述：根据传入订单号列表查询订单下售后集合
+    rpc GetOrderAfterInfo (OrderIdListReq) returns (GetOrderAfterInfoResp);
+    //获取制定sku待支付
+    rpc GetSkuOrderCount(GetSkuOrderCountReq) returns (GetSkuOrderCountResp);
+}
+
+
+message PurchasedNumReq {
+    int64 shop_id = 1; //店铺id
+}
+message PurchasedNumResp {
+    common.errcode.ErrorCode ret = 1;
+    int64 shop_id = 2; //店铺id
+    int32 buyer_num = 3; //购买者数量
+}
+
+message GoodsSaledNumReq {
+    int64 shop_id = 1; //店铺id
+    repeated int64 product_id = 2; //商品id
+
+}
+message GoodsSaledNumResp {
+    message GoodsNum {
+        int64 product_id = 1;
+        int32 num = 2; //数量
+    }
+    common.errcode.ErrorCode ret = 1;
+    int64 shop_id = 2; //店铺id
+    repeated GoodsNum goods_num = 3;
+}
+
+message ShopSaledNumReq {
+    int64 shop_id = 1; //店铺id
+}
+message ShopSaledNumResp {
+    common.errcode.ErrorCode ret = 1;
+    int64 shop_id = 2; //店铺id
+    int32 saled_num = 3;
+}
+
+message BuyerMostNumReq {
+    int64 shop_id = 1; //店铺id
+}
+message BuyerMostNumResp {
+    common.errcode.ErrorCode ret = 1;
+    int64 shop_id = 2; //店铺id
+    message UserNum {
+        int64 user_id = 1;
+        int32 num = 2;
+    }
+    repeated UserNum user_num = 3;
+}
+
+message BestSellingGoodsNumReq {
+    int64 shop_id = 1; //店铺id
+}
+
+message BestSellingGoodsNumResp {
+    common.errcode.ErrorCode ret = 1;
+    int64 shop_id = 2; //店铺id
+    message GoodsInfo {
+        int64 product_id = 1;
+        int32 saled_num = 2;
+    }
+    repeated GoodsInfo goods_info = 3;
+}
+
+message UserLatestOrderSpuReq {
+    uint64 user_id = 1; // 用户id
+    uint32 number = 2; // 需要的订单数量
+}
+message UserLatestOrderSpuResp {
+    repeated uint64 product_id = 1; //spu
+    common.errcode.ErrorCode ret = 2;
+
+}
+
+message GetUserOrderCountReq {
+    repeated uint64 user_id = 1; // 用户id
+    string time_start = 2; // 开始时间
+}
+
+message GetUserOrderCountResp {
+    common.errcode.ErrorCode ret = 1;
+    map<int64, int32> user_order_count = 2;
+}
+
+service ShopOrderStatService {
+    //统计购买者数量，该店铺多少人已购
+    rpc PurchasedNum (PurchasedNumReq) returns (PurchasedNumResp);
+
+    //售卖的商品数量，spu纬度
+    rpc GoodsSaledNum (GoodsSaledNumReq) returns (GoodsSaledNumResp);
+
+    //店铺纬度的售卖数量
+    rpc ShopSaledNum (ShopSaledNumReq) returns (ShopSaledNumResp);
+
+    //购买最多的人 以周为单位（前六）
+    rpc BuyerMostNum (BuyerMostNumReq) returns (BuyerMostNumResp);
+
+    //该店铺最好卖的商品（卖的最多的商品）
+    rpc BestSellingGoodsNum (BestSellingGoodsNumReq) returns (BestSellingGoodsNumResp);
+
+}
+service UserOrderService {
+    //指定类型首单信息
+    rpc GetUserFirstOrderDetail (UserFirstOrderRequest) returns (UserFirstOrderDetailResponse);
+    //获取用户最近下单的spu
+    rpc GetUserLatestOrderSpu (UserLatestOrderSpuReq) returns (UserLatestOrderSpuResp);
+    //获取用户下单数
+    rpc GetUserOrderCount (GetUserOrderCountReq) returns (GetUserOrderCountResp);
+}

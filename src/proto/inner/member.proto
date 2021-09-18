@@ -1,0 +1,721 @@
+syntax = "proto3";
+package inner.member;
+import "common/errcode.proto";
+import "common/trade.proto";
+import "common/enum.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.member";
+option java_outer_classname = "Member";
+
+
+message GetUserByUserIdReq {
+    int64 user_id = 1; // 用户id
+}
+
+message GetUserByUserIdResp {
+    common.errcode.ErrorCode ret = 1;
+    UserInnerPb user_pb = 2; // 用户信息
+}
+
+message GetUserByInviteCodeReq {
+    string invite_code = 1; // 用户邀请码
+}
+
+message GetUserByInviteCodeResp {
+    common.errcode.ErrorCode ret = 1;
+    UserInnerPb user_pb = 2; // 用户信息
+}
+
+message UserInnerPb {
+    //用户id
+    int64 user_id = 1;
+    //国家区号
+    int32 country_area_code = 2;
+    //昵称
+    string nick_name = 3;
+    //用户手机号
+    string mobile = 4;
+    //头像
+    string head_img = 5;
+    //邮箱
+    string email = 6;
+    //创建时间
+    string create_time = 7;
+    //国家编码
+    string country_code = 8;
+    //绑定上级的时间
+    string invite_time = 9;
+    //成为会员的时间
+    string member_time = 10;
+    //升级At的时间
+    string upgrade_at_time = 11;
+    //会员类型
+    int32 member_type = 12;
+    //该用户自己的邀请码
+    string invite_code = 13;
+    //账户余额
+    string commission_amount = 14;
+    //会员等级
+    int32 member_level = 15;
+    //上级邀请码
+    string parent_invite_code = 16;
+    //上级昵称
+    string parent_nick_name = 17;
+    //上级手机号
+    string parent_mobile = 18;
+    //上级邮箱
+    string parent_email = 19;
+    //上级ID
+    string parent_id = 20;
+    int64 inviter_id = 21; // 邀请人id
+    common.enum.Member.RegisterChannelEnum register_channel = 22; // 注册渠道
+    int32 register_channel_num = 23; // 注册渠道
+    // 品牌馆会员等级
+    int32 brand_level = 24;
+    int32 app_type = 25;
+    
+    // 关联的团长id（自提点用户id）
+    int64 mestore_user_id = 26;
+    //用户标识
+    int64 user_tag = 27;
+}
+
+
+message ListByUserIdsReq {
+    repeated int64 user_id = 1; // 用户idList
+}
+
+message ListByUserIdsResp {
+    common.errcode.ErrorCode ret = 1;
+    map<int64, UserInnerPb> user_pb = 2; // 用户信息map
+}
+
+message GetOrderPointsDetailReq {
+    int64 order_id = 1;
+    bool is_gift_order = 2;
+
+}
+message GetOrderPointsDetailResp {
+    message PointsItemPb {
+        int64 user_id = 1; //得钱用户ID
+        string nick_name = 2; //得钱用户昵称
+        string currency_code = 3; //货币码
+        int32 member_level = 4; //会员等级
+        int32 commission_type = 5; //返佣类型
+        int32 commission_status = 6; //返佣状态
+        string commission_amount = 7; //佣金
+        string base_currency_amount = 8; //美元）
+        int64 product_id = 9; //礼包商品id
+        int64 sku_id = 10; //普通商品skuId
+    }
+    common.errcode.ErrorCode ret = 1;
+    repeated PointsItemPb points_item = 2; //分佣列表，sku维度
+}
+
+message GetAddressInfoReq {
+    int64 user_id = 1;
+    int64 address_id = 2;
+}
+message GetAddressInfoResp {
+    common.errcode.ErrorCode ret = 1;
+    string receiver_name = 2; //收货人姓名
+    string receiver_phone = 3; //收货人手机号
+    AddressDetailInnerPb address_detail = 4; //收货人详细地址信息
+}
+
+message GetAddressInfoExtraReq{
+	int64 user_id = 1;
+    int64 address_id = 2;
+	//0：不需要，1：需要
+	int32 need_nearby_mestore=3;
+}
+message GetAddressInfoExtraResp {
+    common.errcode.ErrorCode ret = 1;
+    AddressDetailInnerPb address_detail = 2; //收货人详细地址信息
+	AddressDetailInnerPb nearby_mestore = 3;//最近的团长地址，可能为空
+}
+message UserIdReq {
+    uint64 user_id = 1;
+}
+
+message AddressDetailResp {
+    common.errcode.ErrorCode ret = 1;
+    AddressDetailInnerPb address_detail = 2;
+}
+
+//自提附加信息
+message SelfPickUpExtraInfo{
+	string mobile = 1;
+	string name = 2;
+}
+
+message AddressDetailInnerPb {
+    // address的id
+    uint64 address_id = 1;
+    // 用户id
+    uint64 user_id = 2;
+    // 收货人姓名
+    string name = 3;
+    // 电话
+    string mobile = 4;
+    // 详细收货地址
+    string address_detail = 5;
+    // 市对应的编码
+    string city_code = 6;
+    // 市名
+    string city_name = 7;
+    // 州对应的编码
+    string state_code = 8;
+    // 州名
+    string state_name = 9;
+    // 1是）
+    int32 is_default = 10;
+    // 1可用
+    int32 status = 11;
+    // 创建时间
+    string create_time = 12;
+    // 默认与创建时间一致
+    string update_time = 13;
+    // 州名
+    string postcode = 14;
+    // 国家区号，手机号相关
+    int32 country_area_code = 15;
+    // 国家名称
+    string country = 16;
+    // 国家编码
+    string country_code = 17;
+    //地址类型，0：用户自己地址，1：团长地址
+    int32 address_type = 18;
+    //团长用户id
+    int64 mestore_user_id = 19;
+    //自提附加信息，仅地址类型为团长地址时候，存在自提附加信息
+    SelfPickUpExtraInfo extraInfo = 20;
+}
+
+message GetOrderUserSnapReq {
+    int64 user_id = 1;
+    string sharer_code = 2; //分享人ID
+}
+message GetOrderUserSnapResp {
+    common.errcode.ErrorCode ret = 1;
+    string username = 2;
+    int32 level = 3;
+    int64 sharer_id = 4;
+    int32 sharer_level = 5; //分享人等级
+    int64 parent_id = 6; //上级ID
+    int32 parent_level = 7; //上级等级
+    string v_path = 8;
+    string country_code = 9;
+}
+
+
+message GetUserByMobileReq {
+    repeated string mobile = 1; //区号和手机号拼接
+}
+message GetUserByMobileResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated UserInnerPb user = 2;
+}
+
+
+message CountUserByConditionReq {
+    int64 superior_id = 1; // 上级用户id
+    int32 member_level = 2; // 等级
+    bool is_vip = 3; // Ps及以上等级（V3——V5）
+    string invite_time_start = 4; // 邀请开始时间
+    string invite_time_end = 5; // 邀请结束时间
+    common.enum.Member.RegisterChannelEnum register_channel = 6; // 注册渠道
+    string create_time_start = 7; // 创建开始时间
+    string create_time_end = 8; // 创建结束时间
+    int64 inviter_id = 9; // 邀请人用户id
+    int32 register_channel_num = 10; // 注册渠道
+}
+
+message CountUserByConditionResp {
+    common.errcode.ErrorCode ret = 1;
+    int32 count = 2; // 人数
+}
+
+
+message ListUserIdByConditionReq {
+    common.base.Pagination page = 1;
+    repeated int32 member_level = 2; // 等级
+    int64 min_user_id = 3; // 最小userId
+    int64 create_time_start = 4;
+    int64 create_time_end = 5;
+}
+
+message ListUserIdByConditionResp {
+    common.errcode.ErrorCode ret = 1;
+    int32 total = 2; // 总数
+    repeated int64 user_ids = 3; // 用户ids 逆序
+    message UserIdAndCountryCodePb {
+        int64 user_id = 1;
+        string country_code = 2;
+    }
+    repeated UserIdAndCountryCodePb user_id_and_country_code = 4; // 用户信息
+}
+
+message ListUserSimpleByConditionReq {
+    common.base.Pagination page = 1;
+    repeated int64 user_id = 2; // 用户ids
+    string country_code = 4; // 国家编码
+}
+
+message ListUserSimpleByConditionResp {
+    common.errcode.ErrorCode ret = 1;
+    message UserSimpleInnerPb {
+        int64 user_id = 1;
+        string nick_name = 2;
+    }
+    repeated UserSimpleInnerPb user_simple = 2; // 用户简单信息
+}
+
+message PsShopUserInfoReq {
+    int64 user_id = 1; // 用户ids
+}
+
+message PsShopUserInfoResp {
+    common.errcode.ErrorCode ret = 1;
+    string nick_name = 2; // 昵称
+    int32 member_level = 3; // 等级
+    string head_img = 4; // 头像
+    string invite_code = 5; // 邀请码
+    int32 team_ps_count = 6; // 团队ps数量
+}
+
+message UserAgreementCheckReq {
+    int64 user_id = 1;
+}
+
+message UserAgreementCheckResp {
+    common.errcode.ErrorCode ret = 1;
+    bool account_is_frozen = 2; // 用户积分账户被冻结
+}
+
+message GetRobotUserIdListReq {
+    common.base.Pagination page = 1;
+    string country_code = 2;
+}
+
+message GetRobotUserIdListResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated int64 user_ids = 2; // 用户ids
+    message RobotUserPb {
+        int64 user_id = 1;
+        string country_code = 2;
+        string nick_name = 3;
+        string head_img = 4;
+    }
+    repeated RobotUserPb robot_users = 3;
+}
+
+message VerifyMobileRealReq {
+    string mobile = 1;
+}
+
+message VerifyMobileRealResp {
+    common.errcode.ErrorCode ret = 1;
+    bool is_real = 2; // 是不是真实的（平台校验过验证码的）
+}
+
+message ListMobileByUserIdsReq {
+    repeated int64 user_id = 1; // 用户ids
+}
+
+message ListMobileByUserIdsResp {
+    common.errcode.ErrorCode ret = 1;
+    message UserMobileAndEmail {
+        string mobile = 1;
+        string email = 2;
+    }
+    map<int64, UserMobileAndEmail> user_mobile_pb = 2;
+}
+
+message CheckIsNewUserReq {
+    int64 user_id = 1;
+}
+
+message CheckIsNewUserResp {
+    common.errcode.ErrorCode ret = 1;
+    bool is_new_user = 2; // 是否是新人
+}
+
+message SumForecastAmountReq {
+    int64 user_id = 1;
+    int32 commission_status = 2;
+}
+
+message SumForecastAmountResp {
+    common.errcode.ErrorCode ret = 1;
+    string total_amount = 2; // 预期总收益
+    string frozen_amount = 3; // 冻结的佣金
+}
+
+message PublishTradeEventReq {
+    enum EventTypeEnum {
+        NUll = 0;
+        ORDER_CANCELED = 1; // 取消订单
+        ORDER_PAID = 2; // 支付成功
+        ORDER_REFUNDED = 3; // 退款成功
+        APPLY_AFTER_SALES = 4; // 申请售后
+        CANCEL_AFTER_SALES = 5; // 取消售后
+        ORDER_CONFIRM_RECEIVE = 6; // 确认收货
+    }
+    common.trade.TradeDTOPb trade_dto = 1;
+    EventTypeEnum event_type = 2;
+}
+
+message PublishTradeEventResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message ListSelfPurchasePointsReq {
+    int64 user_id = 1;
+    repeated int64 order_ids = 2;
+}
+
+message ListSelfPurchasePointsResp {
+    common.errcode.ErrorCode ret = 1;
+    map<int64, string> commission_amount = 2; // map<orderId,amount>
+}
+
+message RevokeOrderCommissionReq {
+    int64 order_id = 1;
+    //订单类型 0 普通 1礼包 2大礼包 3 课程订单
+    common.enum.OrderEnum.OrderType order_type = 2;
+    bool is_entire_order = 3; // 是否整单
+    message AfterSaleDetail {
+        int64 sku_id = 1;
+        int32 total_count = 2; // 购买数量
+        int32 refund_count = 3; // 退款数量
+        string refund_amount = 4; //分摊金额
+        string sku_code = 5; //商品skucode
+        string refund_id = 6; //售后id
+        //均摊运费
+        string freight=7;
+        //团长佣金率
+        string me_store_commission_rate=8;
+        string superior_commission =9; //上级  0.1=10%
+    }
+    repeated AfterSaleDetail after_sale_detail = 4;
+    string v_path = 5; // 支付成功时上级会员关系链,记录于订单会员快照表
+    string amount = 6; // 退款金额
+    string country_code = 7; // 国家
+    int64 user_id = 8; // 用户id
+    //团长手续费
+    string me_store_fee=9;
+    //团长用户id
+    int64 me_store_user_id=10;
+
+}
+
+message RevokeOrderCommissionResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message GetGiftRewardReq {
+    string country_code = 1;
+    int32 member_level = 2;
+    int32 product_type = 3;
+    int32 gift_id = 4;
+    int64 product_id = 5;
+}
+
+message GetGiftRewardResp {
+    common.errcode.ErrorCode ret = 1;
+    string commission_amount = 2;
+}
+
+message GiftCommissionConfigPb {
+    string country_code = 1;
+    string v3_reward = 2; // v3 礼包奖励 50RM
+    string team_v4_reward = 3; // v4 礼包团队 25RM
+    string gift2_reward_v4 = 4; // v4 礼包二次奖励 25RM
+    string team_v5_reward = 5; // v5 礼包团队 15RM
+    string gift2_reward_v5 = 6; // v5 礼包二次奖励 20RM
+    string bole_reward_v4 = 7; // v4 礼包伯乐 10RM
+    string bole_reward_v5 = 8; // v5 礼包伯乐 10RM
+}
+
+message SetGiftCommissionConfigReq {
+    int32 gift_id = 1;
+    string gift_name = 2; // 礼包中文名称 例：小礼包（马来）
+    GiftCommissionConfigPb gift_commission_config = 3;
+}
+
+message SetGiftCommissionConfigResp {
+    common.errcode.ErrorCode ret = 1;
+}
+
+message ListGiftCommissionConfigReq {
+    repeated int32 gift_id = 1;
+}
+
+message ListGiftCommissionConfigResp {
+    common.errcode.ErrorCode ret = 1;
+    map<int32, GiftCommissionConfigPb> commission_config_map = 2;
+}
+
+message DeviceTokenCheckReq {
+    string token = 1;
+}
+message DeviceTokenCheckResp {
+    common.errcode.ErrorCode ret = 1;
+    string device_id = 2;
+    bool valid = 3;
+}
+
+message GetMemberInfoReq {
+    int64 user_id = 1;
+}
+
+message GetMemberInfoResp {
+    common.errcode.ErrorCode ret = 1;
+    string country_code = 2;
+    int32 brand_level = 3;
+    int32 member_level = 4;
+}
+message AddAddressReq {
+    //收货人姓名
+    string name = 3;
+    //电话
+    string mobile = 4;
+    //详细收货地址
+    string address_detail = 5;
+    //市对应的编码
+    string city_code = 6;
+    //市名
+    string city_name = 7;
+    //州对应的编码
+    string state_code = 8;
+    //州名
+    string state_name = 9;
+    //邮政编码
+    string postcode = 10;
+    //国家区号
+    int32 country_area_code = 11;
+    // 国家简码
+    string country_code = 12;
+    // 是否默认 0 不是，1 是
+    int32 is_default = 13;
+}
+message AddAddressResp {
+    common.errcode.ErrorCode ret = 1;
+    bool success = 2;
+    //主键id
+    string address_id = 3;
+}
+
+message GetUserIntegralReq {
+    int64 user_id = 1;
+}
+message GetUserIntegralResp {
+    common.errcode.ErrorCode ret = 1;
+    string amount = 2; // 余额
+}
+message DeductIntegralReq {
+    int64 user_id = 1;
+    string amount = 2; // 扣减金额
+    int32 source_type = 3; // 扣减类型
+    string source_id = 4; // 关联ID 如订单号
+}
+message DeductIntegralResp {
+    common.errcode.ErrorCode ret = 1;
+    bool deduct_success = 2; // 扣减是否成功 否则显示余额不足
+}
+message GetOrderShareSnapReq{
+	// 商品ids
+	repeated int64 product_id=1;
+	// 买家用户id
+	int64 user_id=2;
+}
+message GetOrderShareSnapResp{
+	common.errcode.ErrorCode ret = 1;
+	
+	message ShareUserInfo{
+		string username = 1;
+		int32 level = 2;
+		int64 sharer_id = 3;
+		int32 sharer_level = 4; //分享人等级
+		int64 parent_id = 5; //上级ID
+		int32 parent_level = 6; //上级等级
+		string v_path = 7;
+		string country_code = 8;
+	}
+	
+	message ProductShareUser{
+		int64 product_id=1;
+		ShareUserInfo share_user_info=2;
+	}
+	
+	repeated ProductShareUser product_share_users=2;
+}
+
+service UserInnerService {
+    //根据userId获取用户信息
+    rpc GetUserByUserId (GetUserByUserIdReq) returns (GetUserByUserIdResp);
+    //根据inviteCode获取用户信息
+    rpc GetUserByInviteCode (GetUserByInviteCodeReq) returns (GetUserByInviteCodeResp);
+    //根据userIdList批量获取用户信息
+    rpc ListByUserIds (ListByUserIdsReq) returns (ListByUserIdsResp);
+    //查询订单用户快照
+    rpc GetOrderUserSnap (GetOrderUserSnapReq) returns (GetOrderUserSnapResp);
+	//查询商品分享者信息
+	rpc GetOrderShareSnap (GetOrderShareSnapReq) returns (GetOrderShareSnapResp); 
+    //根据用户手机号获取用户信息
+    rpc GetUserByMobile (GetUserByMobileReq) returns (GetUserByMobileResp);
+    //根据条件查询用户数
+    rpc CountUserByCondition (CountUserByConditionReq) returns (CountUserByConditionResp);
+    //根据条件查询用户Id集合 推送消息使用
+    rpc ListUserIdByCondition (ListUserIdByConditionReq) returns (ListUserIdByConditionResp);
+    //是否是新人
+    rpc CheckIsNewUser (CheckIsNewUserReq) returns (CheckIsNewUserResp);
+    //根据条件查询用户简单信息
+    rpc ListUserSimpleByCondition (ListUserSimpleByConditionReq) returns (ListUserSimpleByConditionResp);
+    // ps店铺首页用户数据
+    rpc PsShopUserInfo (PsShopUserInfoReq) returns (PsShopUserInfoResp);
+    // 查询用户升级15天后是否签协议（用户冻结积分账户）
+    rpc UserAgreementCheck (UserAgreementCheckReq) returns (UserAgreementCheckResp);
+    // 机器人，随机用户id
+    rpc GetRobotUserIdList (GetRobotUserIdListReq) returns (GetRobotUserIdListResp);
+    // 校验手机号是否真实性 （是否在平台校验过）
+    rpc VerifyMobileReal (VerifyMobileRealReq) returns (VerifyMobileRealResp);
+    // 批量查询用户手机号
+    rpc ListMobileByUserIds (ListMobileByUserIdsReq) returns (ListMobileByUserIdsResp);
+    // 绑定Facebook User ID
+    rpc BindFacebookUserId (BindFacebookUserIdReq) returns (BindFacebookUserIdResp);
+}
+message BindFacebookUserIdReq {
+    int64 user_id = 1; // 用户id
+    string fb_user_id = 2; // Facebook 用户ID
+    bool force_update = 3; // 当FB已存在时 是否强制更新
+}
+message BindFacebookUserIdResp {
+    common.errcode.ErrorCode ret = 1;
+    int32 bind_result = 2; // 绑定结果 1关系已存在 2绑定成功 3此用户已有其他FB绑定 4此FB已经绑定了其他用户
+}
+
+service AddressInnerService {
+    //根据addressId查询地址信息
+    rpc GetAddressInfo (GetAddressInfoReq) returns (GetAddressInfoResp);
+    // 获取用户默认地址
+    rpc GetUserDefaultAddress (UserIdReq) returns (AddressDetailResp);
+    // 添加用户地址
+    rpc AddAddress (AddAddressReq) returns (AddAddressResp);
+	
+	//根据addressId查询地址信息，可选择是否返回离当前地址最近的自提点地址
+	rpc GetAddressInfoExtra (GetAddressInfoExtraReq) returns (GetAddressInfoExtraResp);
+}
+
+service OrderCommissionInnerService {
+    // 查询订单积分详情(分佣详情)
+    rpc GetOrderPointsDetail (GetOrderPointsDetailReq) returns (GetOrderPointsDetailResp);
+    // 查询某个用户预期收益
+    rpc SumForecastAmount (SumForecastAmountReq) returns (SumForecastAmountResp);
+    // 发布交易事件 分佣，升级，售后取消分佣
+    rpc PublishTradeEvent (PublishTradeEventReq) returns (PublishTradeEventResp);
+    // 批量查询自购分佣积分
+    rpc ListSelfPurchasePoints (ListSelfPurchasePointsReq) returns (ListSelfPurchasePointsResp);
+    // 撤销分佣（订单退款）
+    rpc RevokeOrderCommission (RevokeOrderCommissionReq) returns (RevokeOrderCommissionResp);
+    // 礼包分佣计算
+    rpc GetGiftReward (GetGiftRewardReq) returns (GetGiftRewardResp);
+    // 礼包分佣配置
+    rpc SetGiftCommissionConfig (SetGiftCommissionConfigReq) returns (SetGiftCommissionConfigResp);
+    // 获取礼包分佣配置
+    rpc ListGiftCommissionConfig (ListGiftCommissionConfigReq) returns (ListGiftCommissionConfigResp);
+}
+
+service UserDeviceService {
+    // 指纹token校验
+    rpc CheckToken (DeviceTokenCheckReq) returns (DeviceTokenCheckResp);
+}
+
+service MemberQueryService {
+    // 查询用户等级信息（走缓存，提供给商品）
+    rpc GetMemberInfo (GetMemberInfoReq) returns (GetMemberInfoResp);
+}
+
+message RevokeOrderIntegralReq {
+    string order_id = 1; // 订单号
+}
+message RevokeOrderIntegralResp {
+    common.errcode.ErrorCode ret = 1;
+    bool deduct_success = 2; // 返还是否成功
+}
+
+service IntegralService {
+    // 查询用户购物积分余额
+    rpc GetUserIntegral (GetUserIntegralReq) returns (GetUserIntegralResp);
+
+    // 扣减用户购物积分
+    rpc DeductIntegral (DeductIntegralReq) returns (DeductIntegralResp);
+
+    // 订单关闭 退还购物积分
+    rpc RevokeOrderIntegral (RevokeOrderIntegralReq) returns (RevokeOrderIntegralResp);
+
+}
+
+
+message GetMestoreUserInfoResp{
+	common.errcode.ErrorCode ret = 1; //返回值
+	int64 address_id = 2;
+    /** 团长用户ID，来自t_mb_user的user_id */
+	int64 user_id =3;
+	/** 自提点名称 */
+	string name =4;
+	/** 联系方式 */
+	string mobile = 5;
+	/** 市对应的编码 */
+	string city_code = 6;
+	/** 市名 */
+	string city_name = 7;
+	/** 州对应的编码 */
+	string state_code = 8;
+	/** 州名 */
+	string state_name =9;
+	/** 邮政编码 */
+	string postcode = 10;
+	/** 国家区号 */
+	string country_area_code =11;
+	/** 国家编码 */
+	string country_code = 12;
+	/** 详细收货地址 */
+	string detail_address = 13;
+	/** 是否有店铺，1：有店铺，0：无店铺 */
+	int32 has_shop = 14;
+	/** 是否支持送货上门，1：支持，0：不支持 */
+	int32 support_home_delivery = 15;
+	/** 协议签署图片 */
+	string pict_url = 16;
+	/** 审核状态，1：待审核，2：通过审核，3：拒绝审核 */
+	int32 auditing_status = 17;
+	/** 经度 */
+	string longitude =18;
+	/** 纬度 */
+	string latitude = 19;
+	/** 其他扩展信息 */
+	string attribute =20;
+	/**是否被删除，1:删除，0：未删除*/
+	int32 is_delete = 21;
+	/** 联系人姓名 */
+    string real_name =22;
+	int64 create_time=23;//开通时间
+	int64 auditing_time=24;//审核通过时间
+}
+message GetMestoreUserInfoReq{
+   /**与user_id任选其一 */
+   int64 address_id = 20; 
+   /**团长用户ID，来自t_mb_user的user_id ，与address_id任选其一*/ 
+   int64 user_id = 1;
+}
+
+service MestoreUserInnerService {
+    /**
+     *  查询团长信息
+     */
+    rpc GetMestoreUserInfo (GetMestoreUserInfoReq) returns (GetMestoreUserInfoResp);
+}

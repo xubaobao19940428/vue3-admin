@@ -1,0 +1,163 @@
+syntax = "proto3";
+package inner.marketing;
+import "common/errcode.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.active";
+option java_outer_classname = "Active";
+
+message EachSkuActiveInfo {
+    int64 product_id = 1; //商品 id
+    int64 sku_id = 2; //商品sku id
+    int64 active_id = 3; //活动id
+    string active_price = 5; //活动价
+    string active_rate = 6;//佣金率
+    int64 start_time = 7; //开始时间
+    int64 end_time = 8; //结束时间
+    common.enum.MarketingEnum.ActiveStatus active_status = 10; //活动状态
+    common.enum.MarketingEnum.ActiveType active_type = 11; //活动类型
+    string active_bc_url = 12; //活动价格底图跳转地址
+    string active_icon = 13; // 活动图标
+    int32 zero_sale_limit = 16; //零元购限购数量，和活动ID绑定关系，本数量只对当前活动有效
+}
+
+message ActiveSpuInfo{
+    int64 product_id = 1; //商品 id
+    int64 activity_id = 3; //活动id
+    int64 start_time = 7; //开始时间
+    int64 end_time = 8; //结束时间
+    string active_icon = 9; // 活动图标
+    common.enum.MarketingEnum.ActiveStatus active_status = 10; //活动状态
+    common.enum.MarketingEnum.ActiveType active_type = 11; //活动类型
+    string active_base_cover = 12; //活动价格底图
+    string active_bc_url = 15; //活动价格底图跳转地址
+    int32 zero_sale_limit = 16; //零元购限购数量，和活动ID绑定关系，本数量只对当前活动有效
+    repeated ActiveSkuInfo active_sku_info = 17;
+    int32 active_base_cover_type = 18;//价格底图类型 0->不含价格,1->含价格
+}
+
+message ActiveSkuInfo {
+    int64 product_id = 1; //商品 id
+    int64 sku_id = 2; //商品sku id
+    string active_price = 4; //活动价
+    int64 active_id = 5; //活动ID
+    string activity_rate = 6; //活动佣金率
+}
+
+message Sku {
+    int64 product_id = 1;
+    int64 sku_id = 2;
+    int64 activity_id = 3;
+}
+
+message GetActiveProductListReq{
+    repeated int64 spu_id = 1;
+}
+message GetActiveProductListResp{
+    common.errcode.ErrorCode ret = 1;
+    repeated ActiveSpuInfo active_spuInfo = 2;//活动商品信息
+    GiveActiveInfo giveActiveInfo = 3;//买赠活动信息
+}
+
+message GetActiveSkuInfoBySkuIdsReq{
+    repeated Sku sku = 1;
+}
+
+message GiveActiveInfo{
+    int32 giveId = 1;
+    string label = 2;
+}
+
+message GetActiveSkuInfoBySkuIdsResp{
+    common.errcode.ErrorCode ret = 1;
+    //购物车每个SKU信息
+    repeated EachSkuActiveInfo each_sku_active_info = 2;
+    map<int64,GiveActiveInfo> giveInfo = 3;
+}
+
+message GiveConfirmInfo{
+    //买赠活动ID
+    int32 giveId = 1;
+    //当前giveId中的sku数量
+    int32 totalNum= 2;
+    //当前giveId中的总价
+    string totalPrice = 3;
+    //赠品skuId
+    int64 giveSkuId = 4;
+}
+
+message GetSkuInfoBySkuIdAndActiveIdReq{
+    //必须包含活动ID
+    repeated Sku sku = 1;
+
+    //买赠校验需要参数
+    repeated GiveConfirmInfo giveConfirmInfo =2;
+}
+message GetSkuInfoBySkuIdAndActiveIdResp{
+    common.errcode.ErrorCode ret = 1;
+    //确认订单页每个SKU信息
+    repeated EachSkuActiveInfo each_sku_active_info = 2;
+}
+
+message GetActiveSpuReq{
+    repeated int64 spu_id = 1;
+    string countryCode = 2;
+    int64 user_id = 3;
+}
+message GetActiveSpuResp{
+    common.errcode.ErrorCode ret = 1;
+    message GetActiveSpuInfo{
+        int64 product_id = 1; //商品 id
+        string active_price = 2; //活动价
+        bool new_user_type = 3; //是否是新用户
+        int64 active_id = 4; //活动id
+        string active_rate = 5; //活动佣金率
+    }
+    repeated GetActiveSpuInfo active_spu_info = 2;
+}
+
+message GetPageCountryReq{
+    string serialId = 1;//页面搭建ID
+}
+message GetPageCountryResp{
+    common.errcode.ErrorCode ret = 1;
+    string countryCode = 2;
+}
+
+service ActiveService {
+
+    //查询商品列表活动信息和商品详情页活动信息
+    rpc GetActiveProductList (GetActiveProductListReq) returns (GetActiveProductListResp);
+
+    //购物车获取商品信息
+    rpc GetActiveSkuInfoBySkuIds (GetActiveSkuInfoBySkuIdsReq) returns (GetActiveSkuInfoBySkuIdsResp);
+
+    //确认订单页获取商品信息
+    rpc GetSkuInfoBySkuIdAndActiveId (GetSkuInfoBySkuIdAndActiveIdReq) returns (GetSkuInfoBySkuIdAndActiveIdResp);
+
+    //获取SPU活动信息
+    rpc GetActiveSpu (GetActiveSpuReq) returns (GetActiveSpuResp);
+
+    //获取页面搭建链接国家
+    rpc GetPageCountry (GetPageCountryReq) returns (GetPageCountryResp);
+
+}
+
+message GiveCheckReq{
+
+    repeated GiveConfirmInfo giveConfirmInfo = 1;
+}
+
+message GiveResp{
+    repeated int64 skuId = 1;
+
+    //返回信息
+    common.errcode.ErrorCode ret = 2;
+}
+
+service GiveInnerService{
+
+    //买赠商品订单退款，校验是否需要退赠品，返回不需要退款的skuId
+    rpc orderRefundGiveCheck( GiveCheckReq ) returns (GiveResp);
+}

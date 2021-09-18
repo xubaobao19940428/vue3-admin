@@ -1,0 +1,30 @@
+syntax = "proto3";
+package boss.market;
+
+import "common/errcode.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.market";
+option java_outer_classname = "MarketingShop";
+
+message ShopInfoInnerResp {
+    common.errcode.ErrorCode ret = 1;
+    string headimg = 2; //头像
+    string shop_name = 3; //店铺名称
+    string fb = 4; //facebook小组
+    string whtsap = 5; //whtsap
+    string line = 6; //lin
+    string webchat = 7; //webchat
+    int32 visitor_num = 8; //访客
+    int64 shop_id = 9; //店铺id
+}
+message ShopInfoInnerReq {
+    int64 user_id = 1; //用户id
+    string country_code = 2; //国家码
+}
+//店铺
+service ShopInnerService {
+    //店铺详情
+    rpc ShopInfo (ShopInfoInnerReq) returns (ShopInfoInnerResp);
+}

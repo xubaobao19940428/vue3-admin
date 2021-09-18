@@ -1,0 +1,33 @@
+//DESC APP littlec-marketing
+syntax = "proto3";
+package boss.fake;
+
+import "common/base.proto";
+import "common/errcode.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.boss.fake";
+option java_outer_classname = "Fake";
+
+message FakeUserReq {
+    int32 count = 1;
+    int32 type = 2; //1代表拆成 2代表拆开
+}
+
+message FakeUser {
+    string nick = 1; //用户名
+    string thumbnail_link = 2;
+    string time = 3; //几分钟前开启的红包
+    string value = 4; //红包金额
+}
+
+message FakeUserResp {
+    repeated FakeUser users = 1;
+    common.base.ErrorMessage ret = 2;
+    int32 count = 3;// 开启红包总数
+}
+
+service FakeUserService {
+    //生成固定数量的fake user
+    rpc GenerateFakeUser (FakeUserReq) returns (FakeUserResp);
+}

@@ -1,0 +1,77 @@
+syntax = "proto3";
+package boss.i18n;
+
+import "common/base.proto";
+import "common/errcode.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.i18n";
+option java_outer_classname = "I18n";
+
+//功能放在 i18n 服务中, 需请求 i18n 服务
+
+message OneKeyTranslationUnit{
+    string from_language_code = 1; //来源语种语言简码
+    string to_language_code = 2;  //目标语种语言简码
+    string origin_content= 3; // 待翻译内容
+    string translation = 4;  // 翻译结果
+}
+
+message GetOneKeyTranslationReq{
+    repeated OneKeyTranslationUnit one_key_translation_unit = 1;//待翻译列表
+}
+
+message GetOneKeyTranslationResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated OneKeyTranslationUnit one_key_translation_unit = 2;//待翻译结果
+}
+
+// message end i18nTranslationService
+service I18nTranslationService{
+    //获取一键翻译结果
+    rpc GetOneKeyTranslation(GetOneKeyTranslationReq) returns (GetOneKeyTranslationResp);
+}
+
+
+message GetVariableLanguageReq{
+    repeated string variable_code = 1;
+    string languageCode = 2;
+    string platform = 3;
+}
+
+message GetVariableLanguageResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    message VariableLanguageUnit{
+        string variable_code = 1;
+        string translation = 2;
+    }
+    repeated VariableLanguageUnit variable_language = 2;
+}
+
+
+service I18nVariableService{
+    //根据变量名获取语言配置项
+    rpc GetVariableLanguage (GetVariableLanguageReq) returns (GetVariableLanguageResp);
+
+    // 根据国家简码获取国家信息
+    rpc GetCountryList (GetCountryListReq) returns (GetCountryListResp);
+}
+
+message GetCountryListReq{
+    int32 page_size = 1; //每页大小
+    int32 page_num = 2; //第几页
+}
+
+message GetCountryListResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated CountryInfo country_info = 2;//国家信息列表, 包含语言
+}
+message CountryInfo{
+    string code = 1; //国家编码
+    string short_code = 2; //简码
+    string name_cn = 3; //国家中文名
+    string name_en = 4; //国家英文名
+    string name_local = 5; //国家当地名
+}
+
+

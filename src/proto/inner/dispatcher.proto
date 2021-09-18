@@ -1,0 +1,76 @@
+// 供应链 - 库存
+syntax = "proto3";
+package inner.dispatcher;
+
+import "common/errcode.proto";
+import "common/enum.proto";
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.dispatcher";
+option java_outer_classname = "Dispatcher";
+
+message ProductItem {
+    int64 product_id = 1;
+    int64 sku_id = 2;
+    string sku_code = 3;
+    int32 num = 4; //购买件数
+    int64 activity_id = 5; //活动ID
+    string snap_code = 6; //快照码
+    string product_name = 7; //商品名称
+    int64 supplier_id = 8;//供应商ID
+    int64 advince_id = 9; // 预售ID
+    string name_cn=10;//商品中文名
+    string name_en=11;//商品英文名
+    string currency=12;//币种
+}
+
+message SplitOrderRequest {
+    int64 order_id = 1;
+    string country_code = 2;
+    string language = 3;
+    string receiver_name = 4;
+    repeated ProductItem product = 5;
+    int32 order_type = 6;
+    int64 me_store_user_id = 7;//团长id
+    common.enum.OrderEnum.DeliveryType delivery_type = 8;//是否自提
+    int64 user_id = 9;//用户Id
+}
+
+message SplitOrderResponse {
+    message SuborderItem {
+        int64 suborder_id = 1;
+        string warehouse_no = 2; //仓库ID
+        string warehouse_name = 3;
+        string split_type = 4; //拆单类型
+        repeated ProductItem product = 5;
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated SuborderItem suborder = 2;
+    string msg = 3;
+    uint64 short_product_id = 4;//缺货的商品ID
+}
+
+// 取消订单释放库存
+message CancelOrderReleaseQtyReq {
+    string order_no = 1;
+    string country_code = 2;
+    string remark = 3; //取消的原因
+    string receiver_name = 4; // 收货人姓名
+    repeated ActivityItem activityItem = 5; // 订单纬度的活动商品
+    message ActivityItem {
+        int64 activity_id = 1; // 活动ID
+        string sku_code = 2;
+        int32 count = 3; //购买件数
+        int64 advance_id = 4; // 预售ID
+    }
+}
+message CancelOrderReleaseQtyResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+}
+
+// 调度中心内部接口
+service DispatcherService {
+    //拆单
+    rpc SplitOrder (SplitOrderRequest) returns (SplitOrderResponse);
+    // 取消订单释放库存
+    rpc CancelOrderReleaseQty (CancelOrderReleaseQtyReq) returns (CancelOrderReleaseQtyResp);
+}

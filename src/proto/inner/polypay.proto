@@ -1,0 +1,381 @@
+syntax = "proto3";
+package inner.polypay;
+
+import "common/errcode.proto";
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.polypay";
+option java_outer_classname = "Polypay";
+
+message UserIdReq {
+  string user_id = 1;
+}
+
+message BooleanResp {
+  common.errcode.ErrorCode ret = 1;
+  bool success = 2;
+}
+
+message MolpayCallbackReq {
+  string skey = 1;
+  string tranID = 2;
+  string domain = 3;
+  string status = 4;
+  string amount = 5;
+  string currency = 6;
+  string paydate = 7;
+  string orderid = 8;
+  string appcode = 9;
+  string error_code = 10;
+  string error_desc = 11;
+  string channel = 12;
+  string extraP = 13;
+  string nbcb = 14;
+  string treq = 15;
+}
+
+
+message MolpayCallbackResp {
+  common.errcode.ErrorCode ret = 1;
+  string message = 2;
+}
+
+message CreditPayCheck3DReq {
+  string pa_res = 1;
+  string secure_id = 2;
+}
+
+message CreditPayCheck3DResp {
+  common.errcode.ErrorCode ret = 1;
+  string url = 2;
+}
+
+message CreditPayNotificationReq {
+  string transaction_id = 1;
+}
+
+message AddMoneyAndRecordDetailReq {
+  int64 user_id = 1;
+  //金额（带小数点）
+  string amount = 2;
+  // income 收入, expense 支出
+  string detail_type = 3;
+  // 来源类型
+  int32 source_type = 4;
+  // 关联来源id 订单号或者提现id
+  string source_id = 5;
+  // 备注
+  string memo = 6;
+  // countryCode
+  string countryCode = 7;
+}
+
+
+message SumAmountByTimeReq {
+  int64 user_id = 1;
+  // income 收入, expense 支出
+  string detail_type = 2;
+  // 开始时间
+  string start_time = 3;
+  // 结束时间
+  string end_time = 4;
+  // 来源类型
+  repeated int32 source_type=5;
+}
+
+message SumAmountByTimeResp {
+  common.errcode.ErrorCode ret = 1;
+  string total_amount = 2;
+}
+
+
+message CreateUserAccountReq {
+  int64 user_id = 1;
+  // 国家编码
+  string country_code = 2;
+}
+
+message CreateUserAccountResp {
+  common.errcode.ErrorCode ret = 1;
+}
+
+message UpdateUserAccountCountryReq {
+  int64 user_id = 1;
+  // 原国家编码
+  string org_country_code = 2;
+  // 新国家编码
+  string new_country_code = 3;
+}
+
+message UpdateUserAccountCountryResp {
+  common.errcode.ErrorCode ret = 1;
+}
+
+message PsShopMyCommissionReq {
+  int64 user_id = 1;
+}
+
+message PsShopMyCommissionResp {
+  common.errcode.ErrorCode ret = 1;
+  string country_code = 2; // 国家码>对应该国家的币种
+  string total_commission = 3; // 本人分佣总收益
+  string week_Commission = 4; // 本人周收益
+  string week_commission_average = 5; // ps平均周收益
+}
+
+message StatShakePointsReq {
+  int64 user_id = 1;
+}
+
+message StatShakePointsResp {
+  common.errcode.ErrorCode ret = 1;
+  string shake_points = 2; // 摇一摇获得的积分
+}
+
+message QueryPayStatusReq {
+  repeated int64 order_no = 1;
+}
+message QueryPayStatusResp {
+  message OrderPayStatus {
+    int64 order_no = 1;
+    common.enum.PolyPayEnum.PayStatus pay_status = 2;
+  }
+  common.errcode.ErrorCode ret = 1;
+  repeated OrderPayStatus order_pay_status = 2;
+}
+
+message QueryPayRecordReq {
+  repeated int64 order_no = 1;
+}
+message QueryPayRecordResp {
+  message PayRecord {
+    int64 order_no = 1;
+    string paied_amount = 2; //实付金额
+    string currency = 3; //货币
+    string supplier = 4; //支付商户
+    common.enum.PolyPayEnum.PayWay pay_way = 5;
+    string trans_code = 6;
+    string country_code = 7;
+    string currency_unit = 8;
+    string payment_voucher_picture = 9;//支付凭证
+    common.enum.PolyPayEnum.PayStatus pay_status = 10;//支付状态
+    string need_amount = 11; //应付金额
+    int64 user_id = 12;//用户Id
+  }
+  common.errcode.ErrorCode ret = 1;
+  repeated PayRecord pay_record = 2;
+}
+
+message PayResultPb {
+  // 订单编号
+  string order_no = 1;
+  // 支付金额
+  string amount = 2;
+  // 支付状态 0:成功 1:失败 2:支付中 3:待支付
+  int32 pay_status = 3;
+}
+
+message QueryBankInfoReq {
+  int64 bank_id = 1;
+}
+message QueryBankInfoResp {
+  common.errcode.ErrorCode ret = 1;
+  string bank_name = 2;
+  string card_no = 3;
+  string cardholder = 4;
+}
+
+message AddMoneyAndRecordDetailResp {
+  common.errcode.ErrorCode ret = 1;
+}
+
+message CreditPayNotificationResp {
+  common.errcode.ErrorCode ret = 1;
+}
+
+
+message GetUserAccountReq {
+  int64 user_id = 1;
+}
+
+message GetUserAccountResp {
+  common.errcode.ErrorCode ret = 1;
+  int64 user_id = 2;
+  string amount = 3;
+  string country_code = 4;
+}
+
+message QueryPayInfoReq {
+  //开始时间
+  uint64 startTime = 1;
+  //结束时间
+  uint64 endTime = 2;
+  //支付状态
+  repeated uint32 pay_status = 3;
+  //业务编号 其他业务关联编号
+  repeated string bns_order_no = 4;
+  //分页信息
+  common.base.Pagination pageInfo = 5;
+}
+
+message QueryPayInfoResp {
+  common.errcode.ErrorCode ret = 1;
+  //支付信息
+  repeated  PayInfo payInfos = 2;
+  uint64 total = 3;
+  //分页信息
+  common.base.Pagination pageInfo = 4;
+}
+
+message PayInfo {
+  //业务编号 其他业务关联编号
+  string bns_order_no = 1;
+  //支付编号
+  string trans_order_no = 2;
+  //支付方式
+  uint32 pay_way = 3;
+  //支付状态
+  uint32 pay_status = 4;
+  //国家编号
+  string country_code = 5;
+  //关联编号
+  string txn_id = 6;
+  //创建时间
+  uint64 create_time = 8;
+  //更新时间
+  uint64 update_time = 9;
+}
+
+message MallPointsPayReq {
+  //订单号
+  string bns_order_no = 1;
+  //业务类型 ORDER:订单 GROUP_ORDER:拼团单 see common/enum.proto PolyPayEnum.BnsTypeEnum
+  string bns_type = 2;
+  //用户ID
+  uint64 user_id = 3;
+  //支付金额
+  string amount = 4;
+  //国家码
+  string country_code = 5;
+}
+
+message MallPointsPayResp {
+  common.errcode.ErrorCode ret = 1;
+  // 信用卡支付结果
+  PayResultPb pay_result_pb = 2;
+}
+
+message PointPayRollBackReq {
+  //业务编号 其他业务关联编号
+  string bns_order_no = 1;
+  //支付编号
+  string trans_order_no = 2;
+}
+
+message PointPayRollBackResp {
+  common.errcode.ErrorCode ret = 1;
+}
+
+message OmiseWebHookReq {
+  //Omise charge ID
+  string charge_id = 1;
+}
+
+message OmiseWebHookResp {
+  common.errcode.ErrorCode ret = 1;
+}
+message GetServiceChargeReq {
+  string order_no = 1;//订单号
+  common.enum.PolyPayEnum.PayWay pay_way = 2;
+}
+
+message GetServiceChargeResp {
+  common.errcode.ErrorCode ret = 1;
+  string service_charge = 2;//服务费
+}
+
+message GenCodPayOrderReq{
+  string order_no = 1;//订单号
+  string pay_amount = 2;
+  common.enum.PolyPayEnum.PayWay pay_way = 3;
+  string remark = 4;
+}
+message GenCodPayOrderResp{
+  common.errcode.ErrorCode ret = 1;
+}
+message AlipayCallbackReq{
+  string body = 1;
+}
+message AlipayCallbackResp{
+  common.errcode.ErrorCode ret = 1;
+}
+
+service PayInnerService {
+  // Molpay支付回调
+  rpc MolpayCallback (MolpayCallbackReq) returns (MolpayCallbackResp);
+  // 信用卡3D校验回调
+  rpc CreditPayCheck3D (CreditPayCheck3DReq) returns (CreditPayCheck3DResp);
+  // 信用卡第三方回调通知
+  rpc CreditPayNotification (CreditPayNotificationReq) returns (CreditPayNotificationResp);
+  // 信用卡第三方回调通知
+  rpc CreatePayInfo (CreditPayNotificationReq) returns (CreditPayNotificationResp);
+  //查询支付状态
+  rpc QueryPayStatus (QueryPayStatusReq) returns (QueryPayStatusResp);
+  //查询支付记录
+  rpc QueryPayRecord (QueryPayRecordReq) returns (QueryPayRecordResp);
+  //查询银行卡信息
+  rpc QueryBankInfo (QueryBankInfoReq) returns (QueryBankInfoResp);
+  //查询支付信息
+  rpc QueryPayInfo (QueryPayInfoReq) returns (QueryPayInfoResp);
+  // 积分支付
+  rpc MallPointsPay (MallPointsPayReq) returns (MallPointsPayResp);
+  // 积分支付回滚
+  rpc PointPayRollBack(PointPayRollBackReq) returns(PointPayRollBackResp);
+  // Omise支付WebHook
+  rpc OmiseWebHook (OmiseWebHookReq) returns (OmiseWebHookResp);
+
+  //生成支付单信息
+  rpc genSuccCodPayOrder(GenCodPayOrderReq) returns (GenCodPayOrderResp);
+
+  //生成失败的支付单信息
+  rpc genFailCodPayOrder(GenCodPayOrderReq) returns (GenCodPayOrderResp);
+
+  //根据订单号获取对应的支付手续费
+  rpc GetServiceCharge (GetServiceChargeReq) returns (GetServiceChargeResp);
+  //支付宝回调
+  rpc AlipayCallback (AlipayCallbackReq) returns (AlipayCallbackResp);
+}
+
+message MeStoreIncomeReq{
+   int64 me_store_user_id=1;
+   string country_code=2;
+}
+
+message MeStoreIncomeResp{
+  common.errcode.ErrorCode ret = 1;
+  string income_amount=2;
+}
+
+service AccountInnerService {
+  //团长总收入
+  rpc MeStoreIncome (MeStoreIncomeReq) returns (MeStoreIncomeResp);
+  // 积分加减
+  rpc AddMoneyAndRecordDetail (AddMoneyAndRecordDetailReq) returns (AddMoneyAndRecordDetailResp);
+  // 统计某个时间段内的收入和支出
+  rpc SumAmountByTime (SumAmountByTimeReq) returns (SumAmountByTimeResp);
+  // 创建积分账户
+  rpc CreateUserAccount (CreateUserAccountReq) returns (CreateUserAccountResp);
+  // 查询积分账户
+  rpc GetUserAccount (GetUserAccountReq) returns (GetUserAccountResp);
+  // 修改积分账户国家,仅供会员模块老用户马来转其他国家使用
+  rpc UpdateUserAccountCountry (UpdateUserAccountCountryReq) returns (UpdateUserAccountCountryResp);
+  // ps店铺我的生意分佣积分收入数据
+  rpc PsShopMyCommission (PsShopMyCommissionReq) returns (PsShopMyCommissionResp);
+  // 统计摇一摇积分
+  rpc StatShakePoints (StatShakePointsReq) returns (StatShakePointsResp);
+}
+
+
+

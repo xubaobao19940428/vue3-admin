@@ -1,0 +1,33 @@
+syntax = "proto3";
+package open.erp;
+import "common/errcode.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.open.erp";
+option java_outer_classname = "Erp";
+
+
+message OutOrderCallbackSkuPB{
+    string sku_code = 1; // 出库的sku
+    uint32 count = 2; // 实际数量
+    uint32 expected_count = 3; // 预期数量
+}
+
+message OutOrderCallbackReq {
+    string outNo = 1; // 出库单号
+    string company_code = 2; // 仓库公司代码 JYD|JNT
+    string logi_code = 3; // 配送单号
+    string logi_company = 4; // 配送公司
+    repeated OutOrderCallbackSkuPB sku = 5;// 出库的sku
+    string content = 6; // 请求的原始参数
+}
+
+message OutOrderCallbackResp{
+    common.errcode.ErrorCode code = 1;
+    string message = 2;
+}
+
+// 出库单出库回调
+service OutOrderCallbackService{
+    rpc outOrderCallback(OutOrderCallbackReq) returns (OutOrderCallbackResp);
+}

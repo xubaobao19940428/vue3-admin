@@ -1,0 +1,139 @@
+syntax = "proto3";
+package inner.freight;
+
+import "common/errcode.proto";
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.freight";
+option java_outer_classname = "Freight";
+
+//功能放在 product 服务中, 需请求product 服务
+
+message FreightTemplateUnit {
+    string template_id = 1; //运费模板id
+    string template_name = 2; //运费模板名称
+    uint32 template_type = 3; //模版类型(1按重计费，2按件计费)
+    string first_amount = 4; //首件/首重
+    string first_price = 5; // 首件/首重的价格(单位是分)
+    string continue_amount = 6; //续件/续重
+    string continue_price = 7; // 续件/续重的价格(单位是分)
+    uint32 status = 8; //运费模板状态 0 废弃, 1 可用
+    string country_code = 9; // 国家码
+    string create_time = 10; //创建时间
+    string update_time = 11; //更新时间
+    repeated FreightTemplateItemUnit item = 12; //运费模板条目
+}
+
+//物流条目
+message FreightTemplateItemUnit {
+    string item_id = 1; //条目id
+    string template_id = 2; //运费模板id
+    string state_code = 3; //州对应编码
+    string state_name = 4; //州名
+    uint32 item_type = 5; //运费模板条目类型 (1可配送，2不可配送)
+    string first_amount = 6; //首件/首重 (单位:件/kg)
+    string first_price = 7; // 首件/首重的价格(单位是分)
+    string continue_amount = 8; //续件/续重 (单位:件/kg)
+    string continue_price = 9; // 续件/续重的价格(单位是分)
+    string create_time = 10; //创建时间
+    string update_time = 11; //更新时间
+}
+
+//获取运费模板信息
+message FreightTemplateListReq {
+    repeated uint64 freight_id = 1; //运费模板id
+    string country_code = 2; //国家码
+}
+
+message FreightTemplateListResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated FreightTemplateUnit freight_template_unit = 2; //返回结果
+}
+
+message PostageProduct{
+    uint64 product_id = 1; //商品 spu id
+    uint64 sku_id = 2; //商品 sku id
+    uint64 freight_id = 3; //运费模板id, 如果有的话填写
+    uint32 count = 4; //商品数量
+    uint32 weight = 5; //单件重量
+}
+
+message CalculateFreightFeeReq{
+    repeated PostageProduct postage_product = 1; //需要计算运费的商品基础信息
+    string country_code = 2; //国家码
+    uint64 user_id = 3; //用户id
+    uint64 address_id = 4; //地址id
+    string language_code = 5; //语言简码
+    common.enum.FreightEnum.ShippingType shipping_type = 6; //选用的物流方式 1 普通物流 2 经济物流
+    string stateCode = 7; //地址州code, 若使用此字段, 优先使用stateCode匹配
+    common.enum.OrderEnum.DeliveryType delivery_type=8;//是否自提
+    string totalAmount=9;//商品总额
+}
+
+message CalculateFreightFeeResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    string postage_fee = 2;//最终运费
+    repeated uint64 not_support_area_product_id = 3; //该地区不支持配送的商品id
+}
+
+
+//获取所有运费模板
+message FreightTemplateListGetReq {
+    repeated string template_id = 1; //运费模板id
+}
+
+message FreightTemplateListGetResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated FreightTemplateUnit freight_template_unit = 2; //返回结果
+}
+
+message FreightPageReq{
+    common.base.Pagination page = 1; // 分页结构体
+    repeated uint64 freight_id = 2; // 品牌 ID
+    string freight_name = 3; // 品牌全称
+}
+
+message FreightPageResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated FreightTemplateUnit freight_template_unit = 2;
+}
+
+message CalculateFreightFeeForPromotionReq {
+    message PostageProductForPromotion{
+        uint64 product_id = 1; //商品 spu id
+        uint64 sku_id = 2; //商品 sku id
+        uint32 count = 4; //商品数量
+    }
+    repeated PostageProductForPromotion postage_product = 1; //需要计算运费的商品基础信息
+    string country_code = 2; //国家码
+    uint64 user_id = 3; //用户id
+    uint64 address_id = 4; //地址id
+    string language_code = 5; //语言简码
+    common.enum.FreightEnum.ShippingType shipping_type = 6; //选用的物流方式 1 普通物流 2 经济物流
+    string stateCode = 7; //地址州code, 若使用此字段, 优先使用stateCode匹配
+}
+
+message CalculateFreightFeeForPromotionResp {
+    common.errcode.ErrorCode ret = 1; //返回值
+    string postage_fee = 2;//最终运费
+}
+
+service FreightTemplateService {
+    //获取商品对应的运费模板信息
+    rpc FreightTemplateList (FreightTemplateListReq) returns (FreightTemplateListResp);
+
+    //计算用户的一批商品运费
+    rpc CalculateFreightFee (CalculateFreightFeeReq) returns (CalculateFreightFeeResp);
+
+    //获取一批运费模板详情
+    rpc FreightTemplateGet (FreightTemplateListGetReq) returns (FreightTemplateListGetResp);
+
+    //运费模板分页接口
+    rpc FreightPage (FreightPageReq) returns (FreightPageResp);
+
+    // 促销计算商品运费
+//    rpc CalculateFreightFeeForPromotion (CalculateFreightFeeForPromotionReq) returns (CalculateFreightFeeForPromotionResp);
+
+}

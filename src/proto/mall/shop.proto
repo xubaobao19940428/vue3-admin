@@ -1,0 +1,170 @@
+//DESC APP littlec-marketing
+syntax = "proto3";
+package mall.market;
+
+import "common/base.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.mall.market";
+option java_outer_classname = "MarketingShop";
+
+message ShopReqEmpty {
+
+}
+message ShopInfoResp {
+    common.base.ErrorMessage ret = 1;
+    string headimg = 2; //头像
+    string shop_name = 3; //店铺名称
+    string fb = 4; //facebook小组
+    string whtsap = 5; //whtsap
+    string line = 6; //lin
+    string webchat = 7; //webchat
+    int32 visitor_num = 8; //访客
+    int32 buyer_num = 9; //已购
+    int32 ps_num = 10; //ps数量
+    string shop_id = 11; //店铺id
+}
+message ShopProductsReq {
+    string active_id = 1; // 活动ID
+    common.base.Pagination page = 2;
+}
+message ShopProductList {
+    string product_id = 1; //商品ID
+    string product_name = 2; //商品名称
+    string price = 3; // 产品价格
+    string product_label = 4; // 商品标签
+    string product_cover = 5; //商品图片
+    string commission = 6; // 分享返利
+    int32 buyer_num = 7; //已购人数
+    string active_id = 8; // 活动ID
+    string price_vip = 9; //vip价格
+}
+message ShopProductListResp {
+    common.base.ErrorMessage ret = 1;
+    repeated ShopProductList shop_product_list = 2; //活动商品信息
+    int32 total = 3; //总数
+    bool is_last_page = 4;
+}
+message AddVisitorReq {
+    string shop_id = 1; //店铺id
+}
+message ShopSuccessResp {
+    common.base.ErrorMessage ret = 1;
+}
+message MyShopResp {
+    string week_commission = 1; //本周佣金
+    string average_commission = 2; //平均佣金
+    int32 visitor_num = 3; //访客
+    int32 buyer_num = 4; //已购
+    int32 sale_num = 5; //已售件
+    string total_commission = 6; //总佣金
+    common.base.ErrorMessage ret = 7;
+    string currency_symbol = 8; //符号
+}
+//message MyGradeResp{
+//    int32 ranking = 1;//排名
+//    string loser_num = 2; //被xx%ps打败
+//    int32 ps_num = 3; //ps数量
+//    int32 shopper_num = 4;//shopper数量
+//    int32 upgrade_ps_num = 5;//还差xxps升级am
+//}
+message MyCustomerResp {
+    message Users {
+        string headimg = 1; //头像
+        string nick_name = 2; //昵称
+        int32 buyer_num = 3; //购买次数
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated Users users = 2; //用户列表
+}
+message MyTopProductListResp {
+    message ShopItems {
+        string product_cover = 1; //商品图片
+        int32 buyer_num = 2; //已售件数
+        string product_name = 3; //商品名称
+        string product_id = 4; //商品id
+    }
+    repeated ShopItems shop_items = 1; //商品列表
+    common.base.ErrorMessage ret = 2;
+}
+message ShopEditReq {
+    string headimg = 1; //头像
+    string shop_name = 2; //店铺名称
+    //    string fb = 3; //facebook小组
+    string whtsap = 4; //whtsap
+    string line = 5; //lin
+    string webchat = 6; //微信号
+}
+message ShopInfoReq {
+    string shop_id = 1;
+}
+message ShopProductTypeListReq {
+}
+message ShopProductTypeListResp {
+    message TypeList {
+        string type = 1; //类型
+        string type_name = 2; //名称
+    }
+    repeated TypeList typeList = 1;
+    common.base.ErrorMessage ret = 2;
+}
+message ShopProductListByTypeReq{
+    common.base.Pagination page = 1;
+    string type = 2; //商品类型
+}
+message ShopProductInfoVo{
+    string id = 1; //主键
+    string product_img = 2; //商品图片
+    string product_name = 3; //商品名称
+    string activity_price = 4; //活动价
+    string price = 5; //原价
+    string activity_id = 6; //活动Id(拼团序号Id,活动商品id)
+    string product_id = 7; //商品id
+    int32 number = 8; //拼团人数
+    int32 type = 9; //商品类型(拼团、活动商品)
+    string commission = 10; //佣金
+    string product_label = 11; // 商品标签
+}
+message ShopProductListByTypeResp{
+    repeated ShopProductInfoVo shopProductInfoVo = 1; //商品列表
+    int32 total = 2; //总数
+    common.base.ErrorMessage ret = 3;
+    bool is_last_page = 4;
+}
+//店铺首页
+service ShopIndexMallService {
+    //增加访问次数
+    rpc AddVisitor (AddVisitorReq) returns (ShopSuccessResp);
+    //店铺详情
+    rpc ShopInfo (ShopInfoReq) returns (ShopInfoResp);
+    //修改店铺
+    rpc ShopEdit (ShopEditReq) returns (ShopSuccessResp);
+}
+service ShopProductMallService {
+    //高利润商品
+    rpc ShopHighProfitProductList (ShopProductsReq) returns (ShopProductListResp);
+    //热卖商品
+    rpc ShopHotProductList (ShopProductsReq) returns (ShopProductListResp);
+    //根据活动id查询活动商品
+    rpc ProductListByActiveId (ShopProductsReq) returns (ShopProductListResp);
+    //查询ps店铺商品类型
+    rpc ShopProductTypeList (ShopProductTypeListReq) returns (ShopProductTypeListResp);
+    //根据ps店铺商品类型查询商品列表
+    rpc ShopProductListByType (ShopProductListByTypeReq) returns (ShopProductListByTypeResp);
+}
+//我的生意
+service MyShopMallService {
+    //我的生意详情(佣金、访客、已购、已售)
+    rpc MyShop (ShopReqEmpty) returns (MyShopResp);
+    //我的等级
+    //    rpc MyGrade(ShopReqEmpty) returns(MyGradeResp);
+    //客户
+    rpc MyCustomer (ShopReqEmpty) returns (MyCustomerResp);
+    //商品情况
+    rpc MyTopProductList (ShopReqEmpty) returns (MyTopProductListResp);
+}
+//开店邀请页
+service ShopShareMallService {
+
+}

@@ -1,0 +1,60 @@
+syntax = "proto3";
+package boss.ticket;
+
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.workorder";
+option java_outer_classname = "Workorder";
+
+message WorkOrderInnerCreateReq {
+    //标签id
+    int64 tagId = 1;
+    //工单来源
+    common.base.WorkOrderSourceEnumPb workOrderSource = 2;
+    //工单描述 500字以内
+    string workOrderDescribe = 3;
+    //附属图片 逗号分隔
+    string workOrderPic = 4;
+    //紧急程度 紧急:1 一般:10
+    int32 emergencyLevel = 5;
+    //是否分派 分派:1 不分派:2
+    int32 doDispatch = 6;
+    //分派处理人
+    int64 dispatchDealManagerId = 7;
+    //抄送人
+    int64 ccManagerId = 8;
+    //备注事项 200字以内
+    string workOrderContent = 9;
+    //用户id
+    int64 userId = 10;
+    //用户昵称
+    string userNickName = 11;
+    //用户手机号
+    string userMobile = 12;
+    //订单编号
+    string orderNo = 13;
+    //创建人id
+    int64 createId = 14;
+    // 子订单，可以为空
+    string sub_order_no = 15;
+    // 用户类型 注册用户 未注册用户
+    UserType user_type = 16;
+}
+
+enum UserType {
+    // 已注册
+    REGISTERED = 0;
+    // 未注册
+    UNREGISTERED = 1;
+}
+
+message WorkOrderInnerCreateResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+service WorkOrderInnerService {
+
+    rpc AddWorkOrderFromInner(WorkOrderInnerCreateReq) returns (WorkOrderInnerCreateResp);
+
+}

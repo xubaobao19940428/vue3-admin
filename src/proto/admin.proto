@@ -1,0 +1,354 @@
+//DESC COMMON littlec-admin
+syntax = "proto3";
+package admin.admin;
+import "common/errcode.proto";
+import "common/base.proto";
+
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.admin.admin";
+option java_outer_classname = "Admin";
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    common.base.ErrorMessage ret = 1;
+    string token = 2;
+    string user_id = 3;
+}
+
+enum RoleType{
+    NULL = 0;
+    SUPER_ADMIN = 1;
+}
+
+message GetUserInfoRequest {
+
+}
+
+message GetUserInfoResponse {
+    common.base.ErrorMessage ret = 1;
+    string username = 2;
+    string phone = 3;
+    repeated RoleType role = 4;
+}
+
+message GenerateRequest {
+    string name = 1;
+    string groupId = 2;
+    string creator = 3;
+    string artifactId = 4;
+    string dubboPort = 5;
+    string zookeeper = 6;
+    bool withMybatis = 7;
+    repeated string prov_interface = 8;
+    repeated string cons_interface = 9;
+}
+
+message GenerateResponse {
+    common.base.ErrorMessage ret = 1;
+    string url = 2;
+}
+
+message GetApiListRequest{
+}
+
+message GetApiListResponse{
+    common.base.ErrorMessage ret = 1;
+    repeated string api = 2;
+}
+
+message GetInterfaceListRequest{
+    string api_name = 1;
+}
+
+message GetInterfaceListResponse{
+    common.base.ErrorMessage ret = 1;
+    repeated string interfaces = 2;
+}
+
+//虚拟机所属环境
+enum VMEnv {
+    DEV = 0; //开发环境
+    TEST = 1; //测试环境
+    SAND = 2; //沙箱环境
+    PROD = 4; //线上环境
+}
+
+//虚拟机类型
+enum VMType {
+    DEPLOYER = 0; //发布机
+    BUSINESS = 1; //业务机
+    DATABASE = 2; //数据库
+    MIDDLEWARE = 3; //中间件
+}
+
+message VMInfo{
+    string host_ipv4 = 1; //主机IP地址
+    string host_ipv6 = 2; //主机IP地址
+    string hostname = 3; //主机名称
+    string ssh_username = 4; //ssh登录名
+    string ssh_password = 5; //ssh登录密码
+    string created = 6; //创建时间
+    VMEnv vm_env = 7;
+    VMType vm_type = 8;
+    string working_dir = 9; //工作目录
+    string vm_id = 10; //虚拟机ID
+
+}
+
+message GetServerVMListRequest {
+    common.base.Pagination page = 1;
+    VMType vm_type = 2;
+    VMEnv vm_env = 3;
+}
+message GetServerVMListResponse {
+    common.base.ErrorMessage ret = 1;
+    repeated VMInfo vm_info = 2;
+    int32 total = 3;
+}
+
+message AddServerVMRequest {
+    VMInfo vm = 1;
+}
+message AddServerVMResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message EditServerVMRequest {
+    VMInfo vm = 2;
+}
+message EditServerVMResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message DelServerVMRequest {
+    string vm_id = 1;
+}
+
+message DelServerVMResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+enum ServiceType {
+    LITTLEC = 0;
+    MYSQL = 1;
+    MIDDLE_WARE = 2;
+}
+
+enum ServiceStatus {
+    STOPED = 0; //已停止
+    RUNNING = 1; //运行中
+    BREAKDOWN = 2;//故障
+}
+message ServiceInfo {
+    message ServiceVMInfo {
+        ServiceStatus status = 1;
+        string vm_id = 2;
+        string vm_ipv4 = 3;
+        string vm_ipv6 = 4;
+    }
+    string name = 1; //服务名称
+    string git_url = 2; //服务代码的git地址
+    repeated ServiceVMInfo vm_info = 3; //服务关联的虚拟机ip
+    string service_id = 5;
+    ServiceType type = 6;
+}
+message GetServiceListRequest {
+    common.base.Pagination page = 1;
+    bool view_all = 2;//查询全部类型
+    ServiceType type = 3;//view_all为false时，指定服务类型
+}
+message GetServiceListResponse {
+    common.base.ErrorMessage ret = 1;
+    repeated ServiceInfo service_info = 2;
+}
+
+message AddServiceRequest {
+    string name = 1; //服务名称
+    string git_url = 2; //服务代码的git地址
+    string desc = 3;//服务描述
+    repeated string vm_id = 4; //服务关联的虚拟机
+    string service_id = 5;
+    ServiceType type = 6;
+}
+message AddServiceResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message EditServiceRequest {
+    string service_id = 1;
+    string name = 2; //服务名称
+    string git_url = 3; //服务代码的git地址
+    repeated string vm_id = 4; //服务关联的虚拟机
+    ServiceType type = 5;
+}
+message EditServiceResponse{
+    common.base.ErrorMessage ret = 1;
+}
+
+message DelServiceRequest {
+    string service_id = 1;
+}
+message DelServiceResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message DeployServiceRequest {
+    string service_id = 1;
+}
+message DeployServiceResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetServiceStatusRequest {
+    string service_id = 1;
+}
+message GetServiceStatusResponse {
+    common.base.ErrorMessage ret = 1;
+    ServiceStatus status = 2;
+}
+
+message GetServiceNameListRequest {
+    VMEnv env = 1;
+}
+message GetServiceNameListResponse {
+    common.base.ErrorMessage ret = 1;
+    repeated string name = 2;
+}
+
+message GetServiceConfigRequest {
+    VMEnv env = 1;
+    string name = 2;
+}
+message GetServiceConfigResponse {
+    common.base.ErrorMessage ret = 1;
+    map<string, string> config = 2;
+}
+
+message SaveServiceConfigRequest {
+    VMEnv env = 1;
+    string name = 2;
+    map<string, string> config = 3;
+}
+message SaveServiceConfigResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+
+message ErrorDict {
+    message MultiLangErrorMessage {
+        string lang = 1;
+        string msg = 2;
+    }
+    string key = 1;
+    repeated MultiLangErrorMessage err_msg = 2;
+}
+
+message EditErrorDictRequest {
+    VMEnv env = 1;
+    repeated ErrorDict err_dict = 2;
+}
+
+message EditErrorDictResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetErrorDictRequest {
+    VMEnv env = 1;
+}
+
+message GetErrorDictResponse {
+    repeated ErrorDict err_dict = 1;
+    common.base.ErrorMessage ret = 2;
+}
+
+enum AgentEnum {
+    APP = 0;
+    BACK = 1;
+}
+message AuthWhiteList {
+    string service_name = 1;
+    repeated string interface_name = 2;
+}
+
+message EditAuthWhiteListRequest {
+    VMEnv env = 1;
+    AgentEnum agent = 2;
+    repeated AuthWhiteList whitelist = 3;
+}
+
+message EditAuthWhiteListResponse {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetAuthWhiteListRequest {
+    VMEnv env = 1;
+    AgentEnum agent = 2;
+}
+message GetAuthWhiteListResponse {
+    common.base.ErrorMessage ret = 1;
+    repeated AuthWhiteList whitelist = 3;
+}
+
+message GetMethodListRequest {
+    VMEnv env = 1;
+    string service_name = 2;//littlec-xxxx
+    AgentEnum agent = 3;
+}
+message GetMethodListResponse{
+    common.base.ErrorMessage ret = 1;
+    repeated string interface_name = 2;
+}
+
+message GetErrorCodeNameListReq{
+    VMEnv env = 1;
+}
+
+message GetErrorCodeNameListResp {
+    repeated string errcode_name = 1;
+    common.base.ErrorMessage ret = 2;
+}
+service UserService {
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc GetUserInfo (GetUserInfoRequest) returns (GetUserInfoResponse);
+}
+
+service CodegenService {
+    rpc GetApiList (GetApiListRequest) returns (GetApiListResponse);
+    rpc GetInterfaceList (GetInterfaceListRequest) returns (GetInterfaceListResponse);
+    rpc Generate (GenerateRequest) returns (GenerateResponse);
+}
+
+service MicroService {
+    //虚拟机增删改查
+    rpc GetServerVMList (GetServerVMListRequest) returns (GetServerVMListResponse);
+    rpc AddServerVM (AddServerVMRequest) returns (AddServerVMResponse);
+    rpc EditServerVM (EditServerVMRequest) returns (EditServerVMResponse);
+    rpc DelServerVM (DelServerVMRequest) returns (DelServerVMResponse);
+    //服务增删改查
+    rpc GetServiceList (GetServiceListRequest) returns (GetServiceListResponse);
+    rpc AddService (AddServiceRequest) returns (AddServiceResponse);
+    rpc EditService (EditServiceRequest) returns (EditServiceResponse);
+    rpc DelService (DelServiceRequest) returns (DelServiceResponse);
+    //服务发布
+    rpc DeployService (DeployServiceRequest) returns (DeployServiceResponse);
+    rpc GetServiceStatus (GetServiceStatusRequest) returns (GetServiceStatusResponse);
+}
+
+service ConfigService {
+    rpc GetServiceNameList (GetServiceNameListRequest) returns (GetServiceNameListResponse);
+    rpc GetServiceConfig (GetServiceConfigRequest) returns (GetServiceConfigResponse);
+    rpc SaveServiceConfig (SaveServiceConfigRequest) returns (SaveServiceConfigResponse);
+    rpc EditErrorDict (EditErrorDictRequest) returns (EditErrorDictResponse);
+    rpc GetErrorDict (GetErrorDictRequest) returns (GetErrorDictResponse);
+    rpc EditAuthWhiteList (EditAuthWhiteListRequest) returns (EditAuthWhiteListResponse);
+    rpc GetAuthWhiteList (GetAuthWhiteListRequest) returns (GetAuthWhiteListResponse);
+    //获取服务的接口名列表
+    rpc GetMethodList (GetMethodListRequest) returns (GetMethodListResponse);
+    //获取错误码名列表
+    rpc GetErrorCodeNameList (GetErrorCodeNameListReq) returns (GetErrorCodeNameListResp);
+}

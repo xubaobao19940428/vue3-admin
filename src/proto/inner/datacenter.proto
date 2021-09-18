@@ -1,0 +1,45 @@
+syntax = "proto3";
+package inner.datacenter;
+
+import "common/errcode.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.datacenter";
+option java_outer_classname = "DataCenter";
+
+message BatchGetSpuSalesVolumeReq {
+    repeated uint64 product_id = 1; // spu id
+}
+
+message BatchGetSpuSalesVolumeResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    repeated SalesVolumeItem sales_volume = 2;
+}
+
+message SalesVolumeItem {
+    uint64 product_id = 1;
+    uint64 sales_volume = 2; // 订单状态为交易成功的spu数量
+}
+
+message GetSpuDaySalesVolumeReq {
+    // spu id
+    uint64 product_id = 1;
+    // 开始时间
+    uint64 start_time = 2;
+    // 结束时间
+    uint64 end_time = 3;
+}
+
+message GetSpuDaySalesVolumeResp {
+    common.errcode.ErrorCode ret = 1; // 返回值
+    uint64 product_id = 2;
+    uint64 sales_volume = 3; // 订单状态为交易成功的spu数量
+}
+
+service DataCenterService {
+    rpc BatchGetSpuSalesVolume (BatchGetSpuSalesVolumeReq) returns (BatchGetSpuSalesVolumeResp);
+
+    //查询SPU在一段时间内的销量
+    rpc GetSpuDaySalesVolume(GetSpuDaySalesVolumeReq) returns (GetSpuDaySalesVolumeResp);
+}

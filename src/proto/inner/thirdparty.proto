@@ -1,0 +1,278 @@
+syntax = "proto3";
+package inner.thirdparty;
+import "common/errcode.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.thirdparty";
+option java_outer_classname = "ThirdParty";
+
+message CallGetRequest {
+    string url = 1;
+    map<string, string> header = 2;
+    map<string, string> param = 3;
+    string username = 4; // auth name
+    string password = 5; // auth password
+}
+
+message CallGetResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    int32 http_status = 2; //http响应码
+    string body = 3;
+}
+message CallDeleteRequest {
+    string url = 1;
+    map<string, string> header = 2;
+    map<string, string> param = 3;
+    string username = 4; // auth name
+    string password = 5; // auth password
+}
+message CallDeleteResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    int32 http_status = 2; //http响应码
+    string body = 3;
+}
+message CallPostRequest {
+    string url = 1;
+    map<string, string> header = 2; //头数据
+    map<string, string> param = 3; //表单数据
+    string body = 4; //请求体
+    string username = 5; // auth name
+    string password = 6; // auth password
+}
+
+message CallPostResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    int32 http_status = 2; //http响应码
+    string body = 3;
+}
+
+message CallPutRequest {
+    string url = 1;
+    map<string, string> header = 2; //头数据
+    map<string, string> param = 3; //表单数据
+    string body = 4; //请求体
+    string username = 5; // auth name
+    string password = 6; // auth password
+}
+
+message CallPutResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    int32 http_status = 2; //http响应码
+    string body = 3;
+}
+
+message SendEmailRequest {
+    repeated string to_email = 1; // 邮件接收方
+    string msg = 5; // 邮件内容
+    string subject = 6; // 邮件主题
+    message FileInfoPb {
+        string file_name = 7; // 附件名
+        string file_path = 8; // 附件路径
+    }
+    repeated FileInfoPb file_info = 7; // 附件信息
+}
+
+message SendEmailResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    bool success = 2; // 发送成功或失败
+}
+
+message SendSmsAuthCodeRequest {
+    string mobile = 1; // 手机号
+    string country_area_code = 2; // 国家区号
+    string auth_code = 3; // 验证码
+    string flag = 4; // 语言 0 中文 1 英文
+    string sender = 5; // 发送方 腾讯或阿里Tencent/Aliyun
+}
+
+message SendSmsAuthCodeResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    bool success = 2; // 发送成功或失败
+}
+
+
+message JntPostRequest {
+    string url = 1;
+    map<string, string> header = 2; //头数据
+    map<string, string> param = 3; //表单数据
+}
+
+message JntPostResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    int32 http_status = 2; //http响应码
+    string body = 3;
+}
+
+message OmiseCreateChargeRequset {
+    //金额
+    uint32 amount = 2;
+    //币种
+    string currency = 3;
+    //结果跳转链接
+    string return_url = 4;
+    //元数据
+    map<string, string> metadata = 5;
+    //公钥
+    string public_key = 6;
+    //私钥
+    string secret_key = 7;
+    //有效截止时间
+    uint64 expires_at = 8;
+}
+
+message OmiseCreateChargeResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    //Omise Charge
+    OmiseCharge omiseCharge = 2;
+}
+
+message OmiseCharge {
+    //Charge ID
+    string charge_id = 1;
+    //支付地址
+    string authorize_uri = 2;
+}
+
+message OmiseRetrieveSingleChargeRequset {
+    //Charge ID
+    string charge_id = 1;
+    //公钥
+    string public_key = 6;
+    //私钥
+    string secret_key = 7;
+}
+
+message OmiseRetrieveSingleChargeResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    //Charge结果
+    OmiseChargeResult omiseCharge = 2;
+}
+
+message OmiseChargeResult {
+    //Charge ID
+    string charge_id = 1;
+    //支付金额
+    string amount = 2;
+    //支付币种
+    string currency = 3;
+    //支付时间
+    uint64 pay_time = 4;
+    //状态
+    string status = 5;
+    //元数据
+    map<string, string> metadata = 6;
+    //错误码
+    string failure_code = 7;
+    //错误描述
+    string failure_message = 8;
+}
+
+message OmiseRetrieveListChargeRequset {
+    //查询开始时间
+    uint64 begin_time = 1;
+    //查询结束时间
+    uint64 end_time = 2;
+    //查询数量
+    uint32 limit = 3;
+    //游标值
+    uint32 offset = 4;
+    //公钥
+    string public_key = 6;
+    //私钥
+    string secret_key = 7;
+}
+
+message OmiseRetrieveListChargeResponse {
+    common.errcode.ErrorCode ret = 1; // 返回码 参见ErrorCode
+    //Charge结果
+    repeated OmiseChargeResult omiseChargeList = 2;
+    //总数量
+    uint32 total = 3;
+}
+
+///DDing Service Message
+message SendPushNotificationReq {
+    string userId = 1;
+
+    string title = 2;
+
+    string content = 3;
+}
+
+message SendPushNotificationResp {
+
+    common.errcode.ErrorCode ret = 1;
+
+}
+
+message FetchDDingUserInfoReq {
+
+}
+
+message FetchDDingUserInfoResp {
+    common.errcode.ErrorCode ret = 1;
+    repeated DDingUserPb userInfo = 2;
+}
+
+message DDingUserPb {
+    string DDingUserId = 1;
+
+    string dept = 2;
+
+    string position = 3;
+
+    string realName = 4;
+}
+
+message FetchDDingUserLeaveInfoReq {
+
+    repeated int64 dingUserIds = 1;
+
+    int64 startTime = 2;
+
+    int64 endTime = 3;
+}
+
+message FetchDDingUserLeaveInfoResp {
+    common.errcode.ErrorCode ret = 1;
+
+    repeated DDingUserLeaveInfoPb leaveInfo = 2;
+}
+
+message DDingUserLeaveInfoPb {
+    int64 dingUserIds = 1;
+
+    int64 startTime = 2;
+
+    int64 endTime = 3;
+}
+
+//第三方接口转发服务
+service ThirdPartyService {
+    //转发GET请求
+    rpc CallGet (CallGetRequest) returns (CallGetResponse);
+    //转发DELETE请求
+    rpc CallDelete (CallDeleteRequest) returns (CallDeleteResponse);
+    //转发POST请求
+    rpc CallPost (CallPostRequest) returns (CallPostResponse);
+    //转发put请求
+    rpc CallPut (CallPutRequest) returns (CallPutResponse);
+    //发送信息至邮箱
+    rpc SendEmail (SendEmailRequest) returns (SendEmailResponse);
+    // 发送短信验证码
+    rpc SendSmsAuthCode (SendSmsAuthCodeRequest) returns (SendSmsAuthCodeResponse);
+    //Jnt请求
+    rpc JntPost (JntPostRequest) returns (JntPostResponse);
+    //Omise  创建Charge
+    rpc OmiseCreateCharge (OmiseCreateChargeRequset) returns (OmiseCreateChargeResponse);
+    //Omise 查询单条Charge
+    rpc OmiseRetrieveSingleCharge (OmiseRetrieveSingleChargeRequset) returns (OmiseRetrieveSingleChargeResponse);
+    //Omise 批量查询Charge
+    rpc OmiseRetrieveListCharge (OmiseRetrieveListChargeRequset) returns (OmiseRetrieveListChargeResponse);
+    //发送钉钉进送通知
+    rpc SendPushNotification (SendPushNotificationReq) returns (SendPushNotificationResp);
+    //获取钉钉用户资料
+    rpc FetchDDingUserInfo (FetchDDingUserInfoReq) returns (FetchDDingUserInfoResp);
+    //获取钉钉用户请假信息
+    rpc FetchDDingUserLeaveInfo (FetchDDingUserLeaveInfoReq) returns (FetchDDingUserLeaveInfoResp);
+}

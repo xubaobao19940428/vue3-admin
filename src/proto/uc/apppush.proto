@@ -1,0 +1,126 @@
+//DESC APP littlec-chat
+syntax = "proto3";
+
+package uc.AppPush;
+
+import "common/errcode.proto";
+import "common/enum.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.uc";
+option java_outer_classname = "AppPush";
+
+//终端类型
+enum END_TYPE {
+    MOBILE = 0; //移动端
+    WEB = 1; //网页端
+}
+
+message GetHistoryCustomMsgBatchRequest {
+    string from_username = 1; //请求方username
+    string to_username = 2; //单聊会话另一端username
+    uint64 begin_guid = 3; // 从哪条消息开始拉取(可选)
+    uint32 limit = 4; // 拉取消息条数上限
+    string appkey = 5; //appkey
+    END_TYPE type = 6; //终端类型
+}
+
+message CustomSystemMessage {
+    // 推送时间，定时任务使用
+    string push_time = 1;
+    //多语言消息内容
+    common.base.I18nmsg msg = 2;
+    // 调用方业务码 如：订单，会员，商品等
+    string biz_code = 3;
+}
+
+message GetHistoryCustomMsgBatchResponse {
+    common.base.ErrorMessage ret = 1; // 错误码
+    repeated CustomSystemMessage data = 2;
+}
+
+
+message SingleGetHistoryCustomMsgRequest {
+    uint64 guid = 1; // 从哪条消息开始拉取(可选)
+}
+
+message SingleGetHistoryCustomMsgResponse {
+    common.base.ErrorMessage ret = 1; // 错误码
+    CustomSystemMessage data = 2;
+}
+
+message AppSearchMessageListResp {
+    common.base.ErrorMessage ret = 1; // 错误码
+    repeated Message message = 2; //消息
+    common.base.Pagination page_info = 3; //分页信息
+    string guid = 5;// 消息里最大的guid
+    string total = 4; //总记录数
+}
+
+message AppSearchMessageListReq {
+//    enum MessageBizCodeEnum {
+//        MESSAGE_BIZ_CODE_NULL = 0; //空
+//        ORDER_CODE = 1; //订单
+//        MEMBER_CODE = 2; //会员
+//        PROMOTION_CODE = 3; //活动通知
+//        REVENUE_CODE = 4; //收益
+//        CUSTOMER_CODE = 5; //客服
+//    }
+    string biz_code = 1; //业务码
+    common.base.Pagination page_info = 5; //分页信息
+}
+
+message Message {
+    string biz_code = 1; //业务码
+    string time = 2; //消息时间
+    string message_title = 3; //消息title
+    string message_body = 4; //消息body
+    string message_data = 5; //消息data
+}
+
+message SingleMessageInfo {
+    string biz_code = 1; //业务码
+    string message_title = 2; //消息标题
+    string message_body = 3; //消息体
+    string message_data = 4; //消息数据
+}
+
+message UnreadMessage {
+    common.enum.Push.MessageBizCodeEnum biz_code = 1; //业务类型
+    string unread_num = 2; //未读数量
+}
+
+message AppGetUnreadMessagesReq {
+    string guid = 1; //消息guid
+}
+
+message AppGetUnreadMessagesResp {
+    common.base.ErrorMessage ret = 1; //错误码
+    repeated UnreadMessage unread_msg = 2; //未读信息
+    string total_unread = 3; //所有未读消息数量
+}
+
+message AppUploadDataReq {
+    //用户id
+    string user_id = 1;
+    //上传数据  key: FireBaseId
+    map<string, string> data = 2;
+}
+
+message AppUploadDataResp {
+    common.base.ErrorMessage ret = 1; //错误码
+}
+
+service AppPushService {
+    // 批量获取自定义推送 msg_type=9
+    rpc BatchGetHistoryCustomMsg (GetHistoryCustomMsgBatchRequest) returns (GetHistoryCustomMsgBatchResponse);
+    // 获取单条自定义推送
+    rpc SingleGetHistoryCustomMsg (SingleGetHistoryCustomMsgRequest) returns (SingleGetHistoryCustomMsgResponse);
+    // app搜索消息列表
+    rpc AppSearchMessageList (AppSearchMessageListReq) returns (AppSearchMessageListResp);
+    // app获取未读消息数量
+    rpc AppGetUnreadMessages (AppGetUnreadMessagesReq) returns (AppGetUnreadMessagesResp);
+    // app上传数据接口
+    rpc AppUploadData(AppUploadDataReq) returns (AppUploadDataResp);
+}

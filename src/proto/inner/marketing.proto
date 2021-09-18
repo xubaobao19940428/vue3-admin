@@ -1,0 +1,313 @@
+syntax = "proto3";
+package inner.marketing;
+import "common/errcode.proto";
+import "common/enum.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.inner.marketing";
+option java_outer_classname = "Marketing";
+
+
+message BatchGetActivityIconReq {
+    repeated int64 activity_id = 1;
+}
+message BatchGetActivityIconResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<int64, string> icon = 2;
+}
+
+//message BatchGetActivityInfoReq {
+//    message Sku {
+//        uint64 product_id = 1;
+//        uint64 sku_id = 2;
+//        uint64 activity_id = 3;
+//    }
+//    repeated Sku sku = 1;
+//}
+//message BatchGetActivityInfoResp{
+//    message SkuActivity {
+//        int64 product_id = 1;
+//        int64 sku_id = 2;
+//        uint64 activity_id = 3;
+//        string price = 4;
+//        string commission_rate = 5;//佣金率
+//    }
+//    common.errcode.ErrorCode ret = 1; //返回值
+//    repeated SkuActivity sku_activity = 2;
+//}
+
+
+//获取商品sku 参加的活动及活动价 --> 购物车需要调用
+message BatchGetActivityInfoBySkuReq{
+    message Sku {
+        uint64 product_id = 1; //商品id
+        uint64 sku_id = 2; //商品 sku id
+        uint64 activity_id = 3;
+    }
+    repeated Sku sku = 1;
+}
+
+message BatchGetActivityInfoBySkuResp{
+    message SkuActivityInfo {
+        int64 product_id = 1; //商品 id
+        int64 sku_id = 2; //商品sku id
+        uint64 activity_id = 3; //活动id
+        string price = 4; //价格
+        string activity_price = 5; //活动价
+        string activity_commission_rate = 6;//佣金率
+        uint64 start_time = 7; //开始时间
+        uint64 end_time = 8; //结束时间
+        string active_icon = 9;// 活动图标
+        common.enum.MarketingEnum.ActiveStatus active_status = 10; //活动状态
+        common.enum.MarketingEnum.ActiveType active_type = 11; //活动类型
+        string active_base_cover = 12; //活动价格底图
+        string spu_activity_price = 13; //spu最外层活动价格
+        string active_bc_url = 14; //活动价格底图跳转地址
+        int32 zero_sale_limit = 15; //零元购限购数量，和活动ID绑定关系，本数量只对当前活动有效
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated SkuActivityInfo sku_activity = 2;
+}
+
+//同步修改活动商品数据-商品信息变更时调用
+message SyncUpdateActivityProductInfoReq{
+    message Spu {
+        uint64 product_id = 1; //商品id
+        repeated uint64 sku_id = 2; //商品 在架 sku id,
+        string country_code = 3; //国家码
+    }
+    repeated Spu spu = 1;
+}
+
+message SyncUpdateActivityProductInfoResp{
+    common.errcode.ErrorCode ret = 1; //返回值
+}
+
+message BatchGetProductActivityLabelReq{
+    repeated uint64 product_id = 1; //商品id
+    string country_code = 2; //国家码
+    string language_code =3; //语言码
+}
+
+message BatchGetProductActivityLabelResp{
+    message ProductActivityLabel{
+        uint64 product_id = 1;
+        string label = 2;
+    }
+    common.errcode.ErrorCode ret = 1; //返回值
+    repeated ProductActivityLabel  product_activity_label= 2; // 活动商品标签
+}
+
+message GetCurDailyTimePriceInfoReq{
+}
+
+message GetCurDailyTimePriceInfoResp{
+
+    common.errcode.ErrorCode ret = 1; //返回值
+    // 开始时间
+    uint64 begin_time = 2;
+    // 结束时间
+    uint64 end_time = 3;
+}
+
+message GetActiveProductInfoReq{
+    repeated uint64 product_id = 1; //商品ID
+    string country_code = 2; //国家码
+    common.enum.MarketingEnum.ActiveType active_type = 3; //活动类型
+}
+
+message GetActiveProductInfoResp{
+    message SpuActivityInfo {
+        int64 product_id = 1; //商品 id
+        string product_name = 2; //商品名称
+        uint64 activity_id = 3; //活动id
+        string product_desc = 4; // 产品描述
+        string product_label = 5; // 商品标签
+        string price = 6; //价格
+        string activity_price = 7; //活动价
+        string activity_commission_rate = 8;//佣金率
+        uint64 start_time = 9; //开始时间
+        uint64 end_time = 10; //结束时间
+        string active_icon = 11;// 活动图标
+        common.enum.MarketingEnum.ActiveStatus active_status = 12; //活动状态
+        string product_corner = 13; //商品角标
+        string promotion_desc = 14; //营销文案
+        string promotion_cover = 15; //营销底图
+        string discount_rate = 16; //商品折扣率
+        string product_img = 17; //商品图片
+        int32 sale_count = 18; //销量
+        // 自购节省 - 国家
+        string commission_self = 19;
+        // 分享返利
+        string commission = 20;
+    }
+
+    common.errcode.ErrorCode ret = 1; //返回值
+    map<int64, SpuActivityInfo> spu_activity_info = 2; //key是商品ID
+}
+
+service MarketingService {
+    //批量查询活动图标URL
+    rpc BatchGetActivityIcon (BatchGetActivityIconReq) returns (BatchGetActivityIconResp);
+    //    //批量校验商品活动信息
+    //    rpc BatchGetActivityInfo (BatchGetActivityInfoReq) returns (BatchGetActivityInfoResp);
+    //获取商品sku 参加的活动及活动价
+    rpc BatchGetActivityInfoBySku (BatchGetActivityInfoBySkuReq) returns (BatchGetActivityInfoBySkuResp);
+    //获取商品的活动标签
+    rpc BatchGetProductActivityLabel (BatchGetProductActivityLabelReq) returns (BatchGetProductActivityLabelResp);
+
+    //获取商品sku 参加的活动及活动价,商品详情页使用，获取结果为正在活动中或未到活动时间的商品信息
+    rpc BatchGetActivityInfoDescBySku (BatchGetActivityInfoBySkuReq) returns (BatchGetActivityInfoBySkuResp);
+
+    //同步修改活动商品数据-商品信息变更时调用
+    rpc SyncUpdateActivityProductInfo (SyncUpdateActivityProductInfoReq) returns (SyncUpdateActivityProductInfoResp);
+
+    //获取当前限时特价信息
+    rpc GetCurDailyTimePriceInfo (GetCurDailyTimePriceInfoReq) returns (GetCurDailyTimePriceInfoResp);
+
+    //通过spuId 和 country code 获取活动商品信息,boss端不能使用此接口
+    rpc GetActiveProductInfo (GetActiveProductInfoReq) returns (GetActiveProductInfoResp);
+
+    //假用户名
+    rpc ListFakeUserBylimit (ListFakeUserBylimitReq) returns (ListFakeUserBylimitResp);
+
+    //erp获取活动信息
+    rpc ErpGetActiveProductInfo (ErpGetActiveProductInfoReq) returns (ErpGetActiveProductInfoResp);
+
+    //查询一个商品是否被配置在H5页面中
+    rpc CheckProductIsUsed (CheckProductIsUsedReq) returns (CheckProductIsUsedResp);
+}
+
+message ListFakeUserBylimitReq {
+    int32 count = 1;//数量
+}
+message ListFakeUserBylimitResp {
+    repeated string nick_name = 1;
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+message ErpActiveProductInfo{
+    bool in_active = 1;//当前是否在活动中
+}
+
+message ErpGetActiveProductInfoReq {
+    repeated int64 spu_id = 1;
+    string countryCode = 2;//大写如MY
+}
+message ErpGetActiveProductInfoResp {
+    map<int64, ErpActiveProductInfo> erpActiveProductInfo = 1;
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+message CheckProductIsUsedReq {
+    repeated int64 product_id = 1;
+    string countryCode = 2;//大写如MY
+}
+
+message CheckProductIsUsedResp {
+    repeated int64 serial_id = 1; //页面ID
+
+    common.errcode.ErrorCode ret = 2; //返回值
+}
+
+
+//---------------拼团开始-------------------
+//根据商品id查询拼团商品信息
+message GroupActivityInfoReq {
+    string serial_id = 1; // 拼团商品序号id
+}
+message GroupActivityInfoBySkuIdReq {
+    string sku_id = 1; // skuId
+}
+
+message SpecialDiscountInner {
+    string discount = 1; //折扣
+}
+//拼团分级规则
+message GroupGradeInnerVo {
+    int32 type = 1; //分级类型:1等级,2用户id,3全量用户
+    int32 group_type = 2; //用户类型:1发团用户,2参团用户
+    string gdesc = 3; //值，用英文逗号隔开,如用户id:1,2,3,4 等级:SH,PS
+}
+message ProductSkuListInnerVo {
+    string sku_id = 2; //skuId
+    string vip_price = 3; //vip价格
+    string sku_activity_price = 4; //参考活动价
+    string activity_price = 5; //拼团活动价
+    string commission_rate = 6; //佣金比率
+    string activity_commission_rate = 7; //活动比率
+    int32 activity_stock = 8; //活动库存
+    string serial_id = 9; //序号id
+}
+message GroupActivityInnerResp {
+    string subjectName = 1; //专题名称
+    string start_time = 2; //开始时间
+    string end_time = 3; //结束时间
+    int32 group_num = 4; //成团人数
+    string leader_discount = 5; //团长折扣
+    string follow_discount = 6; //团员折扣
+    repeated SpecialDiscountInner specialDiscount = 7; //特殊折扣
+    int32 valid_time_out = 8; //拼团有限时间
+    int32 pay_time_out = 9; //拼团支付有效时间
+    GroupGradeInnerVo create_group_grade = 10; //发团分级
+    GroupGradeInnerVo join_group_grade = 11; //参团分级
+    repeated ProductSkuListInnerVo productSkuListVo = 12; //sku列表
+    common.errcode.ErrorCode ret = 13;
+    string country_code = 14; //国家码
+    common.enum.MarketingEnum.GroupActivityType group_activity_type = 15; //拼团类型(专题类型)
+    common.enum.MarketingEnum.GroupActivityByItemType group_activity_item_type = 16;//拼团商品的活动类型,1:普通拼团，2:抽奖团
+    int32 num_of_winners = 17; //中奖人数
+    int32 num_of_new_users = 18; // 新用户数
+    common.enum.MarketingEnum.RefundType refund_type = 19; //退款类型
+    string product_id = 20;//商品id
+
+}
+message FindGroupActivityListReq{
+    int64 subject_serial_id = 1; //专题id
+    string country_code = 2; //国家码
+    int32 num = 3; //拼团人数
+    int32 group_activity_item_type = 4; //拼团商品的活动类型,1:普通拼团，2:抽奖团
+}
+
+message FindGroupActivityListResp{
+    repeated int64 serial_id=1;
+    common.errcode.ErrorCode ret = 2;
+}
+service GroupActivityInnerService {
+    //根据拼团商品序号id查询拼团商品详情
+    rpc ViewBySerialId (GroupActivityInfoReq) returns (GroupActivityInnerResp);
+    //查询拼团商品id集合
+    rpc FindGroupActivityIdList(FindGroupActivityListReq) returns(FindGroupActivityListResp);
+}
+//---------------拼团结束-------------------
+
+//---------------首页活动开始-------------------
+//根据商品id查询推荐活动商品信息
+message QueryPreferredActivityInnerReq {
+    uint32 start_no = 1;//开始位置
+    uint32 end_no = 2;//结束位置
+    bool is_top = 3;
+    int32 top = 4;
+}
+message QueryPreferredActivityInnerResp {
+    repeated PreferredActivityInfo preferred_info = 1; // 优选活动信息
+    common.errcode.ErrorCode ret = 2;
+}
+
+message PreferredActivityInfo {
+    uint32 display_type = 1; //展示类型 1-商品列表，2-图片
+    string title = 2; //标题
+    string sub_title = 3; //副标题
+    uint32 url_type = 4; //跳转类型
+    string url = 5; //跳转地址
+    repeated uint64 product_id = 6; //商品列表
+    string cover = 7; //图片
+    uint32 sort = 8; //展示位置，第sort个商品的后面
+    uint32 id = 9; //ID 埋点使用
+
+}
+
+service MarketingPreferredActivityInnerService {
+    //根据位置信息查询品质优选列表活动
+    rpc QueryPreferredActivity (QueryPreferredActivityInnerReq) returns (QueryPreferredActivityInnerResp);
+}

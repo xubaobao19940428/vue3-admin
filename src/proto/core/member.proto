@@ -1,0 +1,2048 @@
+//DESC APP littlec-member
+syntax = "proto3";
+package core.member;
+
+
+import "common/base.proto";
+import "common/enum.proto";
+import "common/trade.proto";
+
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.member";
+option java_outer_classname = "Member";
+
+
+///////////以下是自提点(团长)的接口定义////////////////
+
+message MestoreUserBaseInfo{
+	/**
+	 * 地址ID
+	 */
+	string address_id = 13;
+    /** 用户ID*/
+	string user_id =1;
+	/** 自提点名称 */
+	string name =2;
+	/** 联系人姓名 */
+	string real_name =17;
+	/**图片地址*/
+	string pict_url =3;
+	/** 市对应的编码 */
+	string city_code = 4;
+	/** 市名 */
+	string city_name = 5;
+	/** 州对应的编码 */
+	string state_code = 6;
+	/** 州名 */
+	string state_name = 7;
+	/** 邮政编码 */
+	string postcode = 8;
+	/** 国家区号 */
+	string country_area_code = 9;
+	/** 国家编码 */
+	string country_code = 10;
+	/** 详细收货地址 */
+	string detail_address = 11;
+	/** 距离*/
+	string distance = 12;
+	// 用户自提的附加信息 */
+	SelfPickUpExtraInfo extraInfo = 14;
+	//经度
+	string longitude = 15;
+	//纬度
+	string latitude = 16;
+	// 联系方式 
+	string mobile = 18;
+
+	message MestoreAdUrl{
+		//绝对路径
+		repeated string absolute_urls=1;
+		//相对路径
+		repeated string urls = 2;
+	}
+	
+	//自提点广告照
+	MestoreAdUrl mestore_ad_url = 19;
+	
+	//是否官方自提点，0：不是，1：是
+	int32 official=20;
+	
+	// 是否支持送货上门，1：支持，0：不支持 
+	int32 supportHomeDelivery = 21;
+}
+
+message GetMestoreUserBaseInfoReq{
+	//经度，非必须
+	string longitude = 1;
+	//纬度，非必须 
+	string latitude = 2;
+}
+
+message GetMestoreUserBaseInfoResp{
+	common.base.ErrorMessage ret = 1; //返回值
+	MestoreUserBaseInfo mestore_user_base_info =2 ;
+}
+
+message GetMestoreUserBaseInfoSelfReq{
+}
+
+message MesstoreUserApplyReq{
+	// 联系人 
+	string name =1;
+	// 联系方式 
+	string mobile = 2;
+	//推荐人邀请码 
+	string inviter_code =3;
+	//推荐人电话 
+	string inviter_mobile = 4;
+	//Facebook账号 
+	string facebook = 5;
+	//whatsapp账号 
+	string whatsapp = 6;
+	//line账号 
+	string line = 7;
+	// 自提城市市对应的编码 
+	string city_code = 8;
+	// 自提城市市名 
+	string city_name = 9;
+	// 自提城市州对应的编码 
+	string state_code = 10;
+	// 自提城市州名 
+	string state_name = 11;
+	// 自提城市邮政编码 
+	string postcode = 12;
+	// 自提城市国家区号 
+	string country_area_code = 13;
+	//是否有门店 
+	int32 has_shop = 14;
+	//是否支持配送到家，0：不支持，1：支持 
+	int32 support_home_delivery = 15;
+	//签名照地址 
+	string pict_url = 16;
+}
+
+message MesstoreUserApplyResp{
+	//返回值
+	common.base.ErrorMessage ret = 1;
+	//当前申请进度，0：未申请，1：已申请，待支付，2：已购买礼包待审核，3：通过审核 
+	int32 apply_status = 2;
+	//礼包商品id 
+	string product_id = 3;
+	//联系方式类型：1whatsapp,2line
+	int32 service_type = 4;
+	//联系方式信息
+	string contact_info = 5;
+}
+
+message SearchMestoreUserReq{
+	//经度，非必须
+	string longitude = 1;
+	//纬度，非必须 
+	string latitude = 2;
+	//搜索关键字，非必须 
+	string keyword = 3;
+}
+message SearchMestoreUserResp{
+	//返回值
+	common.base.ErrorMessage ret = 1; 
+	repeated MestoreUserBaseInfo mestore_user_list = 2;
+	
+}
+
+message GetMesstoreUserApplyStatusReq{
+}
+
+message UpdateMestoreUserReq{
+	/**
+	 * 选择的自提点id
+	 */
+	string address_id = 1;
+}
+message UpdateMestoreUserResp{
+	//返回值
+	common.base.ErrorMessage ret = 1;
+}
+message GetMestoreUserBaseInfoByUserIdReq{
+	string address_id=1;
+}
+
+message UpdateSelfPickUpExtraInfoReq{
+	/**
+	 * 选择的自提点id
+	 */
+	string address_id = 1;
+	
+	string mobile = 2;
+	string name = 3;
+}
+
+message UpdateSelfPickUpExtraInfoResp{
+	common.base.ErrorMessage ret = 1;
+}
+
+message UpdateMestoreAdPictureReq{
+	repeated string urls = 1;
+}
+message UpdateMestoreAdPictureResp{
+	//返回值
+	common.base.ErrorMessage ret = 1;
+}
+
+service MestoreUserService {
+
+	//团长入驻申请
+	rpc MesstoreUserApply (MesstoreUserApplyReq) returns (MesstoreUserApplyResp);
+	
+	//获取团长入驻进度
+	rpc GetMesstoreUserApplyStatus (GetMesstoreUserApplyStatusReq) returns (MesstoreUserApplyResp);
+    
+	//用户端搜索自提点
+    rpc SearchMestoreUser (SearchMestoreUserReq) returns (SearchMestoreUserResp);
+	
+}
+///////////自提点(团长)的接口定义结束////////////////
+
+message MemberDefaultReq {
+    int32 time_start_type = 1; //时间筛选 1: 24h 2: 7天 3: 本月
+    bool is_eff_team = 2; // 是有效团队
+}
+
+message MemberBooleanResp {
+    common.base.ErrorMessage ret = 1;
+    bool success = 2;
+}
+
+message UserPersonDataReq {
+    string email = 1;
+    string nickname = 2;
+    string head_img = 3;
+    string email_auth_code = 4;
+}
+
+message UserSetMobileReq {
+    string mobile = 1;
+    string sms_code = 2;
+    int32 country_area_code = 3;
+    string password = 4;
+    string user_id = 5;
+    string sms_code_old = 6; // 现有手机号验证码 选填
+}
+
+message ForgetPasswordReq {
+    string mobile = 1;
+    string sms_code = 2;
+    string new_password = 3;
+    int32 country_area_code = 4;
+}
+
+message UserBindCodeReq {
+    string user_id = 1;
+    // 邀请码
+    string invite_code = 2;
+    // 绑定类型: bindType: 1, 主动; 2，被动
+    int32 bind_type = 3;
+}
+
+message UserSetWechatReq {
+    // 微信id
+    string wechat_id = 1;
+    // 微信二维码
+    string wechat_qr = 2;
+}
+
+message UserWechatInfoPb {
+    string nick_name = 1;
+    int32 member_level = 2;
+    string head_img = 3;
+    string wechat_id = 4;
+    // 微信二维码
+    string wechat_qr = 5;
+    int32 member_type = 6;
+}
+
+message UserSetBirthdayOrGenderReq {
+    string birthday = 1; // 1900-01-01 到当前
+    string gender = 2; // 1 男  2 女
+}
+
+message UserSetBirthdayOrGenderResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetUserWechatInfoReq {
+    string user_id = 1;
+}
+
+message GetUserWechatInfoResp {
+    common.base.ErrorMessage ret = 1;
+    UserWechatInfoPb info = 2;
+}
+
+message CheckIsNewUserReq {
+    string user_id = 1;
+}
+
+message CheckIsNewUserResp {
+    common.base.ErrorMessage ret = 1;
+    bool is_new_user = 2; // 是否是新人
+}
+
+message MemberSayListReq {
+}
+
+message MemberSayListResp {
+    common.base.ErrorMessage ret = 1;
+    message MemberSayPb {
+        string nick_name = 1; // 昵称
+        string head_img = 2; // 头像
+        string title = 3; // 标题
+        string content = 4; // 内容
+    }
+    repeated MemberSayPb member_say_pb = 2;
+}
+
+message UserSetMyCardReq {
+    string line_id = 1; // line_id
+    string wechat_id = 2; // wechat_id
+    string line_link = 3; // line 群链接
+    string whats_app_link = 4; // WhatsApp 群链接
+    string facebook_id = 5;
+    string facebook_link = 6;
+    string facebook =  7; // facebook号
+    string facebook_group_id = 8;  // facebook群组号
+}
+
+message UserSetMyCardResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetMyCardReq {
+    int32 type = 1; // 1: 获取自己的名片 2：fingo导师入口
+    string invite_code = 3; // 邀请码，分享后其他人点开要传
+}
+
+message GetMyCardReqResp {
+    common.base.ErrorMessage ret = 1;
+    message MyCardPb {
+        string whats_app = 1;
+        string line_id = 2;
+        string wechat_id = 3;
+        string line_link = 4;
+        string whats_app_link = 5;
+        string nick_name = 6;
+        string head_img = 7;
+        int32 member_level = 8;
+        string facebook_id = 9;
+        string facebook_link = 10;
+        int32 type = 11; // 1 上级邀请人 2 上级AM 3 上级AT 4 Master导师
+        string facebook =12 ; // facebook号
+        string facebook_group_id = 13;  // facebook群组号
+    }
+    MyCardPb my_card_pb = 2;
+    bool is_hidden = 3; // 是否隐藏
+    repeated MyCardPb my_card_pbs = 4; // 上级邀请人，am名片，at名片，master导师
+}
+message GetMySaleAmountReq {
+    string period = 1; //周期 1周 2月
+    string country_code = 2; //用户国家码
+}
+message GetMySaleAmountResp {
+    common.base.ErrorMessage ret = 1;
+    string sale_amount = 2; //销售金额
+    string pre_bonus_amount = 3; //预估奖金
+    string min_rank_amount = 4; //业绩档位最小金额
+    string max_rank_amount = 5; //业绩档位最大金额
+    string to_be_effective_amount = 6; //待生效销售额
+}
+message GetMyHistorySaleListReq {
+    common.base.Pagination page = 1;
+}
+message SaleRank {
+    string rank_name = 1; //类别名
+    string sale_amount = 2; //销售金额
+    string bonus_amount = 3; //奖金
+    string rate = 4; //占比
+}
+message GetMyHistorySaleDetail {
+    string sale_amount = 1; //销售金额
+    string bonus_amount = 2; //奖金
+    map<string, SaleRank> sale_rank_map = 3; //奖金业绩分类列表
+    string period = 4; //周期
+    string start_time = 5; //本周其开始时间戳
+    string end_time = 6; //本周期结束时间戳
+    int32 status = 7; //发放状态
+    bool cur_peroid_flag = 8; // 当前周期
+}
+message GetMyHistorySaleListResp {
+    common.base.ErrorMessage ret = 1;
+    repeated GetMyHistorySaleDetail detail_list = 2; //销售业绩列表
+}
+
+message GetCustomerTelReq {
+    repeated string mobile = 1;
+}
+
+message GetCustomerTelResp {
+    common.base.ErrorMessage ret = 1;
+    string mobile = 2;
+}
+
+message SaleDetailOrderListReq {
+    common.base.Pagination page = 1;
+    int32 status = 2; // 状态 1 待生效 2 已生效 3 已失效 4已结算
+    int32 sale_type = 3; // 售出类别 1我售出的 2好友售出的
+    string reward_period = 4; //期数
+}
+
+message SaleDetailOrderListResp {
+    message SaleDetailOrderInfo {
+        int32 status = 1; // 状态 1 待生效 2 已生效 3 已失效 4已结算
+        string nick_name = 2; // 昵称
+        string head_img = 3; // 头像
+        string product_title = 4; // 商品标题
+        string product_cover = 5; // 商品图片
+        string product_price = 6; // 商品价格
+        int32 count = 7; // 数量
+        string pay_time = 8; // 支付成功时间
+        string finish_time = 9;// 生效时间
+        int32 sale_type = 10; // 售出类别 1我售出的 2好友售出的
+        int32 commission_type = 11; // 商品分佣类别 1类 2类 3类 4类
+        string sale_amount = 12; // 预估销售额
+        string invalid_time = 13;// 失效时间
+    }
+
+    common.base.ErrorMessage ret = 1;
+    repeated SaleDetailOrderInfo detailInfo = 2; //订单明细
+
+    string to_valid_amount = 3; // 待生效金额
+    string valid_amount = 4; // 已生效金额
+    string invalid_amount = 5; // 已失效金额
+}
+
+//>>>>>>>>>>>>UserService message end>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+message UserLoginReq {
+    string mobile = 1;
+    int32 country_area_code = 2;
+    string password = 3;
+    string device_id = 4;
+}
+
+message UserInfoPb {
+    // 用户id
+    string user_id = 1;
+    // 使用facebook登陆的凭证
+    string facebook_key = 2;
+    // googleplay登陆时的凭证
+    string googleplay_key = 3;
+    // 用户手机号
+    string mobile = 4;
+    // 用户token
+    string token = 5;
+    string nick_name = 6;
+    string head_img = 7;
+    string email = 8;
+    // 用户自己的邀请码
+    string invite_code = 9;
+    // 上级的邀请码
+    string parent_invite_code = 10;
+    // 会员等级
+    int32 member_level = 11;
+    // 上级id
+    string parent_id = 12;
+    string parent_name = 13;
+    string parent_mobile = 14;
+    int32 parent_country_area_code = 15;
+    string parent_email = 16;
+    int32 country_area_code = 17;
+    // 会员类型：0普通 1 礼包 2大礼包 3课程 4虚拟 5 直播 6 prime
+    int32 member_type = 18;
+    string country_code = 19;
+    string member_time = 20;
+    common.enum.Member.RegisterChannelEnum register_channel = 21; // 注册渠道
+    //line三方登录凭证
+    string line_key = 22;
+    //lineId
+    string line_id = 23;
+    //wechatId
+    string wechat_id = 24;
+    int32 register_channel_num = 25; // 注册渠道
+    int32 brand_level = 26; // 品牌馆会员等级 0 非会员 3 PS+ 4 AM+ 5 AT+
+    string gender = 27; // 1 男  2 女 字符串数字
+    string birthday = 28; // 生日 时间戳 1900-01-01 到当前
+    // apple id 登录时的凭证
+    string apple_key = 29;
+    int32 show_member_level = 30; // 显示会员等级 2SH 3PS 4AM 5AT
+    bool is_new_user = 31; // 是否是新人
+    int32 member_expire_type = 32; // 会员时效类型 1永久会员 2年会员
+	int32 is_mestore_user = 33;//是否是团长身份
+}
+
+message UserInfoResp {
+    common.base.ErrorMessage ret = 1;
+    UserInfoPb user_info = 2;
+    bool open_multi_country_notice = 3; //打开多国家告知
+    bool open_point_convert_notice = 4; //打开积分转换告知
+    bool open_merger_notice = 5; // 新三方账号登录绑定老手机号，新三方账号与老手机号合并提示（开关）
+}
+
+message UserRegisterReq {
+    string mobile = 1;
+    int32 country_area_code = 2;
+    string sms_code = 3;
+    string password = 4;
+    //邀请人的邀请码
+    string inviter_code = 5;
+    string country_code = 6; // 国家编码，必填
+    common.enum.Member.RegisterChannelEnum register_channel = 7; // 注册渠道
+    int32 register_channel_num = 8; // 注册渠道
+    string live_invite_code = 10; // 直播邀约人邀请码
+    string live_id = 11; // 直播ID
+}
+
+message ThreeKeyLoginReq {
+    // 第三方key
+    string three_key = 1;
+    // 第三方类型
+    int32 type = 2;
+    string mobile = 3;
+    // 验证码
+    string sms_code = 4;
+    string password = 5;
+    string gender = 6;
+    string nick_name = 7;
+    // 头像
+    string head_img = 8;
+    string email = 9;
+    string invite_code = 10; // 废弃
+    int32 country_area_code = 11;
+    string country_code = 12; // 国家编码，必填
+    bool is_merge = 13; // 是否合并账号
+    common.enum.Member.RegisterChannelEnum register_channel = 14; // 注册渠道
+    string inviter_code = 15; // 邀请人的邀请码，非上级邀请码
+    int32 register_channel_num = 16; // 注册渠道
+}
+
+message InviteCodeReq {
+    string invite_code = 1;
+    // type 1：找V3 2：不往上找V3
+    string type = 2;
+}
+
+message CheckMobileReq {
+    string mobile = 1;
+    int32 country_area_code = 2;
+}
+
+message CheckMobileResp {
+    common.base.ErrorMessage ret = 1;
+    bool is_exist = 2; // 手机号已存在
+    string user_id = 3;
+    string nick_name = 4;
+    string head_img = 5;
+    bool is_wrong = 6; // 手机号格式不对
+}
+
+message ThreeKeyBindReq {
+    // 第三方key
+    string three_key = 1;
+    // 第三方类型
+    int32 three_key_type = 2;
+    // 1 绑定 2解绑
+    int32 bind_type = 3;
+    string user_id = 4;
+}
+
+message CheckThreeKeyReq {
+    string key = 1;
+    int32 type = 2;
+    int32 register_channel = 3; // 注册渠道
+}
+
+message CheckThreeKeyData {
+    bool has_three_key = 1;
+    bool has_mobile = 2;
+    string country_code = 3;
+    int32 jump_type = 4; // 跳转类型 1 直接threekeyLogin登录 2 强制绑手机号 3 建议绑手机号（可跳过——选择国家）4 不用绑手机号，选择国家页
+}
+
+message CheckTreeKeyResp {
+    common.base.ErrorMessage ret = 1;
+    CheckThreeKeyData data = 2;
+}
+
+message AfterLoginNoticeToViewReq {
+    // 1 多国家告知 2 积分转换告知
+    int32 type = 1;
+}
+
+message AfterLoginNoticeToViewResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message PointConvertDataReq {
+}
+
+message PointConvertDataResp {
+    common.base.ErrorMessage ret = 1;
+    string country_code = 2;
+    string org_points = 3; // 原来的积分，已格式化直接展示
+    string new_points = 4; // 转换后的积分，已格式化直接展示
+}
+
+//>>>>>>>>message_end>>>>>>>>>>>>UserLoginService>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+message AddQuestionReq {
+    int32 type = 1;
+    string question_desc = 2;
+    string connect_mode = 3;
+}
+
+message AddQuestionResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+//>>>>>>>>message_end>>>>>>>>>>>>UserQuestionService>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+message AddressInsertOrUpdateReq {
+    //主键id
+    string address_id = 1;
+    //收货人姓名
+    string name = 3;
+    //电话
+    string mobile = 4;
+    //详细收货地址
+    string address_detail = 5;
+    //市对应的编码
+    string city_code = 6;
+    //市名
+    string city_name = 7;
+    //州对应的编码
+    string state_code = 8;
+    //州名
+    string state_name = 9;
+    //邮政编码
+    string postcode = 10;
+    //国家区号
+    int32 country_area_code = 11;
+    // 国家简码
+    string country_code = 12;
+    // 是否默认 0 不是，1 是
+    int32 is_default = 13;
+}
+message AddressInsertOrUpdateResp {
+    common.base.ErrorMessage ret = 1;
+    bool success = 2;
+    AddressInsertOrUpdateReq address_info = 3; // 地址信息
+}
+message AddressIdAndUserIdReq {
+    string address_id = 1;
+}
+
+//自提附加信息
+message SelfPickUpExtraInfo{
+	string mobile = 1;
+	string name = 2;
+}
+
+message AddressDetailPb {
+    // address的id
+    string address_id = 1;
+    // 用户id
+    string user_id = 2;
+    // 自提点名称
+    string name = 3;
+	//真实姓名
+	string real_name=21;
+    // 电话
+    string mobile = 4;
+    // 详细收货地址
+    string address_detail = 5;
+    // 市对应的编码
+    string city_code = 6;
+    // 市名
+    string city_name = 7;
+    // 州对应的编码
+    string state_code = 8;
+    // 州名
+    string state_name = 9;
+    // 1是）
+    int32 is_default = 10;
+    // 1可用 2失效
+    int32 status = 11;
+    // 创建时间
+    string create_time = 12;
+    // 默认与创建时间一致
+    string update_time = 13;
+    // 州名
+    string postcode = 14;
+    // 国家区号，手机号相关
+    int32 country_area_code = 15;
+    // 国家名称
+    string country = 16;
+    // 国家编码
+    string country_code = 17;
+    //地址类型，0：用户自己地址，1：团长地址
+    int32 address_type = 18;
+    //团长用户id
+    string mestore_user_id = 19;
+    //自提附加信息，仅地址类型为团长地址时候，存在自提附加信息
+    SelfPickUpExtraInfo extraInfo = 20;
+}
+
+
+message PickupStationPb {
+    string distance = 1; //距离当前点
+    int32 id = 2;  // 自提点id
+    string name = 3;  // 自提点名
+    string cover = 4;  //自提点封面图片地址
+    string address = 5; // 详细地址
+    string lat = 6;  //纬度
+    string lng = 7; //经度
+    int32 leader_id = 8;  // 团长id
+    string leader_name = 9;  // 团长名
+    string leader_mobile = 10; //团长电话
+}
+
+message AddressDetailResp {
+    common.base.ErrorMessage ret = 1;
+    //配送到家的地址
+    AddressDetailPb address_detail = 2;
+    //自提点地址
+    AddressDetailPb pickup_address_detail = 3;
+    //最后一笔订单采用的地址，1：自提点地址，0：配送到家的地址
+    int32 last_address_type = 4;
+}
+
+message AddressListByPageReq {
+    common.base.Pagination page = 1;
+}
+
+message AddressListByPageResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated AddressDetailPb address_detail = 3;
+}
+
+message SetAddressToCurrentReq {
+    string address_id = 1;
+}
+
+message SetAddressToCurrentResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetLocationAddressReq {
+    // 经度
+    string long = 1;
+    // 纬度
+    string lat = 2;
+    // 国家编码
+    string country_code = 3;
+}
+
+message GetLocationAddressResp {
+    common.base.ErrorMessage ret = 1;
+    string country_code = 2;
+    //市对应的编码
+    string city_code = 3;
+    //州对应的编码
+    string state_code = 4;
+    //邮政编码
+    string postcode = 5;
+    //详细地址
+    string address_detail = 6;
+    // 需不需要切换
+    bool need_switch = 7;
+}
+
+//>>>>>>>>>message_end>>>>>>>>>>>>UserAddressService>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+message TeamOrdersReq {
+    common.base.Pagination page = 1;
+    //返佣状态 1 待返佣 2 已返佣 3 取消返佣 4 售后中 5 退款成功 7 冻结中
+    int32 commission_status = 2;
+    string commission_id = 3; // 分佣id
+    int32 type = 4; // 1 冻结积分列表 2 冻结积分内订单详情
+}
+
+message TeamOrdersResp {
+    common.base.ErrorMessage ret = 1;
+    message TeamOrderDetailPb {
+        string buyer_id = 1;
+        string nick_name = 2;
+        // 用户头像
+        string head_img = 3;
+        // 返现金额
+        string commission_amount = 4;
+        // 返现类型
+        common.enum.Member.OrderCommissionTypeEnum order_commission_type = 5;
+        common.trade.TeamOrderDtoPb team_order = 6;
+        // 分佣创建时间
+        string create_time = 7;
+        string commission_id = 8; // 分佣id
+    }
+    repeated TeamOrderDetailPb team_order_detail = 2;
+}
+
+message UserSimplePb {
+    string user_id = 1;
+    //昵称
+    string nickname = 2;
+    //头像
+    string head_img = 3;
+    //等级
+    int32 member_level = 4;
+    //绑定上级时间
+    string invite_time = 5;
+    //whatsApp
+    string whats_app = 6;
+    //升级时间
+    string upgrade_time = 7;
+    //直属ps，全部团队人数
+    int32 left_count = 8;
+    //团队ps，有效团队人数
+    int32 right_count = 9;
+    //最近访问时间
+    string recent_login_time = 10;
+    //下单数
+    int32 order_count = 11;
+    //未活跃时间
+    int32 recent_login_days = 12;
+    string grow_point = 13; // M值
+}
+
+message UserUpgradeProcessResp {
+    common.base.ErrorMessage ret = 1;
+    // 直属推荐人数
+    int32 directly_num = 2;
+    // 团队Ps级以上人数
+    int32 team_v3_num = 3;
+    // 团队Am级人数
+    int32 team_v4_num = 4;
+    // fingoMaster信息 （废弃）
+    repeated common.base.FingoMasterInfoPb fingo_master_info = 5;
+    // 升级百分比
+    int32 upgrade_percent_num = 6; // 0 —— 100 数字
+    // 还差多少直推PS或直推AM
+    int32 directly_num_left = 7;
+    // 团队还差多少PS升级
+    int32 team_v3_num_left = 8;
+    // 团队还差多少AM升级
+    int32 team_v4_num_left = 9;
+}
+
+message RecentInviteListReq {
+    common.base.Pagination page = 2;
+    int32 time_start_type = 3; //时间筛选 0: 全部 1: 24h 2: 7天 3: 本月
+    bool is_eff_team = 4; // 是有效团队
+}
+
+message RecentInviteListResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated UserSimplePb user_simple = 3;
+}
+
+message GetPaomaDengDataReq {
+}
+
+message GetPaomaDengDataResp {
+    common.base.ErrorMessage ret = 1;
+    message PaomaDengPb {
+        string head_img = 1;
+        string content = 2;
+    }
+    repeated PaomaDengPb paoma_deng_pb = 2;
+    string total_member_count = 3; // 有多少人成为会员
+}
+
+message TeamGroupDtoPb {
+    int32 v2_count = 1;
+    int32 v3_count = 2;
+    int32 v4_count = 3;
+    int32 v5_count = 4;
+    int32 total_count = 5;
+    int32 member_count = 6; // 团队会员人数
+}
+
+message TeamGroupReportResp {
+    common.base.ErrorMessage ret = 1;
+    // 团队总人数
+    int32 total_count = 2;
+    // 团队订单数量
+    int32 team_order_count = 3;
+    // 最近一个月邀请人数
+    int32 invite_count = 4;
+    // 各等级团队人数统计
+    TeamGroupDtoPb data = 5;
+}
+
+message GetTeamMemberDetailReq {
+    //团队成员用户id
+    string member_user_id = 1;
+    int32 time_start_type = 2; //时间筛选 0: 全部 1: 24h 2: 7天 3: 本月
+}
+
+message GetTeamMemberDetailResp {
+    common.base.ErrorMessage ret = 1;
+    string user_id = 2;
+    //昵称
+    string nickname = 3;
+    //头像
+    string head_img = 4;
+    //等级
+    int32 member_level = 5;
+    //绑定上级时间
+    string invite_time = 6;
+    //贡献收益
+    string contributeAmount = 7;
+    //团队人数
+    int32 team_member_count = 8;
+    //whatsapp联系
+    string whats_app = 9;
+    //微信二维码
+    string wechat_qr = 10;
+    //微信id
+    string wechat_id = 11;
+    // 直属推荐人数
+    int32 directly_num = 12;
+    // 团队Ps级以上人数
+    int32 team_v3_num = 13;
+    // 团队Am级人数
+    int32 team_v4_num = 14;
+    //上级链路
+    repeated UserSimplePb team_link = 15;
+    //绑定上级时间
+    string upgrade_time = 16;
+    string line_id = 17;
+    int32 eff_ps_count = 18; // 有效团队ps数
+    int32 eff_am_count = 19; // 有效团队am数
+    int32 total_sh_count = 20; // 全部团队sh数
+    int32 total_ps_count = 21; // 全部团队ps数
+    int32 total_am_count = 22; // 全部团队am数
+    int32 total_at_count = 23; // 全部团队at数
+    //最近访问时间
+    string recent_login_time = 24;
+    //下单数
+    int32 order_count = 25;
+}
+
+message TeamGroupListReq {
+    common.base.Pagination page = 1;
+    // 0 all 1直接 2间接
+    int32 relation = 2;
+    int32 member_level = 3; // 2 SH 3 PS 4 AM 5 AT 6 经销商 7 所有会员
+    string mobile = 4; // 手机号
+    int32 time_start_type = 5; //时间筛选 1: 24h 2: 7天 3: 本月
+    bool is_eff_team = 6; // 是有效团队
+    int32 list_time_start_type = 7; // am列表时间筛选 1: 24h 2: 7天 3: 本月
+}
+
+message TeamGroupListResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated UserSimplePb user_simple = 3;
+}
+
+message CountTeamMemberByConditionReq {
+    int64 superior_id = 1; // 上级用户id
+    int32 member_level = 2; // 等级
+    bool is_vip = 3; // Ps及以上等级（V3——V5）
+    string invite_time_start = 4; // 邀请开始时间
+    string invite_time_end = 5; // 邀请结束时间
+    common.enum.Member.RegisterChannelEnum register_channel = 6; // 注册渠道
+    int32 register_channel_num = 7; // 注册渠道
+}
+
+message CountTeamMemberByConditionResp {
+    common.base.ErrorMessage ret = 1;
+    int32 count = 2; // 人数
+}
+
+message MemberInviteListReq {
+    common.base.Pagination page = 1;
+    string user_id = 2; // 当前用户id
+    int32 member_level = 3; // 直推的会员等级
+    int32 order_count = 4; // 过滤订单数低于这个数字的用户
+}
+
+message MemberInviteListResp {
+    common.base.ErrorMessage ret = 1;
+    message MemberInvite {
+        string user_id = 1;
+        string mobile = 2;
+        string head_img = 3;
+        string nick_name = 4;
+        int32 order_count = 5; // 下单数
+    }
+    repeated MemberInvite member_invite = 2;
+}
+message GetUserHasAddressReq{
+}
+message GetUserHasAddressResp{
+    common.base.ErrorMessage ret = 1;
+    bool user_has_address = 2; // 用户是否有地址
+}
+
+//>>>>>>>>>message_end>>>>>>>>>>>>UserTeamService>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+message GetSmsAuthCodeReq {
+    string mobile = 1;
+    int32 country_area_code = 2;
+    string biz_code = 3; // 业务码
+}
+
+message GetSmsAuthCodeResp {
+    common.base.ErrorMessage ret = 1;
+    bool is_show = 2; // 弹框提示，印尼展示
+    string show_content = 3; // 提示内容
+}
+
+message GetEmailAuthCodeReq {
+    string email = 1;
+}
+
+message GetEmailAuthCodeResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message VerifySmsAuthCodeReq {
+    string mobile = 1;
+    int32 country_area_code = 2;
+    string biz_code = 3; // 业务码
+    string auth_code = 4; // 验证码
+}
+
+message VerifySmsAuthCodeResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetImgAuthCodeReq {
+    string mobile = 1;
+    int32 country_area_code = 2;
+    string biz_code = 3; // 业务码
+}
+
+message GetImgAuthCodeResp {
+    common.base.ErrorMessage ret = 1;
+    string img_base64 = 4; // 图片base64字符串
+}
+
+message GetSmsAuthCodeWithImgAuthCodeReq {
+    string mobile = 1; // 手机号
+    int32 country_area_code = 2; // 国家区号
+    string biz_code = 3; // 业务码
+    string img_auth_code = 4; // 图片验证码
+
+}
+
+message GetSmsAuthCodeWithImgAuthCodeResp {
+    common.base.ErrorMessage ret = 1;
+    bool is_show = 2; // 弹框提示，印尼展示
+    string show_content = 3; // 提示内容
+}
+
+message MemberTrainingTaskListReq {
+    common.base.Pagination page = 1;
+}
+
+message MemberTrainingTaskListResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    int32 pic_count = 3;
+    message TrainingTaskPb {
+        int32 task_id = 1;
+        repeated string pic_url = 2;
+        string begin_time = 3;
+        string end_time = 4;
+        string percentage_progress = 5; // 进度百分比
+    }
+    repeated TrainingTaskPb training_task = 4;
+    int32 unfinished_task_tips = 5; // 本周未完成任务提示：0 不提示 1 提示
+}
+
+message AddOrEditTrainingTaskReq {
+    int32 task_id = 1;
+    repeated string pic_url = 2;
+}
+
+message AddOrEditTrainingTaskResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message SignThePdpaAgreementReq {
+    string pic_url = 1;
+}
+
+message SignThePdpaAgreementResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+message GetPdpaAgreementStatusReq {
+}
+message DeviceInfoReportReq {
+    string device_info = 1;
+}
+message DeviceInfoReportResp {
+    common.base.ErrorMessage ret = 1;
+    string lid = 2;
+    string token = 3;
+    string did = 4;
+}
+
+message GetPdpaAgreementStatusResp {
+    common.base.ErrorMessage ret = 1;
+    bool forced_tips = 2; // 强制提示 true 强制弹出签署协议页面 false 不弹
+    bool has_signed = 3; // 是否签署pdpa协议 true 签署了 false 没签
+    string sign_countdown = 4; // 协议签署倒计时（毫秒）
+    string end_time = 5; // 15天截止时间
+}
+
+
+message BrandMemberSalesDetailReq {
+}
+
+message BrandMemberSalesDetailResp {
+    common.base.ErrorMessage ret = 1;
+    string month_eff_team_sales = 2; // 本月有效团队销售额
+    string month_total_team_sales = 3; // 本月全部团队销售额
+    string eff_team_sales = 4; // 有效团队销售额
+    string total_team_sales = 5; // 全部团队销售额
+    string cumulative_income = 6; // 累积收益
+    string frozen_income = 7; // 冻结中收益
+    string thawed_income = 8; // 已解冻收益
+    string country_code = 9; // 货币国家
+    string expected_income = 10; // 预期收益（待返佣）
+}
+
+message FriendSalesRankingReq {
+    common.base.Pagination page = 1;
+}
+
+message FriendSalesRankingResp {
+    common.base.ErrorMessage ret = 1;
+    message FriendSalesRanking {
+        string head_img = 1;
+        string nick_name = 2;
+        int32 member_level = 3;
+        int32 brand_level = 4;
+        string eff_team_sales = 5; // 有效团队销售额
+        string country_code = 6; // 货币国家
+    }
+    repeated FriendSalesRanking friend_sales_ranking = 2;
+    int32 total = 3;
+}
+
+message CountMemberInviteTodayReq{
+}
+
+message CountMemberInviteTodayResp{
+    common.base.ErrorMessage ret = 1;
+    int32 ps_count = 2;
+}
+
+message GetPeriodListReq{
+    int32 count = 1;// 返回数量
+}
+
+message GetPeriodListResp{
+    message PeriodInfo {
+         string period = 1;// 期数
+         string start_time = 2; // 开始日期时间戳 毫秒
+         string end_time = 3; // 结束日期时间戳 毫秒
+         bool current = 4; // 是否本周
+         bool last = 5; // 是否上周
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated PeriodInfo period = 2;// 期数
+}
+
+message CountAllMemberInviteTodayReq {
+    int32 num = 1;//展示前top N个
+}
+message MemberInviteInfo {
+    string user_id = 1;//用户id
+    int32 invite_count = 2;//拉新数量
+    string nick_name = 3;//昵称
+    string head_img = 4;//头像
+    string mobile = 5;//手机号
+}
+message CountAllMemberInviteTodayResp {
+    common.base.ErrorMessage ret = 1;
+    repeated MemberInviteInfo member_invite_info = 2;
+}
+message GetMemberInviteRankReq {
+
+}
+message GetMemberInviteRankResp {
+    common.base.ErrorMessage ret = 1;
+    int32 rank = 2;//当前排名
+    int32 inviteCount = 3;//拉新数量
+}
+message RecommendBindReq {
+}
+message RecommendBindResp {
+    message MemberInfo {
+        string nick_name = 1; // 昵称
+        string head_img = 2; // 头像
+        string invite_code = 3; // 邀请码
+    }
+    common.base.ErrorMessage ret = 1;
+    bool show_recommend = 2; // 是否弹窗提醒
+    repeated MemberInfo member = 3; // 推荐上级列表
+    string coupon_amount = 4; // 优惠券面值
+}
+
+message UserDefaultPickupStationReq {
+
+}
+message UserDefaultPickupStationResp {
+    common.base.ErrorMessage ret = 1;
+    int32 id = 2;  // 自提点id
+    string name = 3;  // 自提点名
+    string cover = 4;  //自提点封面图片地址
+    string address = 5; // 详细地址
+    string lat = 6;  //纬度
+    string lng = 7; //经度
+    int32 leader_id = 8;  // 团长id
+    string leader_name = 9;  // 团长名
+    string leader_mobile = 10; //团长电话
+    string distance = 11; //距离当前点
+
+}
+message PickupStationByPageReq {
+    string keyword = 1;  // 搜索词
+    string lat = 2;  //纬度
+    string lng = 3; // 经度
+}
+message PickupStationByPageResp {
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated PickupStationPb pickup_station_detail = 3;
+}
+message EditPickupStationReq {
+    int32 id = 1;  // 自提点id
+}
+message EditPickupStationResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+//>>>>>>>>>message_end>>>>>>>>>>>>AuthCodeService>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+service UserLoginService {
+    // 用户登陆(非分享-手机密码登陆)
+    rpc UserLogin (UserLoginReq) returns (UserInfoResp);
+    // 获取用户信息
+    rpc GetUserInfo (MemberDefaultReq) returns (UserInfoResp);
+    // 用户手机号注册
+    rpc Register (UserRegisterReq) returns (UserInfoResp);
+    // 用户登出
+    rpc Logout (MemberDefaultReq) returns (MemberBooleanResp);
+    // 第三方登陆
+    rpc ThreeKeyLogin (ThreeKeyLoginReq) returns (UserInfoResp);
+    // 根据邀请码获得用户信息
+    rpc GetInviter (InviteCodeReq) returns (UserInfoResp);
+    // 检验手机号是否已经注册
+    rpc CheckMobile (CheckMobileReq) returns (CheckMobileResp);
+    // 第三方账号绑定
+    rpc ThreeKeyBind (ThreeKeyBindReq) returns (MemberBooleanResp);
+    // 检查第三方账号是否已经绑定
+    rpc CheckThreeKey (CheckThreeKeyReq) returns (CheckTreeKeyResp);
+    // 登录后查看告知，用于记录用户是否查看告知（用来控制单个用户只弹1次）
+    rpc AfterLoginNoticeToView (AfterLoginNoticeToViewReq) returns (AfterLoginNoticeToViewResp);
+    // 积分货币转换数据查询  马币转其他国家货币
+    rpc PointConvertData (PointConvertDataReq) returns (PointConvertDataResp);
+}
+
+service UserQuestionService {
+    // 用户提交问题
+    rpc AddQuestion (AddQuestionReq) returns (AddQuestionResp);
+}
+
+// 自提点Service
+service  PickupStationService {
+
+    // 获取用户默认自提点
+    rpc getUserDefaultPickupStation(UserDefaultPickupStationReq) returns (UserDefaultPickupStationResp);
+    // 分页获取自提点
+    rpc getPickupStationByPage(PickupStationByPageReq) returns (PickupStationByPageResp);
+    // 用户选择自提点,如果有默认,会覆盖
+    rpc editPickupStation(EditPickupStationReq) returns (EditPickupStationResp);
+}
+
+
+service UserAddressService {
+    // 用户新增地址
+    rpc AddAddress (AddressInsertOrUpdateReq) returns (AddressInsertOrUpdateResp);
+    // 用户编辑地址
+    rpc EditAddress (AddressInsertOrUpdateReq) returns (MemberBooleanResp);
+    // 用户获取地址详情
+    rpc GetAddressDetail (AddressIdAndUserIdReq) returns (AddressDetailResp);
+    // 获取用户默认地址
+    rpc GetUserDefaultAddress (MemberDefaultReq) returns (AddressDetailResp);
+    // 用户分页获取地址列表
+    rpc GetAddressListByPage (AddressListByPageReq) returns (AddressListByPageResp);
+    // 设为默认地址
+    rpc SetAddressToDefault (AddressIdAndUserIdReq) returns (MemberBooleanResp);
+    // 删除地址
+    rpc DeleteAddress (AddressIdAndUserIdReq) returns (MemberBooleanResp);
+    // 标记为当前地址
+    rpc SetAddressToCurrent (SetAddressToCurrentReq) returns (SetAddressToCurrentResp);
+    // 获取定位的地址
+    rpc GetLocationAddress (GetLocationAddressReq) returns (GetLocationAddressResp);
+
+    // 判断用户是否有地址
+    rpc GetUserHasAddress (GetUserHasAddressReq) returns (GetUserHasAddressResp);
+	
+	//查询用户选择的自提点信息
+    rpc GetMestoreUserBaseInfo (GetMestoreUserBaseInfoReq) returns (GetMestoreUserBaseInfoResp);
+	
+	//更新选择的自提点
+    rpc UpdateMestoreUser (UpdateMestoreUserReq) returns (UpdateMestoreUserResp);
+    //更新自提时候的联系人和联系电话附加信息
+    rpc UpdateSelfPickUpExtraInfo (UpdateSelfPickUpExtraInfoReq) returns (UpdateSelfPickUpExtraInfoResp);
+	
+	//更新团长自己的自提点宣传照
+	rpc UpdateMestoreAdPicture (UpdateMestoreAdPictureReq) returns (UpdateMestoreAdPictureResp);
+	
+	//获取团长的自提点信息（限本人）
+	rpc GetMestoreUserBaseInfoSelf (GetMestoreUserBaseInfoSelfReq) returns (GetMestoreUserBaseInfoResp);
+	
+	//获取某个团长自提点信息
+	rpc GetMestoreUserBaseInfoByUserId (GetMestoreUserBaseInfoByUserIdReq) returns (GetMestoreUserBaseInfoResp);
+    
+}
+
+service UserService {
+    // 设置用户邮箱
+    rpc UserSetEmail (UserPersonDataReq) returns (MemberBooleanResp);
+    // 设置用户昵称
+    rpc UserSetNickName (UserPersonDataReq) returns (MemberBooleanResp);
+    // 设置用户头像
+    rpc UserSetHeadImg (UserPersonDataReq) returns (MemberBooleanResp);
+    // 设置用户手机
+    rpc UserSetMobile (UserSetMobileReq) returns (MemberBooleanResp);
+    // 忘记密码/老用户设置密码
+    rpc ForgetPassword (ForgetPasswordReq) returns (MemberBooleanResp);
+    // 绑定邀请码,bindType:1,主动 2，被动
+    rpc UserBindCode (UserBindCodeReq) returns (MemberBooleanResp);
+    // 设置用户微信号
+    rpc UserSetWechatInfo (UserSetWechatReq) returns (MemberBooleanResp);
+    // 设置用户生日和性别
+    rpc UserSetBirthdayOrGender (UserSetBirthdayOrGenderReq) returns (UserSetBirthdayOrGenderResp);
+    // 获取用户微信号
+    rpc GetUserWechatInfo (GetUserWechatInfoReq) returns (GetUserWechatInfoResp);
+    // 是否是新人
+    rpc CheckIsNewUser (CheckIsNewUserReq) returns (CheckIsNewUserResp);
+    // 会员说列表
+    rpc MemberSayList (MemberSayListReq) returns (MemberSayListResp);
+    // 设置用户个人名片信息
+    rpc UserSetMyCard (UserSetMyCardReq) returns (UserSetMyCardResp);
+    // 获取用户名片信息
+    rpc GetMyCard (GetMyCardReq) returns (GetMyCardReqResp);
+    // 获取用户销售额
+    rpc GetMySaleAmount (GetMySaleAmountReq) returns (GetMySaleAmountResp);
+    // 获取用户历史销售明细列表
+    rpc GetMyHistorySaleList (GetMyHistorySaleListReq) returns (GetMyHistorySaleListResp);
+
+    // 获取用户某一期销售明细订单列表
+    rpc SaleDetailOrderList (SaleDetailOrderListReq) returns (SaleDetailOrderListResp);
+
+    // 获取期数列表
+    rpc GetPeriodList (GetPeriodListReq) returns (GetPeriodListResp);
+
+    // 推荐用户绑定
+    rpc RecommendBind (RecommendBindReq) returns (RecommendBindResp);
+}
+
+service UserTeamService {
+    // 团队各等级人数统计，最近邀请人数，团队订单数（我的页面团队数据统计，团队页面成员数量统计）
+    rpc TeamGroupReport (MemberDefaultReq) returns (TeamGroupReportResp);
+    // 直接间接团队成员列表（分页查直接，间接会员）
+    rpc TeamGroupList (TeamGroupListReq) returns (TeamGroupListResp);
+    // 客户端团队成员信息，包含基本信息，用户贡献收益汇总，以及上级链路
+    rpc GetTeamMemberDetail (GetTeamMemberDetailReq) returns (GetTeamMemberDetailResp);
+    // 团队订单列表（订单号去重）
+    rpc GetTeamOrders (TeamOrdersReq) returns (TeamOrdersResp);
+    // 会员等级升级条件（会员页）
+    rpc UpgradeProgress (MemberDefaultReq) returns (UserUpgradeProcessResp);
+    // 最近30天的邀请列表（团队页）
+    rpc RecentInviteList (RecentInviteListReq) returns (RecentInviteListResp);
+    // 获取跑马灯数据
+    rpc GetPaomaDengData (GetPaomaDengDataReq) returns (GetPaomaDengDataResp);
+    //根据条件查询团队用户数
+    rpc CountTeamMemberByCondition (CountTeamMemberByConditionReq) returns (CountTeamMemberByConditionResp);
+    //PS邀约页面推荐列表
+    rpc MemberInviteList (MemberInviteListReq) returns (MemberInviteListResp);
+    // 当前用户直属上级当天邀请的PS数
+    rpc CountMemberInviteToday (CountMemberInviteTodayReq) returns (CountMemberInviteTodayResp);
+    // 统计所有用户当天拉新信息
+    rpc CountAllMemberInviteToday (CountAllMemberInviteTodayReq) returns (CountAllMemberInviteTodayResp);
+    // 获取PS邀约排名
+    rpc GetMemberInviteRank (GetMemberInviteRankReq) returns (GetMemberInviteRankResp);
+}
+
+service AuthCodeService {
+    // 获取短信验证码（biz_code：threeKeyLogin register forgetPassword userSetMobile resetPaymentPassword address_mobile_verify）
+    rpc GetSmsAuthCode (GetSmsAuthCodeReq) returns (GetSmsAuthCodeResp);
+    // 获取邮箱验证码
+    rpc GetEmailAuthCode (GetEmailAuthCodeReq) returns (GetEmailAuthCodeResp);
+    // 校验验证码是否正确
+    rpc VerifySmsAuthCode (VerifySmsAuthCodeReq) returns (VerifySmsAuthCodeResp);
+    // 获取4位数字图片验证（返回base64字符串）
+    rpc GetImgAuthCode (GetImgAuthCodeReq) returns (GetImgAuthCodeResp);
+    // 获取短信验证码(带数字图片验证)
+    rpc GetSmsAuthCodeWithImgAuthCode (GetSmsAuthCodeWithImgAuthCodeReq) returns (GetSmsAuthCodeWithImgAuthCodeResp);
+}
+
+
+service UserTaskService {
+    // 会员培训任务
+    rpc MemberTrainingTaskList (MemberTrainingTaskListReq) returns (MemberTrainingTaskListResp);
+    // 新增或修改会员任务
+    rpc AddOrEditTrainingTask (AddOrEditTrainingTaskReq) returns (AddOrEditTrainingTaskResp);
+    // 签PDPA协议
+    rpc SignThePdpaAgreement (SignThePdpaAgreementReq) returns (SignThePdpaAgreementResp);
+    // PDPA协议签署状态查询
+    rpc GetPdpaAgreementStatus (GetPdpaAgreementStatusReq) returns (GetPdpaAgreementStatusResp);
+}
+
+service UserDeviceService {
+    // h5指纹采集上报
+    rpc WebDeviceInfoReport (DeviceInfoReportReq) returns (DeviceInfoReportResp);
+}
+
+service BrandMemberService {
+    // 品牌馆会员销售详情
+    rpc BrandMemberSalesDetail (BrandMemberSalesDetailReq) returns (BrandMemberSalesDetailResp);
+    // 好友销售额排行
+    rpc FriendSalesRanking (FriendSalesRankingReq) returns (FriendSalesRankingResp);
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>> MeOne START >>>>>>>>>>>>>>>>>>>>>>>>
+message ListTaskReq {
+}
+message ListTaskResp {
+    message LiveTaskInfo {
+//        message LiveTaskDetail {
+//            string head_img = 1; // 头像
+//            string nick_name = 2; // 昵称
+//            string product_name = 3; // 商品名
+//            string fb_url = 4; // fb链接
+//            int32 status = 5; // 0未成交 1已成交
+//        }
+        string task_id = 1; // 任务ID
+        string live_room_id = 2; // 直播间ID
+
+        string live_image = 3; // 直播用户头像
+        int32 status = 4; // 当前状态 0进行中 1已达成邀请人数 待领取 2 已达成邀请人数 未达成订单数 2已达成订单数 奖励冻结中 3已完成
+        int32 num = 5; // 已达成数量
+        int32 target_num = 6; // 目标数量
+//        repeated LiveTaskDetail detail = 7; // 明细列表
+        string reward_amount = 8; // 奖励金额
+        string live_name = 9; // 直播间名称
+        string live_url = 10; // 直播间地址
+    }
+    message PsRewardInfo {
+        string reward_amount = 1; // 奖励金额
+        string sales_amount = 2; // 已达成销售额
+        string sales_amount_target = 3; // 销售额目标
+        int32 status = 4; // 当前状态 0进行中 1已达成销售额
+        string ps_reward_img = 5; // PS首单奖励图标
+
+    }
+    message TaskInfo {
+        int32 type = 1; // 类型 1直播任务 2PS首单奖励 3周奖励
+        LiveTaskInfo live_task = 2 ; // 直播任务 type=1时有值
+        PsRewardInfo ps_reward = 3; // PS首单奖励 type=2时有值
+        string sales_reward_img = 4; // 周奖励图标 type=3时有值
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated TaskInfo task = 2;
+}
+message ListTaskDetailReq {
+    common.base.Pagination page = 1;
+}
+message ListTaskDetailResp {
+    message TaskDetailInfo {
+        string user_name = 1; // 用户名
+        string reward_amount = 2; // 返佣金额
+    }
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2; // 总数
+    repeated TaskDetailInfo task_detail = 3; // 明细列表
+    string live_name = 4; // 直播间名称
+    string live_url = 5; // 直播间地址
+}
+message ListPsRewardReq {
+    common.base.Pagination page = 1;
+    int32 week = 2; // 1上周 2本周
+}
+message ListPsRewardResp {
+    message PsRewardDetailInfo {
+        string head_img = 1; // 头像
+        string nick_name = 2; // 昵称
+        string reward_amount = 3; // 可获得奖励
+        int32 status = 4; // 状态 1待联系 2已下单
+    }
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2; // 总数
+    string total_amount = 3; // 过去7天累计金额
+    string amount = 4; // 已达成团队销售额
+    string amount_target = 5; // 团队销售额目标
+    repeated PsRewardDetailInfo ps_reward_detail = 6; // 明细列表
+}
+message ListRankDataReq {
+
+}
+message ListRankDataResp {
+    message UserInfo {
+        string head_img = 1; // 头像
+        string nick_name = 2; // 昵称
+        string income_amount = 3; // 收入
+        string rank = 4; // 排名
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated UserInfo top_50_info = 2; // 前50列表
+    UserInfo self_info = 3; // 自己的信息
+}
+message GetTaskRewardReq {
+    string task_id = 1; // 任务ID
+}
+message GetTaskRewardResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+service LiveTaskService {
+    // 个人中心 - 获取任务列表
+    rpc ListTask (ListTaskReq) returns (ListTaskResp);
+
+    // 个人中心 - 领取直播任务奖励
+    rpc GetTaskReward(GetTaskRewardReq) returns (GetTaskRewardResp);
+
+    // 个人中心 - 获取任务明细
+    rpc ListTaskDetail (ListTaskDetailReq) returns (ListTaskDetailResp);
+
+    // PS首单奖励列表
+    rpc ListPsReward (ListPsRewardReq) returns (ListPsRewardResp);
+
+    // 排行榜
+    rpc ListRankData (ListRankDataReq) returns (ListRankDataResp);
+}
+
+message ListUserIntegralReq {
+    common.base.Pagination page = 1;
+}
+message ListUserIntegralResp {
+    message DetailInfo {
+        int32 type = 1; // 明细类型 1购买preferred Product返双倍积分 2礼包订单奖励 3订单消费支出 4订单关闭返还
+        string amount = 2; // 变动金额
+        string order_id = 3; // 关联订单号
+        string create_time = 4; // 时间
+    }
+    common.base.ErrorMessage ret = 1;
+    string amount = 2; // 账户余额 只有第一页有
+    string income = 3; // 累计收入 只有第一页有
+    string expend = 4; // 累计支出 只有第一页有
+    repeated DetailInfo detail = 5; // 明细列表
+}
+
+service IntegralService {
+    // 用户购物积分列表
+    rpc ListUserIntegral (ListUserIntegralReq) returns (ListUserIntegralResp);
+}
+
+message GetGrowPointInfoReq {
+}
+message GetGrowPointInfoResp {
+    common.base.ErrorMessage ret = 1;
+    string grow_point_amount = 2; // 当前成长值
+    string grow_point_next = 3; // 升级需要成长值
+    int32 show_member_level = 4; // 弹窗提示会员等级 0表示不弹窗
+    bool show_rank_data = 5; // 是否展示排行榜
+}
+message ListGrowPointDetailReq {
+    common.base.Pagination page = 1;
+}
+message ListGrowPointDetailResp {
+    common.base.ErrorMessage ret = 1;
+    message OrderInfo {
+        message OrderProduct {
+            string product_cover = 1; // 商品图片
+            int32 classification = 2; // 业绩类别
+            string attr = 3; // 商品规格
+            string title = 4; // 商品标题
+        }
+        string order_id = 1; // 订单号
+        string pay_time = 2; // 支付时间
+        string amount = 3; // 订单对应成长值
+        repeated OrderProduct order_product = 4; // 商品列表
+    }
+    int32 total = 2;
+    repeated OrderInfo order = 3; // 订单列表
+    string grow_point_amount = 4; // 现有成长值
+}
+message MeOneGetTeamOrdersReq {
+    common.base.Pagination page = 1;
+    int32 commission_status = 2; // 0 全部 1 待奖励 2 已奖励
+}
+message MeOneGetTeamOrdersResp {
+    common.base.ErrorMessage ret = 1;
+    message OrderInfo {
+        message OrderProduct {
+            string product_cover = 1; // 商品图片
+            int32 classification = 2; // 业绩类别
+            string attr = 3; // 商品规格
+            string title = 4; // 商品标题
+        }
+        string order_id = 1; // 订单号
+        string pay_time = 2; // 支付时间
+        string amount = 3; // 订单对应奖励
+        string nick_name = 4; // 买家昵称
+        repeated OrderProduct order_product = 5; // 商品列表
+    }
+    int32 total = 2;
+    repeated OrderInfo order = 3; // 订单列表
+    int32 all_total = 4; // 全部总数
+    int32 to_reward_total = 5; // 待奖励总数
+    int32 awarded_total = 6; // 已奖励总数
+
+}
+
+service GrowPointService {
+    // 成长值信息 - 个人中心页面用
+    rpc GetGrowPointInfo (GetGrowPointInfoReq) returns (GetGrowPointInfoResp);
+
+    // 成长值明细
+    rpc ListGrowPointDetail (ListGrowPointDetailReq) returns (ListGrowPointDetailResp);
+
+    // 团队订单列表
+    rpc MeOneGetTeamOrders (MeOneGetTeamOrdersReq) returns (MeOneGetTeamOrdersResp);
+
+}
+
+message GetAgreementInfoReq {
+}
+message GetAgreementInfoResp {
+    common.base.ErrorMessage ret = 1;
+    int32 status = 2; // 0 无协议 1 待签署 2 已签署
+}
+message SignAgreementReq {
+    string company_name = 1; // 公司名字
+    string company_registration_no = 2; // 公司注册号
+    string registered_address = 3; // 注册地址
+    string business_address = 4; // 公司地址
+    string postcode = 5; // 邮政编码
+    string company_phone_number = 6; // 公司电话
+    string company_bank_account = 7; // 公司银行账户
+    string company_bank_name = 8; // 银行名称
+    repeated string form_url = 9; // 附件链接列表
+    string pic_url = 10; // 协议图片
+}
+message SignAgreementResp {
+    common.base.ErrorMessage ret = 1;
+}
+
+service MeOneAgreementService {
+    // 获取协议
+    rpc GetAgreementInfo (GetAgreementInfoReq) returns (GetAgreementInfoResp);
+
+    // 签署协议
+    rpc SignAgreement (SignAgreementReq) returns (SignAgreementResp);
+}
+
+message GetMemberSummaryReq{
+}
+message GetMemberSummaryResp{
+	common.base.ErrorMessage ret = 1;
+	SimpleAccountInfo simple_account_info = 2;
+	TeamCountInfo team_count_info = 3;
+}
+message SimpleAccountInfo{
+	string total_amount = 1; // 总积分
+	string available_amount = 2; // 可用积分
+	string today_sales_amount = 3;//今日团队业绩金额
+	string target_min_sales_amount=4;//到达某个奖励梯度需要的最小业绩金额
+	string target_max_sales_amount=5;//到达某个奖励梯度需要的最大业绩金额
+	string target_sales_amount_left=6;//到达某个奖励梯度还需要的业绩金额
+	string target_reward_amount = 7;//达成目标该用户可获得的奖励
+	int32 reached_reward_standard = 8;//是否满足奖励条件,1:满足，0：不满足
+}
+
+message TeamCountInfo{
+	int32 team_order_count = 1;//团队订单数
+	int32 children_count = 2;//下级用户总数（粉丝数）
+}
+
+message GetSummaryInfoReq {
+   
+}
+message GetSummaryInfoResp {
+    common.base.ErrorMessage ret = 1;
+	// 可用积分
+	string available_amount = 2;
+	// 冻结积分
+	string frozen_amount = 3;
+	// 累计收益
+	string grand_total_amount = 4; 
+	// 本周收益
+	string week_amount = 5;
+	//预期收益
+	string forecast_amount = 6;
+}
+
+
+message AccountInfo {
+    string available_amount = 1; // 可用积分
+    string frozen_amount = 2; // 冻结积分
+    string grand_total_amount = 3; // 累计奖励
+    string total_amount = 4; // 总积分
+    string week_amount = 5; // 本周收益
+	string today_sales_amount = 6;//今日团队业绩金额
+	string target_min_sales_amount=7;//到达某个奖励梯度需要的最小业绩金额
+	string target_max_sales_amount=8;//到达某个奖励梯度需要的最大业绩金额
+	string target_sales_amount_left=9;//到达某个奖励梯度还需要的业绩金额
+	string target_reward_amount = 10;//达成目标该用户可获得的奖励
+	string forecast_amount = 11;//预期收益
+}
+
+message MemberRangeInfo {
+    string account_amount = 1; // 积分奖励
+    string grow_point_amount = 2; //成长值奖励
+    string order_count = 3; // 订单数
+}
+message FansCountInfo {
+    int32 v3_count = 4; // 银卡
+    int32 v2_count = 5; // 普通粉丝
+    int32 high_active_count = 6; // 高活跃度
+    int32 medium_active_count = 7; // 中活跃度
+    int32 low_active_count = 8; // 低活跃度
+    int32 no_active_count = 9; // 不活跃
+}
+message GetAccountInfoReq {
+}
+message GetAccountInfoResp {
+    common.base.ErrorMessage ret = 1;
+    AccountInfo account_info = 2; // 积分信息
+    int32 team_order_count = 3 ; // 团队订单数
+    string expect_income = 4 ; // 预期收益
+
+}
+message ListOrderByRangeReq {
+    common.base.Pagination page = 1;
+    int32 frozen_status = 2; // 1可以用积分 2冻结积分
+    int32 range = 3; // 返回范围 1今日 7本周 30本月
+}
+message ListOrderByRangeResp {
+    message OrderInfo {
+        string order_id = 1; // 订单号
+        string pay_time = 2; // 支付时间
+        string frozen_time = 3; // 冻结时间
+        string release_time = 4; // 解冻时间
+        string amount = 5; // 奖励积分数量
+    }
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated OrderInfo order = 3; // 订单列表
+
+}
+message ListFansReq {
+    common.base.Pagination page = 1;
+	int32 member_level = 2; // 会员等级 2普通粉丝 3会员
+    int32 direct_child = 3; // 粉丝亲密度，0：全部，1：亲密会员(直接下级)，2：普通会员
+	int32 range = 4;//0：全部，1：昨天，7：最近7天，15：最近15天，30：最近30天
+	int32 finish_status = 5;//0：全部，1：完成首单，2：未完成首单
+}
+message ListFansResp {
+    message FansInfo {
+        int64 user_id = 1; // 用户ID
+        string head_img = 2; // 头像
+        string nick_name = 3; // 昵称
+        int32 member_level = 4; // 会员等级
+        int64 left_time = 5; // 首单剩余时间(毫秒)，为0表示已过期
+        string sales_amount = 6; // 昨日消费额
+		int32 finish_status=7;//是否已完成，1：完成首单，2：未完成首单
+		int32 order_count=8;//订单数
+		string mobile = 9;//用户手机号
+		string reg_time = 10; // 注册时间
+		string login_time = 11; // 最后一次上线时间
+    }
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated FansInfo fans = 3; // 粉丝列表
+}
+message GetFansInfoReq {
+    int64 user_id = 1; // 用户ID
+}
+message GetFansInfoResp {
+    common.base.ErrorMessage ret = 1;
+	SimpleUserVO user = 2;
+	int32 child_v2_count= 3;//下级非会员数量
+	int32 child_v3_count= 4;//下级会员数量
+    string self_with_team_amount = 5; // 自购+团队购买金额
+}
+message GetFansContributionReq {
+    int64 user_id = 1;
+    int32 range = 2; // 返回范围 1今日 7本周 30本月
+}
+message GetFansContributionResp {
+    common.base.ErrorMessage ret = 1;
+    MemberRangeInfo range_info = 2; // 贡献值信息
+ }
+message ListOrderRewardReq {
+    common.base.Pagination page = 1;
+    int32 range = 2; // 返回范围 1今日 7本周 30本月
+	int32 commission_type=3;//返佣类型，0:全部，1：课程，2：首单，3：商品
+}
+message ListOrderRewardResp {
+    message OrderInfo {
+        message OrderProduct {
+            string product_cover = 1; // 商品图片
+            int32 classification = 2; // 业绩类别
+            string attr = 3; // 商品规格
+            string title = 4; // 商品标题
+        }
+        string order_id = 1; // 订单号
+        string fans_name = 2; // 粉丝名
+        string pay_time = 3; // 支付时间
+        string account_amount = 4; // 奖励积分数量
+        string grow_point_amount = 5; // 奖励成长值数量
+        repeated OrderProduct order_product = 6; // 商品列表
+    }
+
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated OrderInfo order_info = 3; // 订单列表
+    int32 order_total = 4; // 粉丝订单数
+}
+
+message GetSalesCommissionAndOrderReq{
+	int32 range = 1;//0：全部，1：昨天，7：近7天，30：近一个月
+}
+
+message GetSalesCommissionAndOrderResp{
+	common.base.ErrorMessage ret = 1;
+	
+	int32 order_count = 2;//订单数量
+	string order_amount = 3;//奖励金额
+	
+	string sales_reward_amount =4;//累计业绩奖励
+}
+
+message GetChildCountInfoReq{
+}
+
+message GetChildCountInfoResp{
+	common.base.ErrorMessage ret = 1;
+	int32 v2_count=2;//普通用户数
+	int32 v3_count=3;//会员数
+	int32 total_count=4;//总数
+}
+
+message GroupDailySalesRewardReq{
+	common.base.Pagination page = 1;
+}
+
+message GroupDailySalesRewardResp{
+	common.base.ErrorMessage ret = 1;
+	
+	message DailySalesReward{
+		string self_sales_amount=2;//我的消费额（自购金额）
+		string team_sales_amount=3;//我的销售额（团队贡献）
+		string self_reward_amount=4;//我的业绩奖励
+		int32 reward_status=5;//结算状态，1：待结算，2：已结算
+		string reward_day = 6;//奖励日期
+	}
+	repeated DailySalesReward day_sales_reward = 2;
+}
+
+message ListOrderSalesRewardReq{
+	common.base.Pagination page = 1;
+	string reward_day=2;//奖励日期
+}
+
+message ListOrderSalesRewardResp{
+	message OrderInfo {
+        message OrderProduct {
+            string product_cover = 1; // 商品图片
+            int64 productId = 2; // 商品id
+            string attr = 3; // 商品规格
+            string title = 4; // 商品标题
+			int32 classification = 5;//商品类别
+			int32 buy_count = 6; //购买数量
+			string act_buy_price = 7;//实付款
+        }
+        int64 order_id = 1; // 订单号
+        SimpleUserVO user = 2;  // 粉丝名
+        string pay_time = 3; // 支付时间
+        string sales_amount = 4; // 销售额
+		int32 self_order = 5;//是否自购，1：自购
+        repeated OrderProduct order_product = 6; // 商品列表
+    }
+    common.base.ErrorMessage ret = 1;
+    repeated OrderInfo order_info = 2; // 订单列表
+}
+
+message ListOrderCommissionReq{
+	common.base.Pagination page = 1;
+	int32 product_type=2;//返佣类型，0:全部，1：课程，2：首单，3：商品
+	int32 status = 3;//结算状态, 0：全部，1：待结算，2：已结算
+	int32 biz_type=4;//业务类型，1：普货返佣，2：团长服务费返佣
+}
+
+message ListOrderCommissionResp{
+	message OrderInfo {
+        message OrderProduct {
+            string product_cover = 1; // 商品图片
+            int64 productId = 2; // 商品id
+            string attr = 3; // 商品规格
+            string title = 4; // 商品标题
+			int32 buy_count = 5; //购买数量
+			string act_buy_price = 6;//实付款
+			string commission_amount = 7;//佣金
+        }
+        int64 order_id = 1; // 订单号
+        SimpleUserVO user = 2; // 粉丝
+        string pay_time = 3; // 支付时间
+        string pay_amount = 4; // 实付金额
+        string commission_amount = 5; // （预估）返佣金额
+		int32 commission_status = 6;//返佣状态，0待反佣，1付款完成，待返佣，2已反佣，3取消反佣
+        repeated OrderProduct order_product = 7; // 商品列表
+    }
+
+    common.base.ErrorMessage ret = 1;
+    int32 total = 2;
+    repeated OrderInfo order_info = 3; // 订单列表
+}
+
+message SimpleUserVO{
+	string fans_name = 1; // 粉丝名
+	string avatar = 2;//头像
+	string login_time=3;//最后一次登录时间,dd/MM/yyyy HH:mm:ss
+	string login_time_str = 7;//几天前...
+	int64 user_id = 4;//用户id 
+	int32 member_level = 5;//会员等级
+	string mobile = 6;//手机号
+}
+
+message GetCourseBuyInfoReq{
+}
+
+message GetCourseBuyInfoResp{
+	common.base.ErrorMessage ret = 1;
+	
+	message CourseInfo{
+		// 课程标题
+		string title = 1;
+		// 课程封面
+		string pict_url =2;
+		// 视频地址,仅购买课程时候返回
+		string video_url = 3;
+	}
+	
+	// 课程列表
+	repeated CourseInfo courseList = 2;
+	// 1年会员商品ID
+	string one_year_product_id = 3;
+	// 终生会员商品ID
+	string forver_product_id=4;
+	// 是否购买
+	int32 is_buy = 5;
+}
+
+message GetShareRelationUrlReq {
+	//1、邀请码，2、商品，3、内容运营，4、限时抢购，5、收藏页，6、搭建页面
+	int32 target_type = 1;
+	// target_type=2，target_id为商品id ， 特殊可选
+	string target_id = 2;
+	// 自定义参数,key=value，value请务必urlencode，该参数会回传到share_url
+	string custom_params = 3;
+}
+
+message GetShareRelationUrlResp{
+	common.base.ErrorMessage ret = 1;
+	string share_url = 2;//可分享的链接
+}
+
+message SaveShareRelationReq{
+	// 分享链接参数_trackId_
+	string _trackId_ = 1;
+}
+message SaveShareRelationResp{
+	common.base.ErrorMessage ret = 1;
+}
+
+message RewardAchieveInfoReq{
+}
+
+message RewardAchieveInfoResp{
+	common.base.ErrorMessage ret = 1;
+	//包括自己在内，消费群体累计消费金额【目标】
+	string total_target_sales_amount = 2;
+	//包括自己在内，消费群体累计消费金额【完成金额】
+	string total_finished_sales_amount = 3;
+	//包括自己在内，消费群体累计消费金额【完成金额】
+	string total_finished_sales_amount_percent = 4;
+	//个人累计销售或自己购买金额【目标】
+	string self_target_sales_amount = 5;
+	//个人累计销售或自己购买金额【完成金额】
+	string self_finished_sales_amount = 6;
+	//个人累计销售或自己购买金额【完成比例】
+	string self_finished_sales_amount_percent = 7;
+}
+
+service MemberCenterService {
+	// 会员Tab信息：积分+团队信息
+	rpc GetMemberSumaryInfo (GetMemberSummaryReq) returns (GetMemberSummaryResp);
+	
+	// 按时间统计销售订单信息
+	rpc GetSalesCommissionAndOrderInfo (GetSalesCommissionAndOrderReq) returns (GetSalesCommissionAndOrderResp);
+	
+	// 粉丝总数
+	rpc GetChildCountInfo (GetChildCountInfoReq) returns (GetChildCountInfoResp) ;
+	
+	// 粉丝列表
+    rpc ListFans (ListFansReq) returns (ListFansResp);
+	
+	// 粉丝详情
+    rpc GetFansInfo (GetFansInfoReq) returns (GetFansInfoResp);
+    
+    // 提现详情
+    rpc GetAccountInfo (GetAccountInfoReq) returns (GetAccountInfoResp);
+    // 粉丝贡献信息
+    rpc GetFansContribution (GetFansContributionReq) returns (GetFansContributionResp);    
+	
+	//购买返佣：返佣订单列表
+	rpc ListOrderCommission (ListOrderCommissionReq) returns (ListOrderCommissionResp);
+
+	//业绩奖励：按天汇总业绩结算列表
+	rpc GroupDailySalesReward (GroupDailySalesRewardReq) returns (GroupDailySalesRewardResp);
+	
+	//业绩奖励：查询某人某天的业绩订单列表
+	rpc ListOrderSalesReward (ListOrderSalesRewardReq) returns (ListOrderSalesRewardResp);
+	
+	// 会员信息
+    rpc GetSummaryInfo (GetSummaryInfoReq) returns (GetSummaryInfoResp);
+	
+	// 查询当前用户的课程购买信息
+	rpc GetCourseBuyInfo (GetCourseBuyInfoReq) returns (GetCourseBuyInfoResp);
+	
+	//[废弃]订单数据列表
+    rpc ListOrderByRange (ListOrderByRangeReq) returns (ListOrderByRangeResp);
+	
+	// [废弃]积分记录列表
+    rpc ListOrderReward (ListOrderRewardReq) returns (ListOrderRewardResp);
+    
+    //日消费奖励条件达成情况
+    rpc RewardAchieveInfo (RewardAchieveInfoReq) returns (RewardAchieveInfoResp);
+}
+
+service ShareRelationService{
+	// 获取分享链接信息
+	rpc GetShareRelationUrl (GetShareRelationUrlReq) returns (GetShareRelationUrlResp);
+	// 打开链接，有_trackId_就请求该接口，该接口会始终返回成功
+	rpc SaveShareRelation (SaveShareRelationReq) returns (SaveShareRelationResp);
+}
+

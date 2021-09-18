@@ -1,0 +1,59 @@
+//DESC APP littlec-chat
+syntax = "proto3";
+
+package core.appversion;
+
+
+import "common/enum.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.fingo.littlec.proto.core.appversion";
+option java_outer_classname = "AppVersion";
+
+
+message GetNewVersionInfoReq {
+    //国家编号
+    string country = 1;
+    //语言
+    string language = 2;
+    //应用名
+    string appName = 3;
+    //版本ID
+    uint32 versionId = 4;
+    //客户端类型
+    common.enum.MsggwEnum.DeviceType device_type = 5;
+    //版本号
+    string versionCode = 6;
+}
+
+message GetNewVersionInfoResp {
+    common.base.ErrorMessage ret = 1;
+    AppVersionInfo appVersionInfo = 2;
+}
+
+message AppVersionInfo {
+    //应用名
+    string appName = 3;
+    //版本ID
+    uint32 versionId = 4;
+    //客户端类型
+    common.enum.MsggwEnum.DeviceType device_type = 5;
+    //版本号
+    string versionCode = 6;
+    //更新描述
+    string updateDesc = 7;
+    //更新类型
+    common.enum.AppVersion.AppVersionUpdateTypeEnum updateType = 8;
+    //安装包地址
+    string app_url = 9;
+    //更新方式
+    common.enum.AppVersion.AppVersionUpdateDownloadTypeEnum download_type = 10;
+}
+
+service AppVersionService {
+
+    //获取最新版本信息
+    rpc GetNewVersionInfo(GetNewVersionInfoReq) returns (GetNewVersionInfoResp);
+
+}
