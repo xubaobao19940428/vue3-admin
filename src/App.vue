@@ -15,7 +15,7 @@ export default {
     // HelloWorld,
   },
   created(){
-     this.$store.dispatch('GetUserInfo')
+    this.$store.dispatch('GetUserInfo')
     this.$store.dispatch('getCountryList')
     this.$store.dispatch('getLanguageList')
     this.$store.dispatch('GetPermissionKeyMap')

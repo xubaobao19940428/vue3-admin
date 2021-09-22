@@ -141,3 +141,18 @@ export function getAppCountryDivision (params) {
     const req = request.create('GetAppCountryDivisionReq', params)
     return request('i18n', 'I18nCountryLanguageService.GetAppCountryDivision', req, 'GetAppCountryDivisionResp')
 }
+/**
+ * 多语言配置
+ */
+// 是否需要更新语言包
+export function translateUpdateFlag (params) {
+    console.log(params)
+    const req = request.create('GetPlatformVariableUpdateFlagReq', params)
+    return request('i18n', 'I18nPlatformService.GetPlatformVariableUpdateFlag', req, 'GetPlatformVariableUpdateFlagResp')
+}
+// 终端获取指定语言的翻译项列表
+export function getTranslateData (params) {
+    console.log(params)
+    const req = request.create('GetPlatformVariableListReq', params)
+    return request('i18n', 'I18nPlatformService.GetPlatformVariableList', req, 'GetPlatformVariableListResp')
+}

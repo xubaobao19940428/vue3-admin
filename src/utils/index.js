@@ -1,7 +1,9 @@
 /**
  * Created by johnqian on 21/07/26.
  */
-
+import { getTranslateData, translateUpdateFlag } from '@/api/pb/i18n'
+import localForage from 'localforage'
+import store from "@/store"
  export function parseTime (time, cFormat) {
     if (arguments.length === 0) {
         return null
@@ -324,4 +326,56 @@ export function splitData (data) {
         }
     }
     return data ? item : []
+}
+// 更新本地语言
+export function updateLocalLang () {
+    const lang = store.state.app.lang
+    let lastUpdateTime = new Date().getTime()
+    localForage.getItem('SCSlastUpdateTime').then((time) => {
+        if (time) {
+            lastUpdateTime = time
+        }
+    })
+    localForage.getItem('SCSlangTranslateMap_' + lang).then((val) => {
+        if (val) {
+            store.commit('SET_LANG_TRANSLATE', {
+                value: val,
+                lang: lang
+            })
+            judgeUpdate()
+        } else {
+            getTranslateList()
+        }
+    })
+
+    function judgeUpdate () {
+        translateUpdateFlag({
+            languageCode: lang,
+            platform: 'SCS',
+            lastUpdateTime: lastUpdateTime
+        }).then((res) => {
+            if (res.ret.errcode === 1) {
+                if (res.updateFlag) {
+                    localForage.clear()
+                    getTranslateList()
+                }
+            }
+        })
+    }
+
+    function getTranslateList () {
+        getTranslateData({
+            languageCode: lang,
+            platform: 'SCS',
+            variableRetType: 1
+        }).then((res) => {
+            if (res.ret.errcode === 1) {
+                localForage.setItem('SCSlastUpdateTime', res.updateTime)
+                store.commit('SET_LANG_TRANSLATE', {
+                    value: res.variableTranslationMap,
+                    lang: lang
+                })
+            }
+        })
+    }
 }
