@@ -1,7 +1,7 @@
 <!--  -->
 <template>
   <div class="index1">
-      111222
+      {{getLocalUseLangData('Button_SynOperation')}}
   </div>
 </template>
 

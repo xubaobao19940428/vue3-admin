@@ -26,11 +26,11 @@
         <div class="header-r">
             <el-dropdown class="language-container" trigger="click">
               <div class="el-dropdown-link language-wrapper">
-                <img src="https://assets.mehome.shop/mingmo-supplier/img/lang.2b691c8e.png" alt=""><span>Language</span><i class="iconfont">&#xe659;</i>
+                <img src="https://assets.mehome.shop/mingmo-supplier/img/lang.2b691c8e.png" alt=""><span>{{langDesc}}</span><i class="iconfont">&#xe659;</i>
               </div>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item v-for="(item,index) in languageList" :key="item.code+index" @click="changeLanguage(item.code)">{{item.name}}</el-dropdown-item>
+                  <el-dropdown-item v-for="(item,index) in languageList" :key="item.code+index" @click.native="switchLang(item.code,item.name)">{{item.name}}</el-dropdown-item>
                  
                 </el-dropdown-menu>
               </template>
@@ -72,15 +72,21 @@ export default {
         nickName: "",
         mobile: "",
       },
+      langDesc:localStorage.getItem('lang')?localStorage.getItem('lang'):'Language'
     };
   },
+  watch:{
+    
+  },
+  components: {
 
-  components: {},
+  },
 
   computed: {
     ...mapState({
       isCollapse: (state) => state.nav.isCollapse,
-      username:(state)=>state.user.username
+      username:(state)=>state.user.username,
+      lang:(state)=>state.system.lang
     }),
     levelList() {
       return this.$route.matched;
@@ -103,9 +109,10 @@ export default {
             path:'/login'
         })
     },
-    changeLanguage(code){
-      console.log(code)
-    }
+    switchLang (lang,name) {
+        this.$store.commit('SET_LANGUAGE', {lang:lang,mark:''})
+        localStorage.setItem('lang',name)
+      },
   },
 };
 </script>

@@ -1,10 +1,6 @@
 <!--  -->
 <template>
     <div class="memall_nav">
-        <!-- <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
-        <el-radio-button :label="false">展开</el-radio-button>
-        <el-radio-button :label="true">收起</el-radio-button>
-    </el-radio-group> -->
         <el-menu
             unique-opened
             class="el-menu-vertical-demo"
@@ -14,6 +10,13 @@
             active-text-color="#409EFF"
             background-color="#23463e"
         >
+        <h5 v-if="!isCollapse">
+            <img src="https://cdn-hz.mehome.shop/image/202106/311dac837878418e93b6168ba81dfde7.png" alt="">
+          <span>Default colors</span>
+        </h5>
+          <h5 v-else>
+            <img src="https://cdn-hz.mehome.shop/image/202106/311dac837878418e93b6168ba81dfde7.png" alt="">
+          </h5>
             <el-submenu
                 v-for="(item,index) in routers"
                 :key="index+'_'+item.meta.title"
@@ -106,6 +109,22 @@ export default {
 <style lang='scss' scoped>
 .memall_nav {
   height: 100%;
+}
+.el-menu{
+  h5{
+    height: 50px;
+    text-align: center;
+    color:#fff;
+    line-height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    img{
+      width:30px;
+      height:30px;
+      margin-right:10px;
+    }
+  }
 }
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 201px;

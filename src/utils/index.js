@@ -329,7 +329,7 @@ export function splitData (data) {
 }
 // 更新本地语言
 export function updateLocalLang () {
-    const lang = store.state.app.lang
+    const lang = store.state.system.lang
     let lastUpdateTime = new Date().getTime()
     localForage.getItem('SCSlastUpdateTime').then((time) => {
         if (time) {

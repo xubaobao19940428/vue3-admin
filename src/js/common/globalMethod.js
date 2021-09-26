@@ -189,6 +189,15 @@ const timestampToTime =(timestamp)=> {
     uniques = uniques;
     return uniques;
   }
+  // 获取本地语言翻译
+const getLocalUseLangData = (key, code) => {
+    const langTranslateMap = store.state.system.langTranslateMap
+    if (!langTranslateMap || !langTranslateMap[key]) {
+        return ''
+    }
+    return langTranslateMap[key].translation ? langTranslateMap[key].translation : (
+      langTranslateMap[key].nameEn ? langTranslateMap[key].nameEn : langTranslateMap[key].nameCn)
+}
 export default {
     filterData,
     onImgBeforeUpload,
@@ -203,5 +212,6 @@ export default {
     timeTotimestamp,
     deleteObject,
     timestampToYear,
-    timestampToDay
+    timestampToDay,
+    getLocalUseLangData
 }

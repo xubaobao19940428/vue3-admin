@@ -1,7 +1,35 @@
 
 const path = require('path')
-// const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-
+const CompressionPlugin = require('compression-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+let plugins = []
+if (process.env.NODE_ENV === 'production') {
+    plugins = [
+        new UglifyJsPlugin({
+            uglifyOptions: {
+                warnings: false,
+                cache: false,
+                sourceMap: false,
+                ecma: 8,
+                parallel: true,
+                exclude: [/node_modules/, /proto/],
+                compress: {
+                    drop_debugger: true,
+                    drop_console: true
+                }
+            }
+        }),
+        new CompressionPlugin({
+            test: /\.js$|\.html$|\.css/, // 匹配文件名
+            threshold: 10240, // 对超过10k的数据进行压缩
+            deleteOriginalAssets: false // 是否删除原文件
+        }),
+        // new MiniCssExtractPlugin({
+        //     filename: `css/[name].${process.env.VUE_APP_Version}.css`,
+        //     chunkFilename: `css/[name].${process.env.VUE_APP_Version}.css`
+        // })
+    ]
+}
 module.exports = {
     publicPath: process.env.VUE_APP_BASE_URL,
     outputDir: 'dist',
@@ -43,12 +71,7 @@ module.exports = {
             chunkFilename: `js/[name].[chunkhash:8].js`
         },
         // 修改打包后css文件名
-        // plugins: [
-        //     new MiniCssExtractPlugin({
-        //         filename: `css/[name].[contenthash:8].css`,
-        //         chunkFilename: `css/[name].[contenthash:8].css`
-        //     })
-        // ],
+        plugins: plugins,
         optimization: {
             splitChunks: {
                 minSize: 200000,
@@ -87,23 +110,10 @@ module.exports = {
         if (process.env.NODE_ENV === 'production') {
             // 清除css hash版本号
             config.plugin('extract-css').tap(args => [{
-                filename: `css/[name].css`,
-                chunkFilename: `css/[name].css`
+                filename: `css/[name].[contenthash:8].css`,
+                chunkFilename: `css/[name].[contenthash:8].css`
             }])
         }
-        // if(PROANDPROD){
-        //     config.plugin('html')
-        //     .tap(args => {
-        //         args[0].cdn = PROJSCDN;
-        //         return args;
-        //     })
-        // }else{
-        //     config.plugin('html')
-        //     .tap(args => {
-        //         args[0].cdn = TESTJSCDN;
-        //         return args;
-        //     })
-        // }
         // config.plugin('copy').tap(args => {
         //     args[0][0].ignore = ['.DS_Store']
         //     return args
